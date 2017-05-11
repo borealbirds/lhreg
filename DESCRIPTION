@@ -1,0 +1,15 @@
+Package: lhreg
+Type: Package
+Title: Phylogeny and Species Trait Effects on Detectability
+Version: 0.0-1
+Date: 2017-05-07
+Author: Peter Solymos [cre, aut]
+Maintainer: Peter Solymos <solymos@ualberta.ca>
+Description: Phylogeny and species trait effects on detectability.
+URL: https://github.com/borealbirds/lhreg
+BugReports: https://github.com/borealbirds/lhreg/issues
+Depends: Matrix, DEoptim, mvtnorm
+Suggests: knitr
+License: GPL-2
+LazyLoad: yes
+LazyData: true
