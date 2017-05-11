@@ -1,0 +1,15 @@
+---
+title: "Phylogeny and Species Trait Effects on Detectability"
+author: "Peter Solymos"
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Not an Introduction to knitr}
+output: knitr:::html_vignette
+---
+
+Text
+
+```{r}
+1 + 2
+```
