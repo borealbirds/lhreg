@@ -1,5 +1,10 @@
 \name{lhreg}
 \alias{lhreg}
+\alias{logLik.lhreg}
+\alias{summary.lhreg}
+\alias{profile_lambda1}
+\alias{loo1}
+\alias{loo2}
 \title{
 Phylogeny and Species Trait Effects on Detectability
 }
