@@ -4,7 +4,7 @@ author: "Peter Solymos"
 date: "`r Sys.Date()`"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Not an Introduction to knitr}
+  %\VignetteIndexEntry{Phylogeny and Species Trait Effects on Detectability}
 output: knitr:::html_vignette
 ---
 
