@@ -16,12 +16,12 @@ lhreg(Y, X, SE, V, init=NULL, lambda=NA, method="Nelder-Mead",
     hessian=FALSE, DElimit=10, eval=FALSE)
 
 \method{logLik}{lhreg}(object, ...)
-\method{summary}{lhreg}function(object, ...)
+\method{summary}{lhreg}(object, ...)
 
 profile_lambda1(object, value, ...)
 
-loo1(i, mm)
-loo2(i, mm)
+loo1(i, object)
+loo2(i, object)
 }
 \arguments{
   \item{Y}{response vector.}

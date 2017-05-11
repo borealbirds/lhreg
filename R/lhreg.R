@@ -127,10 +127,10 @@ loo2 <-
 function(i, object)
 {
     remod <- lhreg(Y=object$Y[-i], X=object$X[-i,,drop=FALSE], SE=object$SE[-i],
-        V=vc[-i,-i,drop=FALSE], lambda=object$lambda, hessian=FALSE, method=met,
-        init=object$coef)
+        V=object$V[-i,-i,drop=FALSE], lambda=object$lambda, hessian=FALSE,
+        method=object$method, init=object$coef)
 
-    VV <- remod$summary["sigma",1]^2 * vc
+    VV <- remod$summary["sigma",1]^2 * object$V
     VV[lower.tri(VV)] <- remod$summary["lambda",1] * VV[lower.tri(VV)]
     VV[upper.tri(VV)] <- remod$summary["lambda",1] * VV[upper.tri(VV)]
 

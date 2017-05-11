@@ -1,6 +1,6 @@
 \name{cor_matrix}
 \alias{cor_matrix}
-\docType{cor_matrix}
+\docType{data}
 \title{
 Phylogenetic Correlation Matrix
 }

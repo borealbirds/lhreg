@@ -1,6 +1,6 @@
 \name{lhreg_data}
 \alias{lhreg_data}
-\docType{lhreg_data}
+\docType{data}
 \title{
 Life History Traits
 }
