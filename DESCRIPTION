@@ -9,7 +9,7 @@ Description: Phylogeny and species trait effects on detectability.
 URL: https://github.com/borealbirds/lhreg
 BugReports: https://github.com/borealbirds/lhreg/issues
 Depends: Matrix, DEoptim, mvtnorm
-Suggests: knitr, rmarkdown, ape
+Suggests: knitr, rmarkdown, ape, parallel
 VignetteBuilder: knitr
 License: GPL-2
 LazyLoad: yes

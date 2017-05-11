@@ -9,3 +9,9 @@ Here is how to grap the package:
 ```R
 devtools::install_github("borealbirds/lhreg")
 ```
+
+Check out the vignette:
+
+```R
+vignette(topic = "lhreg", package = "lhreg")
+```
