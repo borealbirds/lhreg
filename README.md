@@ -4,7 +4,7 @@
 
 A package to reproduce analysis from a manuscript.
 
-Here is how to grap the package:
+Here is how to grab the package:
 
 ```R
 devtools::install_github("borealbirds/lhreg")

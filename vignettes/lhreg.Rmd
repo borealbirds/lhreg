@@ -266,5 +266,5 @@ MSEp <- SSEp / n
 ## Results
 
 ```{r}
-#load(system.file("extdata", "lhreg-results-DE.Rdata", package = "lhreg"))
+#load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
 ```
