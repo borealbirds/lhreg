@@ -31,7 +31,7 @@ loo2(i, object)
   \item{init}{initial values or \code{NULL}.}
   \item{lambda}{phylogeny strength, non-negative,
     \code{NA} means it is not fixed value but estimated.}
-  \item{method}{method argument accepted by \link{\code{optim}},
+  \item{method}{method argument accepted by \code{\link{optim}},
     or \code{"DE"} when DEoptim is called.}
   \item{hessian}{logical, if the Hessian needs to be estimated at MLE.}
   \item{DElimit}{limit for DEoptim search (used as [-DElimit, +DElimit])
@@ -66,7 +66,7 @@ corresponding prediction based on correlated mixed-effects model.
 Peter Solymos <solymos@ualberta.ca>
 }
 \seealso{
-\link{\code{optim}}, \link{\code{DEoptim}}
+\code{\link{optim}}, \code{\link{DEoptim}}
 }
 \examples{
 1 + 2
