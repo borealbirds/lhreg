@@ -1,2 +1,3 @@
-# lhreg
-Phylogeny and species trait effects on detectability
+# lhreg: Phylogeny and species trait effects on detectability
+
+A package to reproduce analysis from a manuscript.
