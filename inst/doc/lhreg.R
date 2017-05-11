@@ -1,13 +1,13 @@
-## ----eval=FALSE,results='hide'-------------------------------------------
+## ----update-stuff,eval=FALSE,results='hide',echo=FALSE-------------------
 #  devtools::install_github("borealbirds/lhreg")
 #  devtools::build_vignettes("~/repos/lhreg")
 
-## ------------------------------------------------------------------------
+## ----trait-data----------------------------------------------------------
 library(lhreg)
 data(lhreg_data)
 str(lhreg_data)
 
-## ----eval=FALSE----------------------------------------------------------
+## ----phylo-corr,eval=FALSE-----------------------------------------------
 #  library(ape)
 #  mph <- read.nexus("11960.tre") # 1000 trees with Ericson backbone
 #  cph <- consensus(mph)
@@ -28,12 +28,12 @@ str(lhreg_data)
 #  vvv <- vvv[spp,spp]
 #  cor_matrix <- as.matrix(nearPD(vvv, corr=TRUE)$mat)
 
-## ------------------------------------------------------------------------
+## ----heatmap-------------------------------------------------------------
 data(cor_matrix)
 str(cor_matrix)
 heatmap(cor_matrix)
 
-## ------------------------------------------------------------------------
+## ----screening-sr--------------------------------------------------------
 y <- lhreg_data$logphi
 m4 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab4, lhreg_data)
 m3 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab3, lhreg_data)
@@ -53,7 +53,7 @@ mpx <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab2 +
 mpx2 <- step(mpx)
 summary(mpx2)
 
-## ------------------------------------------------------------------------
+## ----screening-dd--------------------------------------------------------
 y <- lhreg_data$logtau
 m4 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab4, lhreg_data)
 m3 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab3, lhreg_data)
@@ -73,7 +73,7 @@ mtx <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab2 +
 mtx2 <- step(mtx)
 summary(mtx2)
 
-## ----eval=FALSE----------------------------------------------------------
+## ----models,eval=FALSE---------------------------------------------------
 #  met <- "DE" # can use "SANN", "Nelder-Mead" is quickest
 #  x <- lhreg_data
 #  vc <- cor_matrix
@@ -129,7 +129,7 @@ summary(mtx2)
 #  cbind(aicp, t(sapply(list(pM0, pMp0, pMl0, pMx, pMpx, pMlx),
 #      function(z) z$summary[c("sigma","lambda"), 1])))
 
-## ----eval=FALSE----------------------------------------------------------
+## ----profile-lik,eval=FALSE----------------------------------------------
 #  library(parallel)
 #  
 #  lam <- seq(0, 2, by=0.01)
@@ -160,7 +160,7 @@ summary(mtx2)
 #  
 #  stopCluster(cl)
 
-## ----eval=FALSE----------------------------------------------------------
+## ----loo,eval=FALSE------------------------------------------------------
 #  ## makes sense to use lm for EDR LOO
 #  tM0$coef
 #  c(coef(mt0), log(summary(mt0)$sigma))
@@ -208,6 +208,175 @@ summary(mtx2)
 #  MSEt <- SSEt / n
 #  MSEp <- SSEp / n
 
-## ------------------------------------------------------------------------
-#load(system.file("extdata", "lhreg-results-DE.Rdata", package = "lhreg"))
+## ----load-results--------------------------------------------------------
+load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
+
+Crit <- -0.5*qchisq(0.95, 1)
+ltmp <- seq(0, 1, by=0.0001)
+## red-yl-blue
+Col <- c("#2C7BB6", "#6BAACF", "#ABD9E9", "#D4ECD3", "#FFFFBF", "#FED690",
+    "#FDAE61", "#EA633E", "#D7191C")
+Col1 <- Col[1]
+Col2 <- rgb(171/255, 217/255, 233/255, 0.5) # Col[3]
+Col3 <- Col[9]
+Col4 <- rgb(253/255, 174/255, 97/255, 0.5) # Col[7]
+prt <- exp(pr_tMx)
+prp <- exp(pr_pMlx)
+
+## ----table-1-------------------------------------------------------------
+ff <- function(z) {
+    zz <- z$summary
+
+    pcut <- function(p) {
+        factor(c("***", "**", "*", "+", "ns")[as.integer(cut(p,
+            c(1, 0.1, 0.05, 0.01, 0.001, 0), include.lowest=TRUE, right=FALSE))],
+            levels=c("***", "**", "*", "+", "ns"))
+    }
+    structure(sapply(1:nrow(zz), function(i)
+        paste0(round(zz[i,1], 3), " (SE +/- ", round(zz[i,2], 3), pcut(zz[i,4]), ")")),
+        names=rownames(zz))
+}
+zzz <- lapply(list(pM0, pMp0, pMl0, pMx, pMpx, pMlx), ff)
+m <- matrix("", length(zzz[[6]]), 6)
+rownames(m) <- names(zzz[[6]])
+colnames(m) <- c("M0", "Mp0", "Ml0", "Mx", "Mpx", "Mlx")
+for (i in 1:6) {
+    j <- match(names(zzz[[i]]), rownames(m))
+    m[j,i] <- zzz[[i]]
+}
+ii <- grep("(SE +/- NANA)", m,fixed=TRUE)
+m[ii] <- gsub("(SE +/- NANA)", "(fixed)", m[ii], fixed=TRUE)
+m[m==""] <- "n/a"
+m1 <- m
+
+zzz <- lapply(list(tM0, tMp0, tMl0, tMx, tMpx, tMlx), ff)
+m <- matrix("", length(zzz[[6]]), 6)
+rownames(m) <- names(zzz[[6]])
+colnames(m) <- c("M0", "Mp0", "Ml0", "Mx", "Mpx", "Mlx")
+for (i in 1:6) {
+    j <- match(names(zzz[[i]]), rownames(m))
+    m[j,i] <- zzz[[i]]
+}
+ii <- grep("(SE +/- NANA)", m,fixed=TRUE)
+m[ii] <- gsub("(SE +/- NANA)", "(fixed)", m[ii], fixed=TRUE)
+m[m==""] <- "n/a"
+m2 <- m
+
+m1 <- rbind(m1, df=aicp$df, dAIC=round(aicp$dAIC, 3),
+    XV_MSE=round(MSEp, 3))
+m2 <- rbind(m2, df=aict$df, dAIC=round(aict$dAIC, 3),
+    XV_MSE=round(MSEt, 3))
+
+print.default(m1, quote=FALSE) # SR results
+print.default(m2, quote=FALSE) # DD results
+
+## ----fig-1,width=14,height=6---------------------------------------------
+#pdf("Fig1.pdf", width=14, height=6)
+op <- par(mfrow=c(1,2))
+
+Res1 <- pl_pMl0
+Res2 <- pl_pMlx
+yv <- exp(Res1-max(Res1))
+plot(lam, yv, type="n", lwd=1, ylim=exp(c(2*Crit, 0)),
+    xlab=expression(lambda), ylab="Profile Likelihood Ratio")
+tmp1 <- splinefun(lam, yv)(ltmp)
+i1 <- tmp1 > exp(Crit)
+yv <- exp(Res2-max(Res2))
+tmp2 <- splinefun(lam, yv)(ltmp)
+i2 <- tmp2 > exp(Crit)
+polygon(c(ltmp[i1], rev(ltmp[i1])),
+    c(tmp1[i1], rep(-1, sum(i1))),
+    col=Col2, border=NA)
+polygon(c(ltmp[i2], rev(ltmp[i2])),
+    c(tmp2[i2], rep(-1, sum(i2))),
+    col=Col4, border=NA)
+abline(h=exp(Crit), col="grey")
+lines(ltmp, tmp1, col=Col1, lwd=1)
+lines(ltmp[i1], tmp1[i1], col=Col1, lwd=3)
+lines(rep(ltmp[which.max(tmp1)], 2), c(1, -1), col=Col1)
+lines(ltmp, tmp2, col=Col3, lwd=1)
+lines(ltmp[i2], tmp2[i2], col=Col3, lwd=3)
+lines(rep(ltmp[which.max(tmp2)], 2), c(1, -1), col=Col3)
+box()
+legend(0.1, 1, bty="n", border=c(Col1, Col3), fill=c(Col2, Col4), pt.cex=2, pt.lwd=2,
+    legend=c(expression(M[lambda*0]-SR), expression(M[lambda*beta]-SR)))
+round(c(Max_Ml0=ltmp[which.max(tmp1)], CI=range(ltmp[i1])), 3)
+round(c(Max_Mlx=ltmp[which.max(tmp2)], CI=range(ltmp[i2])), 3)
+
+Res1 <- pl_tMl0
+Res2 <- pl_tMlx
+yv <- exp(Res1-max(Res1))
+plot(lam, yv, type="n", lwd=1, ylim=exp(c(2*Crit, 0)),
+    xlab=expression(lambda), ylab="Profile Likelihood Ratio")
+tmp1 <- splinefun(lam, yv)(ltmp)
+i1 <- tmp1 > exp(Crit)
+yv <- exp(Res2-max(Res2))
+tmp2 <- splinefun(lam, yv)(ltmp)
+i2 <- tmp2 > exp(Crit)
+polygon(c(ltmp[i1], rev(ltmp[i1])),
+    c(tmp1[i1], rep(-1, sum(i1))),
+    col=Col2, border=NA)
+polygon(c(ltmp[i2], rev(ltmp[i2])),
+    c(tmp2[i2], rep(-1, sum(i2))),
+    col=Col4, border=NA)
+abline(h=exp(Crit), col="grey")
+lines(ltmp, tmp1, col=Col1, lwd=1)
+lines(ltmp[i1], tmp1[i1], col=Col1, lwd=3)
+lines(rep(ltmp[which.max(tmp1)], 2), c(1, -1), col=Col1)
+lines(ltmp, tmp2, col=Col3, lwd=1)
+lines(ltmp[i2], tmp2[i2], col=Col3, lwd=3)
+lines(rep(ltmp[which.max(tmp2)], 2), c(1, -1), col=Col3)
+box()
+legend(0.1, 1, bty="n", border=c(Col1, Col3), fill=c(Col2, Col4), pt.cex=2, pt.lwd=2,
+    legend=c(expression(M[lambda*0]-DD), expression(M[lambda*beta]-DD)))
+round(c(Max_Ml0=ltmp[which.max(tmp1)], CI=range(ltmp[i1])), 3)
+round(c(Max_Mlx=ltmp[which.max(tmp2)], CI=range(ltmp[i2])), 3)
+
+par(op)
+
+#dev.off()
+
+## ----fig-2,width=14,height=7---------------------------------------------
+#pdf("Fig2.pdf", width=14, height=7)
+
+op <- par(mfrow=c(1,2))
+
+Max <- 0.7
+plot(prp, xaxs = "i", yaxs = "i", type="n",
+    ylim=c(0, Max), xlim=c(0, Max),
+    xlab="Time-removal SR Estimate", ylab="LOO SR Estimate")
+abline(0,1,lty=1, col=1)
+abline(0,2,lty=2, col="grey")
+abline(0,1/2,lty=2, col="grey")
+abline(0,1.5,lty=2, col="grey")
+abline(0,1/1.5,lty=2, col="grey")
+points(prp, xaxs = "i", yaxs = "i",
+    col=c(Col1,Col3)[as.integer(x$Mig2)],
+    cex=0.2+2*x$MaxFreqkHz/10)
+box()
+legend("topleft", pch=21, col=c(Col1,Col3,1,1),
+    pt.cex=c(1.5,1.5,2,1), bty="n",
+    legend=c("Migrant", "Resident", "Song Picth: High", "Song Pitch: Low"))
+text(0.9*Max, 0.05*Max, expression(M[lambda*beta]-SR))
+
+Max <- 2.1
+plot(prt, xaxs = "i", yaxs = "i", type="n",
+    ylim=c(0, Max), xlim=c(0, Max),
+    xlab="Distance-sampling DD Estimate", ylab="LOO DD Estimate")
+abline(0,1,lty=1, col=1)
+abline(0,2,lty=2, col="grey")
+abline(0,1/2,lty=2, col="grey")
+abline(0,1.5,lty=2, col="grey")
+abline(0,1/1.5,lty=2, col="grey")
+points(prt, xaxs = "i", yaxs = "i",
+    cex=0.2+2*x$logmass/5,
+    col=c(Col1,Col3)[as.integer(x$Hab2)])
+box()
+legend("topleft", pch=21, col=c(Col1,Col3,1,1), pt.cex=c(1.5,1.5,2,1), bty="n",
+    legend=c("Habitat: Closed", "Habitat: Open", "Body Mass: Large", "Body Mass: Small"))
+text(0.9*Max, 0.05*Max, expression(M[0*beta]-DD))
+
+par(op)
+
+#dev.off()
 
