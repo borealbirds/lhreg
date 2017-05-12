@@ -36,7 +36,7 @@ Explain source, how it was derived:
 ```{r phylo-corr,eval=FALSE}
 library(ape)
 mph <- read.nexus("11960.tre") # 1000 trees with Ericson backbone
-cph <- consensus(mph)
+lhreg_tree <- consensus(mph)
 table(sapply(mph, function(z) length(z$tip.label)))
 CORR <- TRUE
 vv <- list()
@@ -479,30 +479,42 @@ function (r, tau)
 {
     tau^2 * (1 - exp(-r^2/tau^2))/r^2
 }
-
-tree <- vcv2phylo(cor_matrix)
-B <- 100
-tt <- 10
-rr <- 1
-NS <- length(pqo)
-
-po <- sr_fun(tt, exp(lhreg_data$logphi))
-qo <- dd_fun(rr, exp(lhreg_data$logtau))
-pqo <- po *qo
-summary(pqo)
-ro <- t(replicate(B, rbinom(NS, 1, pqo)))
-colnames(ro) <- rownames(lhreg_data)
-pdo <- pd(ro, tree)
-
 r_fun1 <- function() {
     r0 <- t(replicate(1, rbinom(NS, 1, pqo[sample.int(NS)])))
+    #r0 <- t(replicate(1, ifelse(pqo[sample.int(NS)]>0.5,1,0)))
     colnames(r0) <- rownames(lhreg_data)
-    pd(r0, tree0)
+    pd(r0, tree)
 }
 r_fun <- function()
     do.call(rbind, lapply(1:B, function(x) r_fun1()))
+
+tree <- vcv2phylo(cor_matrix)
+B <- 100
+tt <- 3
+rr <- 1
+
+po <- sr_fun(tt, exp(lhreg_data$logphi))
+qo <- dd_fun(rr, exp(lhreg_data$logtau))
+pq <- po *qo
+NS <- length(pqo)
+summary(pq)
+plot(data.frame(p=po, q=qo, pq=pq))
+
+pqo <- po
+#pqo <- qo
+#pqo <- pq
+
+ro <- t(replicate(B, rbinom(NS, 1, pqo)))
+#ro <- t(replicate(B, ifelse(pqo>0.5,1,0)))
+colnames(ro) <- rownames(lhreg_data)
+pdo <- pd(ro, tree)
+pd0 <- r_fun()
+
 summary(pdo)
-summary(r_fun())
+summary(pd0)
+
+
+
 
 simp <- exp(simulate(pMlx, B))
 simt <- exp(simulate(tMlx, B))
@@ -553,5 +565,117 @@ ff <- function(lam) {
 summary(ff(0))
 summary(ff(0.5))
 summary(ff(1))
+
+tree <- vcv2phylo(cor_matrix)
+Mp <- lhreg(Y=qlogis(po), X=X0, SE=0, V=vc, lambda=NA, hessian=TRUE, method="DE")
+Mq <- lhreg(Y=qlogis(qo), X=X0, SE=0, V=vc, lambda=NA, hessian=TRUE, method="DE")
+Mpq <- lhreg(Y=qlogis(pq), X=X0, SE=0, V=vc, lambda=NA, hessian=TRUE, method="DE")
+
+summary(Mp)
+summary(Mq)
+summary(Mpq)
+
+tree2 <- rtree(141, tip.label=rownames(lhreg_data))
+vc2 <- vcv(tree2, corr=TRUE)
+rMp <- lhreg(Y=qlogis(po), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
+rMq <- lhreg(Y=qlogis(qo), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
+rMpq <- lhreg(Y=qlogis(pq), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
+
+summary(rMp)
+summary(rMq)
+summary(rMpq)
+
+pd_quick <-
+function (samp, tree) 
+{
+    species <- colnames(samp)
+    nlocations = dim(samp)[1]
+    nspecies = dim(samp)[2]
+    PDs = rep(0, nlocations)
+    for (i in 1:nlocations) {
+        present <- species[samp[i, ] > 0]
+        treeabsent <- tree$tip.label[which(!(tree$tip.label %in% 
+            present))]
+        if (length(present) == 0) {
+            PD <- 0
+        } else if (length(present) == 1) {
+                PD <- node.age(tree)$ages[which(tree$edge[, 2] == 
+                  which(tree$tip.label == present))]
+        } else if (length(treeabsent) == 0) {
+            PD <- sum(tree$edge.length)
+        } else {
+            sub.tree <- drop.tip(tree, treeabsent)
+            sub.tree.depth <- max(node.age(sub.tree)$ages)
+            orig.tree.depth <- max(node.age(tree)$ages[which(tree$edge[, 
+              2] %in% which(tree$tip.label %in% present))])
+            PD <- sum(sub.tree$edge.length) + (orig.tree.depth - 
+              sub.tree.depth)
+        }
+        PDs[i] <- PD
+    }
+    PDs
+}
+
+f <- function(lam=0, M, T) {
+    VV <- M$V
+    VV[lower.tri(VV)] <- lam * VV[lower.tri(VV)]
+    VV[upper.tri(VV)] <- lam * VV[upper.tri(VV)]
+    sim <- plogis(mvtnorm::rmvnorm(B, M$Y, VV))
+    #sim <- plogis(simulate(M, B, lambda=lam))
+    colnames(sim) <- rownames(lhreg_data)
+    pd(ifelse(sim > 0.5, 1, 0), T)$PD
+}
+
+f <- function(lam=0, mu, T) {
+    VV <- vcv(T, corr=TRUE)
+    VV[lower.tri(VV)] <- lam * VV[lower.tri(VV)]
+    VV[upper.tri(VV)] <- lam * VV[upper.tri(VV)]
+    sim <- plogis(mvtnorm::rmvnorm(B, mu, VV))
+    colnames(sim) <- rownames(lhreg_data)
+    pd(ifelse(sim > 0.5, 1, 0), T)$PD
+    #pd_quick(ifelse(sim > 0.5, 1, 0), T)
+}
+
+B <- 200
+pdp <- lapply(c(0,0.5,1), f, mu=po, T=tree)
+pdq <- lapply(c(0,0.5,1), f, mu=qo, T=tree)
+pdpq <- lapply(c(0,0.5,1), f, mu=pq, T=tree)
+
+rpdp <- lapply(c(0,0.5,1), f, mu=po, T=tree2)
+rpdq <- lapply(c(0,0.5,1), f, mu=qo, T=tree2)
+rpdpq <- lapply(c(0,0.5,1), f, mu=pq, T=tree2)
+
+MAX <- max(unlist(pdp), unlist(pdq), unlist(pdpq),
+    unlist(rpdp), unlist(rpdq), unlist(rpdpq))
+
+par(mfrow=c(2,3))
+
+plot(density(pdp[[1]]), xlim=c(0,MAX), main="lambda=0")
+lines(density(pdp[[2]]), col=2)
+lines(density(pdp[[3]]), col=4)
+plot(density(pdq[[1]]), xlim=c(0,MAX), main="lambda=0.5")
+lines(density(pdq[[2]]), col=2)
+lines(density(pdq[[3]]), col=4)
+plot(density(pdpq[[1]]), xlim=c(0,MAX), main="lambda=1")
+lines(density(pdpq[[2]]), col=2)
+lines(density(pdpq[[3]]), col=4)
+
+plot(density(rpdp[[1]]), xlim=c(0,MAX), main="lambda=0")
+lines(density(rpdp[[2]]), col=2)
+lines(density(rpdp[[3]]), col=4)
+plot(density(rpdq[[1]]), xlim=c(0,MAX), main="lambda=0.5")
+lines(density(rpdq[[2]]), col=2)
+lines(density(rpdq[[3]]), col=4)
+plot(density(rpdpq[[1]]), xlim=c(0,MAX), main="lambda=1")
+lines(density(rpdpq[[2]]), col=2)
+lines(density(rpdpq[[3]]), col=4)
+
+
+rx <- lapply(c(0,0.5,1), f, mu=rep(0.5, NS), T=tree)
+par(mfrow=c(1,1))
+plot(density(rx[[1]]), xlim=c(0,max(unlist(rx))), main="lambda=0")
+lines(density(rx[[2]]), col=2)
+lines(density(rx[[3]]), col=4)
+
 ```
 
