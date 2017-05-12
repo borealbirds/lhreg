@@ -482,8 +482,27 @@ function (r, tau)
 
 tree <- vcv2phylo(cor_matrix)
 B <- 100
-tt <- 3
+tt <- 10
 rr <- 1
+NS <- length(pqo)
+
+po <- sr_fun(tt, exp(lhreg_data$logphi))
+qo <- dd_fun(rr, exp(lhreg_data$logtau))
+pqo <- po *qo
+summary(pqo)
+ro <- t(replicate(B, rbinom(NS, 1, pqo)))
+colnames(ro) <- rownames(lhreg_data)
+pdo <- pd(ro, tree)
+
+r_fun1 <- function() {
+    r0 <- t(replicate(1, rbinom(NS, 1, pqo[sample.int(NS)])))
+    colnames(r0) <- rownames(lhreg_data)
+    pd(r0, tree0)
+}
+r_fun <- function()
+    do.call(rbind, lapply(1:B, function(x) r_fun1()))
+summary(pdo)
+summary(r_fun())
 
 simp <- exp(simulate(pMlx, B))
 simt <- exp(simulate(tMlx, B))
@@ -496,7 +515,8 @@ simp2 <- exp(simulate(pMlx, B, lambda=0))
 simt2 <- exp(simulate(tMlx, B, lambda=0))
 
 pq2 <- sr_fun(tt, simp2) * dd_fun(rr, simt2)
-pd2 <- pd(ifelse(pq2 > 0.5, 1, 0), tree)
+pq20 <- ifelse(pq2 > 0.5, 1, 0)
+pd2 <- pd(pq20, tree)
 summary(pd2)
 
 f <- function(lam=0) {
