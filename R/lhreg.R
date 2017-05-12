@@ -151,3 +151,29 @@ function(i, object)
     mu12 <- drop(mu1 + Sig12 %*% solve(Sig22) %*% (y2-mu2))
     c(est=y[i], pred=mu12)
 }
+
+simulate.lhreg <-
+function(object, nsim = 1, seed = NULL, lambda = NA, obs_error = FALSE, ...)
+{
+    if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
+        runif(1)
+    if (is.null(seed))
+        RNGstate <- get(".Random.seed", envir = .GlobalEnv)
+    else {
+        R.seed <- get(".Random.seed", envir = .GlobalEnv)
+        set.seed(seed)
+        RNGstate <- structure(seed, kind = as.list(RNGkind()))
+        on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
+    }
+    if (nsim < 1)
+        stop("'nsim' must be at least 1")
+    lam <- if (is.na(lambda))
+        object$summary["lambda",1] else lambda
+    VV <- object$summary["sigma",1]^2 * object$V
+    VV[lower.tri(VV)] <- lam * VV[lower.tri(VV)]
+    VV[upper.tri(VV)] <- lam * VV[upper.tri(VV)]
+    if (obs_error)
+        diag(VV) <- diag(VV) + object$SE
+    mu <- drop(object$X %*% object$coef[1:ncol(object$X)])
+    mvtnorm::rmvnorm(nsim, mu, VV, ...)
+}

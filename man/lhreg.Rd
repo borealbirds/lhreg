@@ -2,6 +2,7 @@
 \alias{lhreg}
 \alias{logLik.lhreg}
 \alias{summary.lhreg}
+\alias{simulate.lhreg}
 \alias{profile_lambda1}
 \alias{loo1}
 \alias{loo2}
@@ -17,7 +18,8 @@ lhreg(Y, X, SE, V, init=NULL, lambda=NA, method="Nelder-Mead",
 
 \method{logLik}{lhreg}(object, ...)
 \method{summary}{lhreg}(object, ...)
-
+\method{simulate}{lhreg}(object, nsim = 1, seed = NULL,
+    lambda = NA, obs_error = FALSE, ...)
 profile_lambda1(object, value, ...)
 
 loo1(i, object)
@@ -42,6 +44,7 @@ loo2(i, object)
   \item{value}{fixed value for \code{lambda}
     in profile likelihood calculations.}
   \item{i}{index of observations to drop for cross-validation.}
+  \item{obs_error}{logical, if observation error is to be taken into account.}
   \item{\dots}{other arguments passed to underlying functions.}
 }
 \details{
@@ -52,6 +55,8 @@ See Examples and Vignettes for details.
 
 The \code{summary} method returns a summary for the input object.
 The \code{logLik} method returns the log-likelihood.
+The \code{simulate} method returns the random deviates
+under a multivariate normal model.
 
 \code{profile_lambda1} returns log-likelihood based on fixed lambda profile
 likelihood.
@@ -69,6 +74,6 @@ Peter Solymos <solymos@ualberta.ca>
 \code{\link{optim}}, \code{\link{DEoptim}}
 }
 \examples{
-1 + 2
+## add examples
 }
 \keyword{ models }

@@ -78,6 +78,11 @@ m2s <- step(m2, trace=0)
 AIC(m4,m3,m2,m4s,m3s,m2s)
 summary(m2s)
 mp <- update(m2s, .~.-Nesthm)
+
+amp <- anova(mp)
+round(structure(100 * amp[,"Sum Sq"] / sum(amp[,"Sum Sq"]),
+    names=rownames(amp)), 1)
+
 mp0 <- lm(y ~ 1)
 summary(mp0) # null model for SR
 summary(mp) # full model for SR
@@ -101,6 +106,11 @@ m2s <- step(m2, trace=0)
 AIC(m4,m3,m2,m4s,m3s,m2s)
 summary(m2s)
 mt <- update(m2s, .~.-Nesthm)
+
+amt <- anova(mt)
+round(structure(100 * amt[,"Sum Sq"] / sum(amt[,"Sum Sq"]),
+    names=rownames(amt)), 1)
+
 mt0 <- lm(y ~ 1)
 summary(mp0) # null model for DD
 summary(mp) # full model for DD
@@ -452,5 +462,76 @@ text(0.9*Max, 0.05*Max, expression(M[0*beta]-DD))
 par(op)
 
 #dev.off()
+```
+
+## Assessing bias
+
+```{r eval=FALSE}
+library(picante)
+
+sr_fun <-
+function (t, phi) 
+{
+    1 - exp(-t * phi)
+}
+dd_fun <-
+function (r, tau) 
+{
+    tau^2 * (1 - exp(-r^2/tau^2))/r^2
+}
+
+tree <- vcv2phylo(cor_matrix)
+B <- 100
+tt <- 3
+rr <- 1
+
+simp <- exp(simulate(pMlx, B))
+simt <- exp(simulate(tMlx, B))
+
+pq <- sr_fun(tt, simp) * dd_fun(rr, simt)
+pd <- pd(ifelse(pq > 0.5, 1, 0), tree)
+summary(pd)
+
+simp2 <- exp(simulate(pMlx, B, lambda=0))
+simt2 <- exp(simulate(tMlx, B, lambda=0))
+
+pq2 <- sr_fun(tt, simp2) * dd_fun(rr, simt2)
+pd2 <- pd(ifelse(pq2 > 0.5, 1, 0), tree)
+summary(pd2)
+
+f <- function(lam=0) {
+    simp2 <- exp(simulate(pMpx, B, lambda=lam))
+    simt2 <- exp(simulate(tMpx, B, lambda=lam))
+    pq2 <- sr_fun(tt, simp2) * dd_fun(rr, simt2)
+    pd(ifelse(pq2 > 0.5, 1, 0), tree)
+}
+
+ppd <- lapply(c(0,0.5,1), f)
+
+plot(ppd[[1]], col=2, xlim=c(0,100), ylim=c(0,100))
+points(ppd[[2]], col=3)
+points(ppd[[3]], col=4)
+
+par(mfrow=c(3,2))
+hist(ppd[[1]][,1], xlim=c(0,40), col=1)
+hist(ppd[[1]][,2], xlim=c(0,40), col=1)
+hist(ppd[[2]][,1], xlim=c(0,40), col=2)
+hist(ppd[[2]][,2], xlim=c(0,40), col=2)
+hist(ppd[[3]][,1], xlim=c(0,40), col=3)
+hist(ppd[[3]][,2], xlim=c(0,40), col=3)
+
+mup <- rep(mean(lhreg_data$logphi), nrow(lhreg_data))
+mut <- rep(mean(lhreg_data$logtau), nrow(lhreg_data))
+ff <- function(lam) {
+    VV <- cor_matrix
+    VV[lower.tri(VV)] <- lam * VV[lower.tri(VV)]
+    VV[upper.tri(VV)] <- lam * VV[upper.tri(VV)]
+    p <- sr_fun(tt, exp(mvtnorm::rmvnorm(B, mup, VV)))
+    q <- dd_fun(rr, exp(mvtnorm::rmvnorm(B, mut, VV)))
+    pd(ifelse(p*q > 0.5, 1, 0), tree)
+}
+summary(ff(0))
+summary(ff(0.5))
+summary(ff(1))
 ```
 

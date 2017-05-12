@@ -1,5 +1,6 @@
 export(lhreg, profile_lambda1, loo1, loo2)
 S3method(summary, lhreg)
+S3method(simulate, lhreg)
 S3method(logLik, lhreg)
 importFrom(stats, coef, lm, logLik, optim, optimHess, pnorm, printCoefmat, sd)
 importFrom(Matrix, nearPD)
