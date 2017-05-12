@@ -44,6 +44,9 @@ loo2(i, object)
   \item{value}{fixed value for \code{lambda}
     in profile likelihood calculations.}
   \item{i}{index of observations to drop for cross-validation.}
+  \item{nsim}{number of response vectors to simulate. Defaults to 1.}
+  \item{seed}{an object specifying if and how the random number generator should
+    be initialized as described in \code{\link{simulate}}.}
   \item{obs_error}{logical, if observation error is to be taken into account.}
   \item{\dots}{other arguments passed to underlying functions.}
 }
