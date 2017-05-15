@@ -480,34 +480,34 @@ function (r, tau)
     tau^2 * (1 - exp(-r^2/tau^2))/r^2
 }
 r_fun1 <- function() {
-    r0 <- t(replicate(1, rbinom(NS, 1, pqo[sample.int(NS)])))
-    #r0 <- t(replicate(1, ifelse(pqo[sample.int(NS)]>0.5,1,0)))
+    #r0 <- t(replicate(1, rbinom(NS, 1, pqo[sample.int(NS)])))
+    r0 <- t(replicate(1, ifelse(pqo[sample.int(NS)]>0.5,1,0)))
     colnames(r0) <- rownames(lhreg_data)
-    pd(r0, tree)
+    pd(r0, tree)$PD
 }
 r_fun <- function()
     do.call(rbind, lapply(1:B, function(x) r_fun1()))
 
-tree <- vcv2phylo(cor_matrix)
+tree <- compute.brlen(vcv2phylo(cor_matrix))
 B <- 100
-tt <- 3
+tt <- 10
 rr <- 1
 
 po <- sr_fun(tt, exp(lhreg_data$logphi))
 qo <- dd_fun(rr, exp(lhreg_data$logtau))
 pq <- po *qo
-NS <- length(pqo)
+NS <- length(pq)
 summary(pq)
 plot(data.frame(p=po, q=qo, pq=pq))
 
-pqo <- po
+#pqo <- po
 #pqo <- qo
-#pqo <- pq
+pqo <- pq
 
-ro <- t(replicate(B, rbinom(NS, 1, pqo)))
-#ro <- t(replicate(B, ifelse(pqo>0.5,1,0)))
+#ro <- t(replicate(B, rbinom(NS, 1, pqo)))
+ro <- t(replicate(B, ifelse(pqo>0.5,1,0)))
 colnames(ro) <- rownames(lhreg_data)
-pdo <- pd(ro, tree)
+pdo <- pd(ro, tree)$PD
 pd0 <- r_fun()
 
 summary(pdo)
@@ -566,16 +566,19 @@ summary(ff(0))
 summary(ff(0.5))
 summary(ff(1))
 
-tree <- vcv2phylo(cor_matrix)
-Mp <- lhreg(Y=qlogis(po), X=X0, SE=0, V=vc, lambda=NA, hessian=TRUE, method="DE")
-Mq <- lhreg(Y=qlogis(qo), X=X0, SE=0, V=vc, lambda=NA, hessian=TRUE, method="DE")
-Mpq <- lhreg(Y=qlogis(pq), X=X0, SE=0, V=vc, lambda=NA, hessian=TRUE, method="DE")
+tree1 <- vcv2phylo(cor_matrix)
+tree1 <- compute.brlen(tree1)
+vc1 <- vcv(tree1, corr=TRUE)
+Mp <- lhreg(Y=qlogis(po), X=X0, SE=0, V=vc1, lambda=NA, hessian=TRUE, method="DE")
+Mq <- lhreg(Y=qlogis(qo), X=X0, SE=0, V=vc1, lambda=NA, hessian=TRUE, method="DE")
+Mpq <- lhreg(Y=qlogis(pq), X=X0, SE=0, V=vc1, lambda=NA, hessian=TRUE, method="DE")
 
 summary(Mp)
 summary(Mq)
 summary(Mpq)
 
 tree2 <- rtree(141, tip.label=rownames(lhreg_data))
+tree2 <- compute.brlen(tree2)
 vc2 <- vcv(tree2, corr=TRUE)
 rMp <- lhreg(Y=qlogis(po), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
 rMq <- lhreg(Y=qlogis(qo), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
@@ -637,9 +640,9 @@ f <- function(lam=0, mu, T) {
 }
 
 B <- 200
-pdp <- lapply(c(0,0.5,1), f, mu=po, T=tree)
-pdq <- lapply(c(0,0.5,1), f, mu=qo, T=tree)
-pdpq <- lapply(c(0,0.5,1), f, mu=pq, T=tree)
+pdp <- lapply(c(0,0.5,1), f, mu=po, T=tree1)
+pdq <- lapply(c(0,0.5,1), f, mu=qo, T=tree1)
+pdpq <- lapply(c(0,0.5,1), f, mu=pq, T=tree1)
 
 rpdp <- lapply(c(0,0.5,1), f, mu=po, T=tree2)
 rpdq <- lapply(c(0,0.5,1), f, mu=qo, T=tree2)
@@ -671,11 +674,14 @@ lines(density(rpdpq[[2]]), col=2)
 lines(density(rpdpq[[3]]), col=4)
 
 
-rx <- lapply(c(0,0.5,1), f, mu=rep(0.5, NS), T=tree)
+B <- 100
+rx <- sapply(seq(0,1,0.1), f, mu=rep(0.5, NS), T=tree1)
+boxplot(rx)
+
 par(mfrow=c(1,1))
-plot(density(rx[[1]]), xlim=c(0,max(unlist(rx))), main="lambda=0")
-lines(density(rx[[2]]), col=2)
-lines(density(rx[[3]]), col=4)
+plot(density(rx[,1]), xlim=c(0,max(unlist(rx))))
+lines(density(rx[,6]), col=2)
+lines(density(rx[,11]), col=4)
 
 ```
 
