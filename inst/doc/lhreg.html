@@ -434,12 +434,12 @@ mtx2 &lt;-<span class="st"> </span><span class="kw">step</span>(mtx)</code></pre
 <h3>Mixed model selection</h3>
 <p>The following models were compared, the prefix <code>t</code> and <code>p</code> indicates <code>tau</code> (detection distance) and <code>phi</code> (singing rate):</p>
 <ol style="list-style-type: decimal">
-<li><code>M0</code>, null (<code>~1</code>, no phylo, <code>lam=0</code>)</li>
-<li><code>Mp0</code>, phylo only max (<code>~1</code>, <code>lam=1</code>)</li>
-<li><code>Ml0</code>, phylo only est (<code>~1</code>, <code>lam=NA</code>)</li>
-<li><code>Mx</code>, saturated, no phylo (<code>~.</code>, <code>lam=0</code>)</li>
-<li><code>Mpx</code>, saturated, phylo max (<code>~.</code>, <code>lam=1</code>)</li>
-<li><code>Mlx</code>, saturated, phylo est (<code>~.</code>, <code>lam=NA</code>)</li>
+<li><code>M0</code>, null, no phylo, no traits (<code>~1</code>, <code>lam=0</code>)</li>
+<li><code>Mp0</code>, phylo only, <span class="math inline">\(\lambda=1\)</span> (<code>~1</code>, <code>lam=1</code>)</li>
+<li><code>Ml0</code>, phylo only, <span class="math inline">\(lambda\)</span> estimated (<code>~1</code>, <code>lam=NA</code>)</li>
+<li><code>Mx</code>, full trait model, no phylo (<code>~.</code>, <code>lam=0</code>)</li>
+<li><code>Mpx</code>, full trait model, <span class="math inline">\(\lambda=1\)</span> (<code>~.</code>, <code>lam=1</code>)</li>
+<li><code>Mlx</code>, full trait model, <span class="math inline">\(lambda\)</span> estimated (<code>~.</code>, <code>lam=NA</code>)</li>
 </ol>
 <p>In the manuscript, we refer to the following models:</p>
 <ol style="list-style-type: decimal">

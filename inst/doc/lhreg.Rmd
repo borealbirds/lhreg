@@ -164,12 +164,12 @@ summary(mtx2)
 The following models were compared, the prefix `t` and `p`
 indicates `tau` (detection distance) and `phi` (singing rate):
 
-1. `M0`, null (`~1`, no phylo, `lam=0`)
-2. `Mp0`, phylo only max (`~1`, `lam=1`)
-3. `Ml0`, phylo only est (`~1`, `lam=NA`)
-4. `Mx`, saturated, no phylo (`~.`, `lam=0`)
-5. `Mpx`, saturated, phylo max (`~.`, `lam=1`)
-6. `Mlx`, saturated, phylo est (`~.`, `lam=NA`)
+1. `M0`, null, no phylo, no traits (`~1`, `lam=0`)
+2. `Mp0`, phylo only, $\lambda=1$ (`~1`, `lam=1`)
+3. `Ml0`, phylo only, $lambda$ estimated (`~1`, `lam=NA`)
+4. `Mx`, full trait model, no phylo (`~.`, `lam=0`)
+5. `Mpx`, full trait model, $\lambda=1$ (`~.`, `lam=1`)
+6. `Mlx`, full trait model, $lambda$ estimated (`~.`, `lam=NA`)
 
 In the manuscript, we refer to the following models:
 
