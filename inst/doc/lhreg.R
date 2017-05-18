@@ -2,15 +2,26 @@
 #  devtools::install_github("borealbirds/lhreg")
 #  devtools::build_vignettes("~/repos/lhreg")
 
-## ----trait-data----------------------------------------------------------
+## ----install,eval=FALSE,results='hide',echo=FALSE------------------------
+#  devtools::install_github("borealbirds/lhreg")
+
+## ----vignette,eval=FALSE,results='hide',echo=FALSE-----------------------
+#  vignette(topic = "lhreg", package = "lhreg")
+
+## ----trait-data,message=FALSE--------------------------------------------
 library(lhreg)
 data(lhreg_data)
 str(lhreg_data)
+with(lhreg_data, plot(exp(logphi), exp(logtau),
+    cex=logmass*0.5, col=Mig2, pch=c(21, 22)[Hab2]))
+legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2), 
+    legend=c("Migratory/Closed", "Resident/Closed", 
+    "Migratory/Open", "Resident/Open"))
 
 ## ----phylo-corr,eval=FALSE-----------------------------------------------
 #  library(ape)
 #  mph <- read.nexus("11960.tre") # 1000 trees with Ericson backbone
-#  cph <- consensus(mph)
+#  lhreg_tree <- consensus(mph)
 #  table(sapply(mph, function(z) length(z$tip.label)))
 #  CORR <- TRUE
 #  vv <- list()
@@ -29,9 +40,11 @@ str(lhreg_data)
 #  cor_matrix <- as.matrix(nearPD(vvv, corr=TRUE)$mat)
 
 ## ----heatmap-------------------------------------------------------------
+library(ape)
 data(cor_matrix)
 str(cor_matrix)
 heatmap(cor_matrix)
+plot(compute.brlen(vcv2phylo(cor_matrix)), cex=0.5)
 
 ## ----screening-sr--------------------------------------------------------
 y <- lhreg_data$logphi
@@ -44,6 +57,11 @@ m2s <- step(m2, trace=0)
 AIC(m4,m3,m2,m4s,m3s,m2s)
 summary(m2s)
 mp <- update(m2s, .~.-Nesthm)
+
+amp <- anova(mp)
+round(structure(100 * amp[,"Sum Sq"] / sum(amp[,"Sum Sq"]),
+    names=rownames(amp)), 1)
+
 mp0 <- lm(y ~ 1)
 summary(mp0) # null model for SR
 summary(mp) # full model for SR
@@ -64,6 +82,11 @@ m2s <- step(m2, trace=0)
 AIC(m4,m3,m2,m4s,m3s,m2s)
 summary(m2s)
 mt <- update(m2s, .~.-Nesthm)
+
+amt <- anova(mt)
+round(structure(100 * amt[,"Sum Sq"] / sum(amt[,"Sum Sq"]),
+    names=rownames(amt)), 1)
+
 mt0 <- lm(y ~ 1)
 summary(mp0) # null model for DD
 summary(mp) # full model for DD

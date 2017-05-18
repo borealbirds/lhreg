@@ -29,13 +29,13 @@ The package is archived on Zenodo under the DOI [10.5281/zenodo.574886](https://
 
 The package can be installed as:
 
-```{r update-stuff,eval=FALSE,results='hide',echo=FALSE}
+```{r install,eval=FALSE,results='hide',echo=FALSE}
 devtools::install_github("borealbirds/lhreg")
 ```
 
 The present document can be viewed as:
 
-```{r update-stuff,eval=FALSE,results='hide',echo=FALSE}
+```{r vignette,eval=FALSE,results='hide',echo=FALSE}
 vignette(topic = "lhreg", package = "lhreg")
 ```
 
