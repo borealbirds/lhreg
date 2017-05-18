@@ -2,10 +2,10 @@
 #  devtools::install_github("borealbirds/lhreg")
 #  devtools::build_vignettes("~/repos/lhreg")
 
-## ----install,eval=FALSE,results='hide',echo=FALSE------------------------
+## ----install,eval=FALSE--------------------------------------------------
 #  devtools::install_github("borealbirds/lhreg")
 
-## ----vignette,eval=FALSE,results='hide',echo=FALSE-----------------------
+## ----vignette,eval=FALSE-------------------------------------------------
 #  vignette(topic = "lhreg", package = "lhreg")
 
 ## ----trait-data,message=FALSE--------------------------------------------
@@ -44,6 +44,8 @@ library(ape)
 data(cor_matrix)
 str(cor_matrix)
 heatmap(cor_matrix)
+
+## ----phylo-tree,fig.height=12,fig.width=7--------------------------------
 plot(compute.brlen(vcv2phylo(cor_matrix)), cex=0.5)
 
 ## ----screening-sr--------------------------------------------------------
