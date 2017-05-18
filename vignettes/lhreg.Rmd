@@ -15,23 +15,54 @@ devtools::build_vignettes("~/repos/lhreg")
 
 ## Introduction
 
-Explain what this Vignette is about, as a Supporting Info.
+This document is a supporting material for the manuscript entitled 
+*Phylogeny and species traits predict songbird detectability* by
+Peter Solymos, Steven M. Matsuoka, Diana Stralberg, Erin M. Bayne, and Nicole K. S. Barker.
 
-## Data processing
+The **lhreg** R package contain the (1) data, (2) analysis code used in the manuscript,
+and (3) code required to summarize the results and produce tables and figures.
+
+The R package is hosted on [GitHub](https://github.com/borealbirds/lhreg),
+Please submit issues [here](https://github.com/borealbirds/lhreg/issues).
+
+The package is archived on Zenodo under the DOI [10.5281/zenodo.574886](https://zenodo.org/badge/latestdoi/90998177).
+
+The package can be installed as:
+
+```{r update-stuff,eval=FALSE,results='hide',echo=FALSE}
+devtools::install_github("borealbirds/lhreg")
+```
+
+The present document can be viewed as:
+
+```{r update-stuff,eval=FALSE,results='hide',echo=FALSE}
+vignette(topic = "lhreg", package = "lhreg")
+```
+
+
+## Data and data processing
 
 ### Trait variables
 
-Explain sources and transformations, maybe show some exploratory analyses.
+The `lhreg_data` is a data frame with all response variables
+(`logphi` is log singing rate, `logtau` is log detection distance)
+and trait values (unmodified and transformed versions).
 
-```{r trait-data}
+```{r trait-data,message=FALSE}
 library(lhreg)
 data(lhreg_data)
 str(lhreg_data)
+with(lhreg_data, plot(exp(logphi), exp(logtau),
+    cex=logmass*0.5, col=Mig2, pch=c(21, 22)[Hab2]))
+legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2), 
+    legend=c("Migratory/Closed", "Resident/Closed", 
+    "Migratory/Open", "Resident/Open"))
 ```
 
 ### Phylogenetic correlations
 
-Explain source, how it was derived:
+This code was used to average the 1000 pseudo-posterior trees from Jetz et al. 
+(2012) with Ericson backbone to represent the phylogenetic relationships among the species:
 
 ```{r phylo-corr,eval=FALSE}
 library(ape)
@@ -55,15 +86,22 @@ vvv <- vvv[spp,spp]
 cor_matrix <- as.matrix(nearPD(vvv, corr=TRUE)$mat)
 ```
 
-Visualize the phylo matrix:
+The object `cor_matrix` is part of the **lhreg** package,
+relative phylogenies can be reconstructed from it:
 
 ```{r heatmap}
+library(ape)
 data(cor_matrix)
 str(cor_matrix)
 heatmap(cor_matrix)
+plot(compute.brlen(vcv2phylo(cor_matrix)), cex=0.5)
 ```
 
 ## Analysis
+
+Linear model were used to screen trait variables, so that we compared
+that *full* model with the intercept only *null* model, with or without
+phylogenetic correlation.
 
 ### Variable screening for SR
 
@@ -123,12 +161,22 @@ summary(mtx2)
 
 ### Mixed model selection
 
-1. M0, null (~1, no phylo, lam=0)
-2. Mp0, phylo only max (~1, lam=1)
-3. Ml0, phylo only est (~1, lam=NA)
-4. Mx, saturated, no phylo (~., lam=0)
-5. Mpx, saturated, phylo max (~., lam=1)
-6. Mlx, saturated, phylo est (~., lam=NA)
+The following models were compared, the prefix `t` and `p`
+indicates `tau` (detection distance) and `phi` (singing rate):
+
+1. `M0`, null (`~1`, no phylo, `lam=0`)
+2. `Mp0`, phylo only max (`~1`, `lam=1`)
+3. `Ml0`, phylo only est (`~1`, `lam=NA`)
+4. `Mx`, saturated, no phylo (`~.`, `lam=0`)
+5. `Mpx`, saturated, phylo max (`~.`, `lam=1`)
+6. `Mlx`, saturated, phylo est (`~.`, `lam=NA`)
+
+In the manuscript, we refer to the following models:
+
+1. `M0` as null model $M_{00}$,
+2. `Ml0` as phylogeny-only model $M_{\lambda0}$,
+3. `Mx` as trait-only model $M_{0\beta}$,
+4. `Mlx` as combined model $M_{\lambda\beta}$.
 
 ```{r models,eval=FALSE}
 met <- "DE" # can use "SANN", "Nelder-Mead" is quickest
@@ -190,6 +238,9 @@ cbind(aicp, t(sapply(list(pM0, pMp0, pMl0, pMx, pMpx, pMlx),
 
 ### Profile likelihood for lambda
 
+Profile likelihood was calculated to understand how traits affect the
+strength of phylogeny through the variable $\lambda$:
+
 ```{r profile-lik,eval=FALSE}
 library(parallel)
 
@@ -223,6 +274,11 @@ stopCluster(cl)
 ```
 
 ### LOO analysis
+
+Leave one out cross-validation was used to see how well we could predict
+the values based on data from the other species, traits and phylogeny.
+Mean squared error (MSE) and variance components were calculated based on LOO
+cross validation:
 
 ```{r loo,eval=FALSE}
 ## makes sense to use lm for EDR LOO
@@ -345,8 +401,9 @@ print.default(m1, quote=FALSE) # SR results
 print.default(m2, quote=FALSE) # DD results
 ```
 
-Note: estimates and p-values for lambda taken from profile likelihood results
-due to issues with boundary condition when traits used for DD model.
+Note: estimates and p-values for $\lambda$ taken from profile likelihood results
+due to issues with boundary condition when traits used for
+detection distance model.
 
 ### Profile likelihood figures
 
@@ -462,226 +519,5 @@ text(0.9*Max, 0.05*Max, expression(M[0*beta]-DD))
 par(op)
 
 #dev.off()
-```
-
-## Assessing bias
-
-```{r eval=FALSE}
-library(picante)
-
-sr_fun <-
-function (t, phi) 
-{
-    1 - exp(-t * phi)
-}
-dd_fun <-
-function (r, tau) 
-{
-    tau^2 * (1 - exp(-r^2/tau^2))/r^2
-}
-r_fun1 <- function() {
-    #r0 <- t(replicate(1, rbinom(NS, 1, pqo[sample.int(NS)])))
-    r0 <- t(replicate(1, ifelse(pqo[sample.int(NS)]>0.5,1,0)))
-    colnames(r0) <- rownames(lhreg_data)
-    pd(r0, tree)$PD
-}
-r_fun <- function()
-    do.call(rbind, lapply(1:B, function(x) r_fun1()))
-
-tree <- compute.brlen(vcv2phylo(cor_matrix))
-B <- 100
-tt <- 10
-rr <- 1
-
-po <- sr_fun(tt, exp(lhreg_data$logphi))
-qo <- dd_fun(rr, exp(lhreg_data$logtau))
-pq <- po *qo
-NS <- length(pq)
-summary(pq)
-plot(data.frame(p=po, q=qo, pq=pq))
-
-#pqo <- po
-#pqo <- qo
-pqo <- pq
-
-#ro <- t(replicate(B, rbinom(NS, 1, pqo)))
-ro <- t(replicate(B, ifelse(pqo>0.5,1,0)))
-colnames(ro) <- rownames(lhreg_data)
-pdo <- pd(ro, tree)$PD
-pd0 <- r_fun()
-
-summary(pdo)
-summary(pd0)
-
-
-
-
-simp <- exp(simulate(pMlx, B))
-simt <- exp(simulate(tMlx, B))
-
-pq <- sr_fun(tt, simp) * dd_fun(rr, simt)
-pd <- pd(ifelse(pq > 0.5, 1, 0), tree)
-summary(pd)
-
-simp2 <- exp(simulate(pMlx, B, lambda=0))
-simt2 <- exp(simulate(tMlx, B, lambda=0))
-
-pq2 <- sr_fun(tt, simp2) * dd_fun(rr, simt2)
-pq20 <- ifelse(pq2 > 0.5, 1, 0)
-pd2 <- pd(pq20, tree)
-summary(pd2)
-
-f <- function(lam=0) {
-    simp2 <- exp(simulate(pMpx, B, lambda=lam))
-    simt2 <- exp(simulate(tMpx, B, lambda=lam))
-    pq2 <- sr_fun(tt, simp2) * dd_fun(rr, simt2)
-    pd(ifelse(pq2 > 0.5, 1, 0), tree)
-}
-
-ppd <- lapply(c(0,0.5,1), f)
-
-plot(ppd[[1]], col=2, xlim=c(0,100), ylim=c(0,100))
-points(ppd[[2]], col=3)
-points(ppd[[3]], col=4)
-
-par(mfrow=c(3,2))
-hist(ppd[[1]][,1], xlim=c(0,40), col=1)
-hist(ppd[[1]][,2], xlim=c(0,40), col=1)
-hist(ppd[[2]][,1], xlim=c(0,40), col=2)
-hist(ppd[[2]][,2], xlim=c(0,40), col=2)
-hist(ppd[[3]][,1], xlim=c(0,40), col=3)
-hist(ppd[[3]][,2], xlim=c(0,40), col=3)
-
-mup <- rep(mean(lhreg_data$logphi), nrow(lhreg_data))
-mut <- rep(mean(lhreg_data$logtau), nrow(lhreg_data))
-ff <- function(lam) {
-    VV <- cor_matrix
-    VV[lower.tri(VV)] <- lam * VV[lower.tri(VV)]
-    VV[upper.tri(VV)] <- lam * VV[upper.tri(VV)]
-    p <- sr_fun(tt, exp(mvtnorm::rmvnorm(B, mup, VV)))
-    q <- dd_fun(rr, exp(mvtnorm::rmvnorm(B, mut, VV)))
-    pd(ifelse(p*q > 0.5, 1, 0), tree)
-}
-summary(ff(0))
-summary(ff(0.5))
-summary(ff(1))
-
-tree1 <- vcv2phylo(cor_matrix)
-tree1 <- compute.brlen(tree1)
-vc1 <- vcv(tree1, corr=TRUE)
-Mp <- lhreg(Y=qlogis(po), X=X0, SE=0, V=vc1, lambda=NA, hessian=TRUE, method="DE")
-Mq <- lhreg(Y=qlogis(qo), X=X0, SE=0, V=vc1, lambda=NA, hessian=TRUE, method="DE")
-Mpq <- lhreg(Y=qlogis(pq), X=X0, SE=0, V=vc1, lambda=NA, hessian=TRUE, method="DE")
-
-summary(Mp)
-summary(Mq)
-summary(Mpq)
-
-tree2 <- rtree(141, tip.label=rownames(lhreg_data))
-tree2 <- compute.brlen(tree2)
-vc2 <- vcv(tree2, corr=TRUE)
-rMp <- lhreg(Y=qlogis(po), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
-rMq <- lhreg(Y=qlogis(qo), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
-rMpq <- lhreg(Y=qlogis(pq), X=X0, SE=0, V=vc2, lambda=NA, hessian=TRUE, method="DE")
-
-summary(rMp)
-summary(rMq)
-summary(rMpq)
-
-pd_quick <-
-function (samp, tree) 
-{
-    species <- colnames(samp)
-    nlocations = dim(samp)[1]
-    nspecies = dim(samp)[2]
-    PDs = rep(0, nlocations)
-    for (i in 1:nlocations) {
-        present <- species[samp[i, ] > 0]
-        treeabsent <- tree$tip.label[which(!(tree$tip.label %in% 
-            present))]
-        if (length(present) == 0) {
-            PD <- 0
-        } else if (length(present) == 1) {
-                PD <- node.age(tree)$ages[which(tree$edge[, 2] == 
-                  which(tree$tip.label == present))]
-        } else if (length(treeabsent) == 0) {
-            PD <- sum(tree$edge.length)
-        } else {
-            sub.tree <- drop.tip(tree, treeabsent)
-            sub.tree.depth <- max(node.age(sub.tree)$ages)
-            orig.tree.depth <- max(node.age(tree)$ages[which(tree$edge[, 
-              2] %in% which(tree$tip.label %in% present))])
-            PD <- sum(sub.tree$edge.length) + (orig.tree.depth - 
-              sub.tree.depth)
-        }
-        PDs[i] <- PD
-    }
-    PDs
-}
-
-f <- function(lam=0, M, T) {
-    VV <- M$V
-    VV[lower.tri(VV)] <- lam * VV[lower.tri(VV)]
-    VV[upper.tri(VV)] <- lam * VV[upper.tri(VV)]
-    sim <- plogis(mvtnorm::rmvnorm(B, M$Y, VV))
-    #sim <- plogis(simulate(M, B, lambda=lam))
-    colnames(sim) <- rownames(lhreg_data)
-    pd(ifelse(sim > 0.5, 1, 0), T)$PD
-}
-
-f <- function(lam=0, mu, T) {
-    VV <- vcv(T, corr=TRUE)
-    VV[lower.tri(VV)] <- lam * VV[lower.tri(VV)]
-    VV[upper.tri(VV)] <- lam * VV[upper.tri(VV)]
-    sim <- plogis(mvtnorm::rmvnorm(B, mu, VV))
-    colnames(sim) <- rownames(lhreg_data)
-    pd(ifelse(sim > 0.5, 1, 0), T)$PD
-    #pd_quick(ifelse(sim > 0.5, 1, 0), T)
-}
-
-B <- 200
-pdp <- lapply(c(0,0.5,1), f, mu=po, T=tree1)
-pdq <- lapply(c(0,0.5,1), f, mu=qo, T=tree1)
-pdpq <- lapply(c(0,0.5,1), f, mu=pq, T=tree1)
-
-rpdp <- lapply(c(0,0.5,1), f, mu=po, T=tree2)
-rpdq <- lapply(c(0,0.5,1), f, mu=qo, T=tree2)
-rpdpq <- lapply(c(0,0.5,1), f, mu=pq, T=tree2)
-
-MAX <- max(unlist(pdp), unlist(pdq), unlist(pdpq),
-    unlist(rpdp), unlist(rpdq), unlist(rpdpq))
-
-par(mfrow=c(2,3))
-
-plot(density(pdp[[1]]), xlim=c(0,MAX), main="lambda=0")
-lines(density(pdp[[2]]), col=2)
-lines(density(pdp[[3]]), col=4)
-plot(density(pdq[[1]]), xlim=c(0,MAX), main="lambda=0.5")
-lines(density(pdq[[2]]), col=2)
-lines(density(pdq[[3]]), col=4)
-plot(density(pdpq[[1]]), xlim=c(0,MAX), main="lambda=1")
-lines(density(pdpq[[2]]), col=2)
-lines(density(pdpq[[3]]), col=4)
-
-plot(density(rpdp[[1]]), xlim=c(0,MAX), main="lambda=0")
-lines(density(rpdp[[2]]), col=2)
-lines(density(rpdp[[3]]), col=4)
-plot(density(rpdq[[1]]), xlim=c(0,MAX), main="lambda=0.5")
-lines(density(rpdq[[2]]), col=2)
-lines(density(rpdq[[3]]), col=4)
-plot(density(rpdpq[[1]]), xlim=c(0,MAX), main="lambda=1")
-lines(density(rpdpq[[2]]), col=2)
-lines(density(rpdpq[[3]]), col=4)
-
-
-B <- 100
-rx <- sapply(seq(0,1,0.1), f, mu=rep(0.5, NS), T=tree1)
-boxplot(rx)
-
-par(mfrow=c(1,1))
-plot(density(rx[,1]), xlim=c(0,max(unlist(rx))))
-lines(density(rx[,6]), col=2)
-lines(density(rx[,11]), col=4)
-
 ```
 
