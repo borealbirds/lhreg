@@ -15,11 +15,11 @@ devtools::build_vignettes("~/repos/lhreg")
 
 ## Introduction
 
-This document is a supporting material for the manuscript entitled 
+This document is a supporting material for the manuscript entitled
 *Phylogeny and species traits predict songbird detectability* by
 Peter Solymos, Steven M. Matsuoka, Diana Stralberg, Erin M. Bayne, and Nicole K. S. Barker.
 
-The **lhreg** R package contain the (1) data, (2) analysis code used in the manuscript,
+The **lhreg** R package contains the (1) data, (2) analysis code used in the manuscript,
 and (3) code required to summarize the results and produce tables and figures.
 
 The R package is hosted on [GitHub](https://github.com/borealbirds/lhreg),
@@ -54,14 +54,14 @@ data(lhreg_data)
 str(lhreg_data)
 with(lhreg_data, plot(exp(logphi), exp(logtau),
     cex=logmass*0.5, col=Mig2, pch=c(21, 22)[Hab2]))
-legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2), 
-    legend=c("Migratory/Closed", "Resident/Closed", 
+legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2),
+    legend=c("Migratory/Closed", "Resident/Closed",
     "Migratory/Open", "Resident/Open"))
 ```
 
 ### Phylogenetic correlations
 
-This code was used to average the 1000 pseudo-posterior trees from Jetz et al. 
+This code was used to average the 1000 pseudo-posterior trees from Jetz et al.
 (2012) with Ericson backbone to represent the phylogenetic relationships among the species:
 
 ```{r phylo-corr,eval=FALSE}

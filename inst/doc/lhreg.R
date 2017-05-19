@@ -14,8 +14,8 @@ data(lhreg_data)
 str(lhreg_data)
 with(lhreg_data, plot(exp(logphi), exp(logtau),
     cex=logmass*0.5, col=Mig2, pch=c(21, 22)[Hab2]))
-legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2), 
-    legend=c("Migratory/Closed", "Resident/Closed", 
+legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2),
+    legend=c("Migratory/Closed", "Resident/Closed",
     "Migratory/Open", "Resident/Open"))
 
 ## ----phylo-corr,eval=FALSE-----------------------------------------------
