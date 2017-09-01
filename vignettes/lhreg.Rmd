@@ -39,6 +39,20 @@ The present document can be viewed as:
 vignette(topic = "lhreg", package = "lhreg")
 ```
 
+## Components of detectability
+
+Solymos et al. (2013, DOI [10.1111/2041-210X.12106](https://dx.doi.org/10.1111/2041-210X.12106))
+describes the mathematical details of singing rate ($SR$) estimation based on
+removal sampling and effective detection distance ($DD$) estimation via distance sampling.
+These quantities define the probability of individuals of the species
+are available for sampling given presence (often referred to as availability, $p$),
+and the probability that an individual of that species is being detected given
+it produces a cue (often referred to as perceptibility, $q$).
+
+$p=1-exp(-t~SR)$, where $t$ is the duration of the counting period.
+$q=DD^2~(1-exp(-r^2 / DD^2))~/~r^2$, where $r$ is the rounting radius (i.e. not
+counting individuals beyond this distance from the observer).
+Probability of detection is the produc to the two components: $pq$.
 
 ## Data and data processing
 
