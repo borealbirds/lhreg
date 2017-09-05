@@ -41,9 +41,12 @@ vignette(topic = "lhreg", package = "lhreg")
 
 ## Components of detectability
 
+The manuscript refer to singing rate ($SR$, here we also refer to it as `phi`) 
+and detection distance ($DD$, which we refer to as `tau`),
+which are linked to detectability as explained in this section.
 Solymos et al. (2013, DOI [10.1111/2041-210X.12106](https://dx.doi.org/10.1111/2041-210X.12106))
-describes the mathematical details of singing rate ($SR$) estimation based on
-removal sampling and effective detection distance ($DD$) estimation via distance sampling.
+describes the mathematical details of singing rate estimation based on
+removal sampling and effective detection distance estimation via distance sampling.
 These quantities define the probability of individuals of the species
 are available for sampling given presence (often referred to as availability, $p$),
 and the probability that an individual of that species is being detected given
@@ -259,6 +262,7 @@ Profile likelihood was calculated to understand how traits affect the
 strength of phylogeny through the variable $\lambda$:
 
 ```{r profile-lik,eval=FALSE}
+library(pbapply)
 library(parallel)
 
 lam <- seq(0, 2, by=0.01)
@@ -288,6 +292,38 @@ pl_pMlx <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...), cl=cl
     method=met)
 
 stopCluster(cl)
+```
+
+### Parametric bootstrap based confidence intervals
+
+
+
+```{r par-boot,eval=FALSE}
+B <- 100 # number of runs
+#met="Nelder-Mead"
+
+#cl <- NULL
+cl <- makeCluster(4)
+
+tmp <- clusterEvalQ(cl, library(lhreg))
+
+PB_tM0 <-  parametric_bootstrap(tM0,  nsim=B, seed=1234, cl=cl, method=met)
+PB_tMl0 <- parametric_bootstrap(tMl0, nsim=B, seed=1234, cl=cl, method=met)
+PB_tMx <-  parametric_bootstrap(tMx,  nsim=B, seed=1234, cl=cl, method=met)
+PB_tMlx <- parametric_bootstrap(tMlx, nsim=B, seed=1234, cl=cl, method=met)
+
+PB_pM0 <-  parametric_bootstrap(pM0,  nsim=B, seed=1234, cl=cl, method=met)
+PB_pMl0 <- parametric_bootstrap(pMl0, nsim=B, seed=1234, cl=cl, method=met)
+PB_pMx <-  parametric_bootstrap(pMx,  nsim=B, seed=1234, cl=cl, method=met)
+PB_pMlx <- parametric_bootstrap(pMlx, nsim=B, seed=1234, cl=cl, method=met)
+
+stopCluster(cl)
+
+PBcf_tMl0 <- t(sapply(PB_pMl0, function(z) z$summary[,1]))
+summary(PBcf_tMl0)
+PBcf_tMlx <- t(sapply(PB_pMlx, function(z) z$summary[,1]))
+summary(PBcf_tMlx)
+
 ```
 
 ### LOO analysis
