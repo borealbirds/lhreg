@@ -175,5 +175,19 @@ function(object, nsim = 1, seed = NULL, lambda = NA, obs_error = FALSE, ...)
     if (obs_error)
         diag(VV) <- diag(VV) + object$SE
     mu <- drop(object$X %*% object$coef[1:ncol(object$X)])
-    mvtnorm::rmvnorm(nsim, mu, VV, ...)
+    t(mvtnorm::rmvnorm(nsim, mu, VV, ...))
+}
+
+parametric_bootstrap <-
+function(object, nsim = 1, seed = NULL, cl = NULL, ...)
+{
+    ## need obs_error = TRUE ?
+    SIM <- simulate(object,  nsim=nsim, seed=seed, lambda=NA, obs_error=FALSE)
+    out <- pbapply(SIM,  2, function(z, object, ...) {
+        lhreg(Y=z, X=object$X, SE=object$SE, V=object$V,
+            lambda=object$lambda, hessian=FALSE, init=object$coef, ...)
+    }, cl=cl, object=object, ...)
+    out <- c(list(object), out)
+    attr(out, "simulated") <- cbind(object$Y, SIM)
+    out
 }

@@ -11,7 +11,7 @@ Description: Phylogeny and species trait effects on detectability,
     Solymos, Matsuoka, Stralberg, Bayne, and Barker.
 URL: https://github.com/borealbirds/lhreg
 BugReports: https://github.com/borealbirds/lhreg/issues
-Depends: Matrix, DEoptim, mvtnorm
+Depends: Matrix, DEoptim, mvtnorm, pbapply
 Suggests: knitr, rmarkdown, ape, parallel
 VignetteBuilder: knitr
 License: GPL-2

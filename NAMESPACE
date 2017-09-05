@@ -7,3 +7,4 @@ importFrom(stats, coef, lm, logLik, optim, optimHess, pnorm, printCoefmat, sd,
 importFrom(Matrix, nearPD)
 importFrom(DEoptim, DEoptim)
 importFrom(mvtnorm, rmvnorm)
+importFrom(pbapply, pbapply)
