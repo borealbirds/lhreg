@@ -4,6 +4,7 @@
 \alias{summary.lhreg}
 \alias{simulate.lhreg}
 \alias{profile_lambda1}
+\alias{parametric_bootstrap}
 \alias{loo1}
 \alias{loo2}
 \title{
