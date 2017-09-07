@@ -223,7 +223,7 @@ function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
     invisible(xx)
 }
 
-library(viridis)
+#library(viridis)
 Col <- c("#2C7BB6", "#6BAACF", "#ABD9E9", "#D4ECD3", "#FFFFBF", "#FED690",
     "#FDAE61", "#EA633E", "#D7191C")
 #col_fun <- colorRampPalette(viridis::viridis(100)[20:100])
