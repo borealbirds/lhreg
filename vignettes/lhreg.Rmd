@@ -296,7 +296,7 @@ stopCluster(cl)
 
 ### Parametric bootstrap based confidence intervals
 
-
+Well, scratch this. We do nonparametrics (LOO) which should give what we need. See below
 
 ```{r par-boot,eval=FALSE}
 B <- 100 # number of runs
@@ -347,37 +347,38 @@ c(coef(mp), log(summary(mp)$sigma))
 
 n <- nrow(x)
 cl <- makeCluster(4)
+tmp <- clusterEvalQ(cl, library(lhreg))
 
-pr_tM0  <- t(pbsapply(1:n, loo1, mm=tM0))
-pr_tMp0 <- t(pbsapply(1:n, loo2, mm=tMp0))
-pr_tMl0 <- t(pbsapply(1:n, loo2, mm=tMl0))
-pr_tMx  <- t(pbsapply(1:n, loo1, mm=tMx))
-pr_tMpx <- t(pbsapply(1:n, loo2, mm=tMpx))
-pr_tMlx <- t(pbsapply(1:n, loo2, mm=tMlx))
+pr_tM0  <- t(pbsapply(1:n, loo1, object=tM0, cl=cl))
+pr_tMp0 <- t(pbsapply(1:n, loo2, object=tMp0, cl=cl))
+pr_tMl0 <- t(pbsapply(1:n, loo2, object=tMl0, cl=cl))
+pr_tMx  <- t(pbsapply(1:n, loo1, object=tMx, cl=cl))
+pr_tMpx <- t(pbsapply(1:n, loo2, object=tMpx, cl=cl))
+pr_tMlx <- t(pbsapply(1:n, loo2, object=tMlx, cl=cl))
 
-pr_pM0  <- t(pbsapply(1:n, loo1, mm=pM0))
-pr_pMp0 <- t(pbsapply(1:n, loo2, mm=pMp0))
-pr_pMl0 <- t(pbsapply(1:n, loo2, mm=pMl0))
-pr_pMx  <- t(pbsapply(1:n, loo1, mm=pMx))
-pr_pMpx <- t(pbsapply(1:n, loo2, mm=pMpx))
-pr_pMlx <- t(pbsapply(1:n, loo2, mm=pMlx))
+pr_pM0  <- t(pbsapply(1:n, loo1, object=pM0, cl=cl))
+pr_pMp0 <- t(pbsapply(1:n, loo2, object=pMp0, cl=cl))
+pr_pMl0 <- t(pbsapply(1:n, loo2, object=pMl0, cl=cl))
+pr_pMx  <- t(pbsapply(1:n, loo1, object=pMx, cl=cl))
+pr_pMpx <- t(pbsapply(1:n, loo2, object=pMpx, cl=cl))
+pr_pMlx <- t(pbsapply(1:n, loo2, object=pMlx, cl=cl))
 
 stopCluster(cl)
 
 SSEt <- c(
-    tM0 = sum((pr_tM0 - tM0$Y)^2),
-    tMp0 = sum((pr_tMp0 - tMp0$Y)^2),
-    tMl0 = sum((pr_tMl0 - tMl0$Y)^2),
-    tMx = sum((pr_tMx - tMx$Y)^2),
-    tMpx = sum((pr_tMpx - tMpx$Y)^2),
-    tMlx = sum((pr_tMlx - tMlx$Y)^2))
+    tM0 = sum((pr_tM0[,1:2] - tM0$Y)^2),
+    tMp0 = sum((pr_tMp0[,1:2] - tMp0$Y)^2),
+    tMl0 = sum((pr_tMl0[,1:2] - tMl0$Y)^2),
+    tMx = sum((pr_tMx[,1:2] - tMx$Y)^2),
+    tMpx = sum((pr_tMpx[,1:2] - tMpx$Y)^2),
+    tMlx = sum((pr_tMlx[,1:2] - tMlx$Y)^2))
 SSEp <- c(
-    pM0 = sum((pr_pM0 - pM0$Y)^2),
-    pMp0 = sum((pr_pMp0 - pMp0$Y)^2),
-    pMl0 = sum((pr_pMl0 - pMl0$Y)^2),
-    pMx = sum((pr_pMx - pMx$Y)^2),
-    pMpx = sum((pr_pMpx - pMpx$Y)^2),
-    pMlx = sum((pr_pMlx - pMlx$Y)^2))
+    pM0 = sum((pr_pM0[,1:2] - pM0$Y)^2),
+    pMp0 = sum((pr_pMp0[,1:2] - pMp0$Y)^2),
+    pMl0 = sum((pr_pMl0[,1:2] - pMl0$Y)^2),
+    pMx = sum((pr_pMx[,1:2] - pMx$Y)^2),
+    pMpx = sum((pr_pMpx[,1:2] - pMpx$Y)^2),
+    pMlx = sum((pr_pMlx[,1:2] - pMlx$Y)^2))
 MSEt <- SSEt / n
 MSEp <- SSEp / n
 ```

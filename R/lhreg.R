@@ -114,17 +114,20 @@ function(object, value, ...)
 }
 
 loo1 <-
-function(i, object)
+function(i, object, return_coefs=TRUE)
 {
     yy <- object$Y[-i]
     xx <- object$X[-i,,drop=FALSE]
     mod <- lm(yy ~ xx-1)
     pr <- drop(object$X[i,,drop=FALSE] %*% coef(mod))
-    c(est=object$Y[i], pred=pr)
+    out <- c(est=object$Y[i], pred=pr)
+    if (return_coefs)
+        out <- c(out, est=coef(mod))
+    out
 }
 
 loo2 <-
-function(i, object)
+function(i, object, return_coefs=TRUE)
 {
     remod <- lhreg(Y=object$Y[-i], X=object$X[-i,,drop=FALSE], SE=object$SE[-i],
         V=object$V[-i,-i,drop=FALSE], lambda=object$lambda, hessian=FALSE,
@@ -149,7 +152,10 @@ function(i, object)
 
     ## interested in mu12 only (due to observation error)
     mu12 <- drop(mu1 + Sig12 %*% solve(Sig22) %*% (y2-mu2))
-    c(est=y[i], pred=mu12)
+    out <- c(est=y[i], pred=mu12)
+    if (return_coefs)
+        out <- c(out, est=remod$summary[,1])
+    out
 }
 
 simulate.lhreg <-
