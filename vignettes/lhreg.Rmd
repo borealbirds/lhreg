@@ -224,9 +224,8 @@ pM0b <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=0,
     hessian=TRUE, method=met)
 pMlb <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=NA,
     hessian=TRUE, method=met)
-
+#save.image("lhreg-temp.Rdata")
 ```
-
 
 ### Profile likelihood for lambda
 
@@ -265,6 +264,7 @@ pl_pMlb <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...),
     cl=cl, method=met)
 
 stopCluster(cl) # close cluster
+#save.image("lhreg-temp.Rdata")
 ```
 
 ### Leave-one-out (LOO) analysis
@@ -308,6 +308,7 @@ loo_pM0b <- t(pbsapply(1:n, loo2, object=pM0b, cl=cl, method=met))
 loo_pMlb <- t(pbsapply(1:n, loo2, object=pMlb, cl=cl, method=met))
 
 stopCluster(cl)
+#save.image("lhreg-temp.Rdata")
 ```
 
 Use `save.image()` to save the results.
