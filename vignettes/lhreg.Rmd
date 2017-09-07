@@ -10,6 +10,7 @@ output: knitr:::html_vignette
 
 ```{r update-stuff,eval=FALSE,results='hide',echo=FALSE}
 devtools::install_github("borealbirds/lhreg")
+#devtools::install_github("borealbirds/lhreg", ref="bootstrap")
 devtools::build_vignettes("~/repos/lhreg")
 ```
 
@@ -114,127 +115,7 @@ heatmap(cor_matrix)
 ```
 
 ```{r phylo-tree,fig.height=12,fig.width=7}
-library(phytools)
-library(vegan)
-tre <- compute.brlen(vcv2phylo(cor_matrix))
-stopifnot(all(tre$tip.label == rownames(lhreg_data)))
-NAMES <- abbreviate(lhreg_data$common_name, 12, named=FALSE)
-tre$tip.label <- NAMES
-
-#plot(tre, cex=0.5)
-contMap2 <-
-function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
-    legend = NULL, lims = NULL, outline = TRUE, sig = 3, type = "phylogram",
-    direction = "rightwards", plot = TRUE, col_fun=rainbow, ...)
-{
-    if (!inherits(tree, "phylo"))
-        stop("tree should be an object of class \"phylo\".")
-    if (hasArg(mar))
-        mar <- list(...)$mar
-    else mar <- rep(0.3, 4)
-    if (hasArg(offset))
-        offset <- list(...)$offset
-    else offset <- NULL
-    if (hasArg(method))
-        method <- list(...)$method
-    else method <- "fastAnc"
-    if (hasArg(hold))
-        hold <- list(...)$hold
-    else hold <- TRUE
-    if (hasArg(leg.txt))
-        leg.txt <- list(...)$leg.txt
-    else leg.txt <- "trait value"
-    h <- max(nodeHeights(tree))
-    steps <- 0:res/res * max(h)
-    H <- nodeHeights(tree)
-    if (method == "fastAnc")
-        a <- fastAnc(tree, x)
-    else if (method == "anc.ML") {
-        fit <- anc.ML(tree, x)
-        a <- fit$ace
-        if (!is.null(fit$missing.x))
-            x <- c(x, fit$missing.x)
-    }
-    else if (method == "user") {
-        if (hasArg(anc.states))
-            anc.states <- list(...)$anc.states
-        else {
-            cat("No ancestral states have been provided. Using states estimated with fastAnc.\n\n")
-            a <- fastAnc(tree, x)
-        }
-        if (length(anc.states) < tree$Nnode) {
-            nodes <- as.numeric(names(anc.states))
-            tt <- tree
-            for (i in 1:length(nodes)) {
-                M <- matchNodes(tt, tree, method = "distances")
-                ii <- M[which(M[, 2] == nodes[i]), 1]
-                tt <- bind.tip(tt, nodes[i], edge.length = 0,
-                  where = ii)
-            }
-            a <- fastAnc(tt, c(x, anc.states))
-            M <- matchNodes(tree, tt, method = "distances")
-            a <- a[as.character(M[, 2])]
-            names(a) <- M[, 1]
-        }
-        else {
-            if (is.null(names(anc.states)))
-                names(anc.states) <- 1:tree$Nnode + Ntip(tree)
-            a <- anc.states[as.character(1:tree$Nnode + Ntip(tree))]
-        }
-    }
-    y <- c(a, x[tree$tip.label])
-    names(y)[1:Ntip(tree) + tree$Nnode] <- 1:Ntip(tree)
-    A <- matrix(y[as.character(tree$edge)], nrow(tree$edge),
-        ncol(tree$edge))
-    cols <- col_fun(1001)
-    names(cols) <- 0:1000
-    if (is.null(lims))
-        lims <- c(min(y), max(y))
-    trans <- 0:1000/1000 * (lims[2] - lims[1]) + lims[1]
-    names(trans) <- 0:1000
-    tree$maps <- vector(mode = "list", length = nrow(tree$edge))
-    for (i in 1:nrow(tree$edge)) {
-        XX <- cbind(c(H[i, 1], steps[intersect(which(steps >
-            H[i, 1]), which(steps < H[i, 2]))]), c(steps[intersect(which(steps >
-            H[i, 1]), which(steps < H[i, 2]))], H[i, 2])) - H[i,
-            1]
-        YY <- rowMeans(XX)
-        if (!all(YY == 0)) {
-            b <- vector()
-            for (j in 1:length(YY)) b[j] <- (A[i, 1]/YY[j] +
-                A[i, 2]/(max(XX) - YY[j]))/(1/YY[j] + 1/(max(XX) -
-                YY[j]))
-        }
-        else b <- A[i, 1]
-        d <- sapply(b, phytools:::getState, trans = trans)
-        tree$maps[[i]] <- XX[, 2] - XX[, 1]
-        names(tree$maps[[i]]) <- d
-    }
-    tree$mapped.edge <- phytools:::makeMappedEdge(tree$edge, tree$maps)
-    tree$mapped.edge <- tree$mapped.edge[, order(as.numeric(colnames(tree$mapped.edge)))]
-    class(tree) <- c("simmap", setdiff(class(tree), "simmap"))
-    xx <- list(tree = tree, cols = cols, lims = lims)
-    class(xx) <- "contMap"
-    if (plot)
-        phytools:::plot.contMap(xx, fsize = fsize, ftype = ftype, lwd = lwd,
-            legend = legend, outline = outline, sig = sig, type = type,
-            mar = mar, direction = direction, offset = offset,
-            hold = hold, leg.txt = leg.txt)
-    invisible(xx)
-}
-
-#library(viridis)
-Col <- c("#2C7BB6", "#6BAACF", "#ABD9E9", "#D4ECD3", "#FFFFBF", "#FED690",
-    "#FDAE61", "#EA633E", "#D7191C")
-#col_fun <- colorRampPalette(viridis::viridis(100)[20:100])
-#col_fun <- colorRampPalette(grey(seq(0.8, 0, by=-0.1)))
-col_fun <- colorRampPalette(Col)
-op <- par(mfrow=c(1,2))
-contMap2(tre, structure(exp(lhreg_data$logphi), .Names=NAMES),
-    fsize=0.5, outline=FALSE, col_fun=col_fun, main="SR")
-contMap2(tre, structure(exp(lhreg_data$logtau), .Names=NAMES),
-    fsize=0.5, outline=FALSE, col_fun=col_fun, direction="leftwards", main="DD")
-par(op)
+plot(compute.brlen(vcv2phylo(cor_matrix)), cex=0.5)
 ```
 
 ## Analysis
@@ -465,8 +346,8 @@ SSEp <- c(
 MSEt <- SSEt / n
 MSEp <- SSEp / n
 
-
-Crit <- -0.5*qchisq(0.95, 1)
+Level <- 0.95
+Crit <- -0.5*qchisq(Level, 1)
 ltmp <- seq(0, 1, by=0.0001)
 ## red-yl-blue
 Col <- c("#2C7BB6", "#6BAACF", "#ABD9E9", "#D4ECD3", "#FFFFBF", "#FED690",
@@ -532,6 +413,130 @@ print.default(m2, quote=FALSE) # DD results
 Note: estimates and p-values for $\lambda$ taken from profile likelihood results
 due to issues with boundary condition when traits used for
 detection distance model.
+
+### Tree with SR and DD values
+
+We hack the `phytools::contMap` function to produce non-rainbow colors:
+
+```{r tree-trait,fig.height=12,fig.width=12}
+library(phytools)
+tre <- compute.brlen(vcv2phylo(cor_matrix))
+stopifnot(all(tre$tip.label == rownames(lhreg_data)))
+NAMES <- abbreviate(lhreg_data$common_name, 12, named=FALSE)
+tre$tip.label <- NAMES
+
+contMap2 <-
+function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
+    legend = NULL, lims = NULL, outline = TRUE, sig = 3, type = "phylogram",
+    direction = "rightwards", plot = TRUE, col_fun=rainbow, ...)
+{
+    if (!inherits(tree, "phylo"))
+        stop("tree should be an object of class \"phylo\".")
+    if (hasArg(mar))
+        mar <- list(...)$mar
+    else mar <- rep(0.3, 4)
+    if (hasArg(offset))
+        offset <- list(...)$offset
+    else offset <- NULL
+    if (hasArg(method))
+        method <- list(...)$method
+    else method <- "fastAnc"
+    if (hasArg(hold))
+        hold <- list(...)$hold
+    else hold <- TRUE
+    if (hasArg(leg.txt))
+        leg.txt <- list(...)$leg.txt
+    else leg.txt <- "trait value"
+    h <- max(nodeHeights(tree))
+    steps <- 0:res/res * max(h)
+    H <- nodeHeights(tree)
+    if (method == "fastAnc")
+        a <- fastAnc(tree, x)
+    else if (method == "anc.ML") {
+        fit <- anc.ML(tree, x)
+        a <- fit$ace
+        if (!is.null(fit$missing.x))
+            x <- c(x, fit$missing.x)
+    }
+    else if (method == "user") {
+        if (hasArg(anc.states))
+            anc.states <- list(...)$anc.states
+        else {
+            cat("No ancestral states have been provided. Using states estimated with fastAnc.\n\n")
+            a <- fastAnc(tree, x)
+        }
+        if (length(anc.states) < tree$Nnode) {
+            nodes <- as.numeric(names(anc.states))
+            tt <- tree
+            for (i in 1:length(nodes)) {
+                M <- matchNodes(tt, tree, method = "distances")
+                ii <- M[which(M[, 2] == nodes[i]), 1]
+                tt <- bind.tip(tt, nodes[i], edge.length = 0,
+                  where = ii)
+            }
+            a <- fastAnc(tt, c(x, anc.states))
+            M <- matchNodes(tree, tt, method = "distances")
+            a <- a[as.character(M[, 2])]
+            names(a) <- M[, 1]
+        }
+        else {
+            if (is.null(names(anc.states)))
+                names(anc.states) <- 1:tree$Nnode + Ntip(tree)
+            a <- anc.states[as.character(1:tree$Nnode + Ntip(tree))]
+        }
+    }
+    y <- c(a, x[tree$tip.label])
+    names(y)[1:Ntip(tree) + tree$Nnode] <- 1:Ntip(tree)
+    A <- matrix(y[as.character(tree$edge)], nrow(tree$edge),
+        ncol(tree$edge))
+    cols <- col_fun(1001)
+    names(cols) <- 0:1000
+    if (is.null(lims))
+        lims <- c(min(y), max(y))
+    trans <- 0:1000/1000 * (lims[2] - lims[1]) + lims[1]
+    names(trans) <- 0:1000
+    tree$maps <- vector(mode = "list", length = nrow(tree$edge))
+    for (i in 1:nrow(tree$edge)) {
+        XX <- cbind(c(H[i, 1], steps[intersect(which(steps >
+            H[i, 1]), which(steps < H[i, 2]))]), c(steps[intersect(which(steps >
+            H[i, 1]), which(steps < H[i, 2]))], H[i, 2])) - H[i,
+            1]
+        YY <- rowMeans(XX)
+        if (!all(YY == 0)) {
+            b <- vector()
+            for (j in 1:length(YY)) b[j] <- (A[i, 1]/YY[j] +
+                A[i, 2]/(max(XX) - YY[j]))/(1/YY[j] + 1/(max(XX) -
+                YY[j]))
+        }
+        else b <- A[i, 1]
+        d <- sapply(b, phytools:::getState, trans = trans)
+        tree$maps[[i]] <- XX[, 2] - XX[, 1]
+        names(tree$maps[[i]]) <- d
+    }
+    tree$mapped.edge <- phytools:::makeMappedEdge(tree$edge, tree$maps)
+    tree$mapped.edge <- tree$mapped.edge[, order(as.numeric(colnames(tree$mapped.edge)))]
+    class(tree) <- c("simmap", setdiff(class(tree), "simmap"))
+    xx <- list(tree = tree, cols = cols, lims = lims)
+    class(xx) <- "contMap"
+    if (plot)
+        phytools:::plot.contMap(xx, fsize = fsize, ftype = ftype, lwd = lwd,
+            legend = legend, outline = outline, sig = sig, type = type,
+            mar = mar, direction = direction, offset = offset,
+            hold = hold, leg.txt = leg.txt)
+    invisible(xx)
+}
+
+#library(viridis) # use viridis, plasma, magma etc
+#col_fun <- colorRampPalette(viridis(100)[20:100])
+#col_fun <- colorRampPalette(grey(seq(0.8, 0, by=-0.1))) # grey scale
+col_fun <- colorRampPalette(Col) # red-yl-blue
+op <- par(mfrow=c(1,2))
+contMap2(tre, structure(exp(lhreg_data$logphi), .Names=NAMES),
+    fsize=0.5, outline=FALSE, col_fun=col_fun, main="SR")
+contMap2(tre, structure(exp(lhreg_data$logtau), .Names=NAMES),
+    fsize=0.5, outline=FALSE, col_fun=col_fun, direction="leftwards", main="DD")
+par(op)
+```
 
 ### Profile likelihood figures
 
