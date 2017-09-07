@@ -4,7 +4,6 @@
 \alias{summary.lhreg}
 \alias{simulate.lhreg}
 \alias{profile_lambda1}
-\alias{parametric_bootstrap}
 \alias{loo1}
 \alias{loo2}
 \title{
@@ -22,7 +21,6 @@ lhreg(Y, X, SE, V, init=NULL, lambda=NA, method="Nelder-Mead",
 \method{simulate}{lhreg}(object, nsim = 1, seed = NULL,
     lambda = NA, obs_error = FALSE, ...)
 profile_lambda1(object, value, ...)
-parametric_bootstrap(object, nsim = 1, seed = NULL, cl = NULL, ...)
 
 loo1(i, object, return_coefs=TRUE)
 loo2(i, object, return_coefs=TRUE, method=NULL)
@@ -68,12 +66,6 @@ under a multivariate normal model.
 
 \code{profile_lambda1} returns log-likelihood based on fixed lambda profile
 likelihood.
-
-\code{parametric_bootstrap} returns a list of models that is fitted with same
-settings as the input \code{object} but based on a simulated responses.
-The 1st object of the list is the input object (thus length is \code{nsim +1}).
-The simulated responses are attached as the \code{"simulated"} attribute
-(again, 1st column corresponds to the original response).
 
 \code{loo1} returns the observed value for the held-out data point and the
 corresponding prediction based on multiple linear regression.
