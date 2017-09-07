@@ -25,7 +25,7 @@ profile_lambda1(object, value, ...)
 parametric_bootstrap(object, nsim = 1, seed = NULL, cl = NULL, ...)
 
 loo1(i, object, return_coefs=TRUE)
-loo2(i, object, return_coefs=TRUE)
+loo2(i, object, return_coefs=TRUE, method=NULL)
 }
 \arguments{
   \item{Y}{response vector.}
@@ -36,7 +36,8 @@ loo2(i, object, return_coefs=TRUE)
   \item{lambda}{phylogeny strength, non-negative,
     \code{NA} means it is not fixed value but estimated.}
   \item{method}{method argument accepted by \code{\link{optim}},
-    or \code{"DE"} when DEoptim is called.}
+    or \code{"DE"} when DEoptim is called. Method for \code{loo2} is
+    same as for the input \code{object$method} by default (\code{method=NULL}).}
   \item{hessian}{logical, if the Hessian needs to be estimated at MLE.}
   \item{DElimit}{limit for DEoptim search (used as [-DElimit, +DElimit])
     when \code{method = "DE"}.}

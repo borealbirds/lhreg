@@ -25,8 +25,10 @@ hessian=FALSE, DElimit=10, eval=FALSE)
     nllfun <- function(par) {
         cf <- par[1:ncol(X)]
         sigma_sq <- exp(par[ncol(X)+1])^2
-        if (is.na(lambda))
-            lambda <- exp(par[ncol(X)+2]) # plogis(par[ncol(X)+2])
+        if (is.na(lambda)) {
+            #lambda <- plogis(par[ncol(X)+2]) # lambda in 0-1
+            lambda <- exp(par[ncol(X)+2]) # real valued lambda
+        }
         VV <- V
         VV[lower.tri(VV)] <- lambda * V[lower.tri(VV)]
         VV[upper.tri(VV)] <- lambda * V[upper.tri(VV)]
@@ -120,18 +122,20 @@ function(i, object, return_coefs=TRUE)
     xx <- object$X[-i,,drop=FALSE]
     mod <- lm(yy ~ xx-1)
     pr <- drop(object$X[i,,drop=FALSE] %*% coef(mod))
-    out <- c(est=object$Y[i], pred=pr)
+    out <- c(obs=unname(object$Y[i]), pred=unname(pr))
     if (return_coefs)
-        out <- c(out, est=coef(mod))
+        out <- c(out, est=c(coef(mod), sigma=summary(mt0)$sigma))
     out
 }
 
 loo2 <-
-function(i, object, return_coefs=TRUE)
+function(i, object, return_coefs=TRUE, method=NULL)
 {
+    if (is.null(method))
+        method <- object$method
     remod <- lhreg(Y=object$Y[-i], X=object$X[-i,,drop=FALSE], SE=object$SE[-i],
         V=object$V[-i,-i,drop=FALSE], lambda=object$lambda, hessian=FALSE,
-        method=object$method, init=object$coef)
+        method=method, init=object$coef)
 
     VV <- remod$summary["sigma",1]^2 * object$V
     VV[lower.tri(VV)] <- remod$summary["lambda",1] * VV[lower.tri(VV)]
@@ -152,7 +156,7 @@ function(i, object, return_coefs=TRUE)
 
     ## interested in mu12 only (due to observation error)
     mu12 <- drop(mu1 + Sig12 %*% solve(Sig22) %*% (y2-mu2))
-    out <- c(est=y[i], pred=mu12)
+    out <- c(obs=unname(y[i]), pred=unname(mu12))
     if (return_coefs)
         out <- c(out, est=remod$summary[,1])
     out
