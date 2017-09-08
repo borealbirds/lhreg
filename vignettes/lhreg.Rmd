@@ -110,6 +110,7 @@ relative phylogenies can be reconstructed from it:
 ```{r heatmap}
 library(ape)
 data(cor_matrix)
+data(lhreg_tree)
 str(cor_matrix)
 heatmap(cor_matrix)
 ```
@@ -127,6 +128,10 @@ phylogenetic correlation.
 ### Variable screening for SR
 
 ```{r screening-sr}
+library(lhreg)
+data(lhreg_data)
+data(cor_matrix)
+
 y <- lhreg_data$logphi
 m4 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab4, lhreg_data)
 m3 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab3, lhreg_data)
@@ -201,8 +206,6 @@ colnames(X0) <- "Intercept"
 Xt <- model.matrix(mt) # DD
 Xp <- model.matrix(mp) # SR
 
-## --- model selection
-
 ## fit models for tau
 
 tM00 <- lhreg(Y=x$logtau, X=X0, SE=x$logtauSE, V=vc, lambda=0,
@@ -224,7 +227,6 @@ pM0b <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=0,
     hessian=TRUE, method=met)
 pMlb <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=NA,
     hessian=TRUE, method=met)
-#save.image("lhreg-temp.Rdata")
 ```
 
 ### Profile likelihood for lambda
@@ -264,7 +266,6 @@ pl_pMlb <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...),
     cl=cl, method=met)
 
 stopCluster(cl) # close cluster
-#save.image("lhreg-temp.Rdata")
 ```
 
 ### Leave-one-out (LOO) analysis
@@ -308,29 +309,45 @@ loo_pM0b <- t(pbsapply(1:n, loo2, object=pM0b, cl=cl, method=met))
 loo_pMlb <- t(pbsapply(1:n, loo2, object=pMlb, cl=cl, method=met))
 
 stopCluster(cl)
-#save.image("lhreg-temp.Rdata")
 ```
 
-Use `save.image()` to save the results.
+Save the results:
+
+```{r save,eval=FALSE}
+save(list=c("cor_matrix", "lam", "lhreg_data", "met", "n",
+    "vc", "x", "X0", "Xp", "Xt",
+    "amp", "mp", "mp0", "mpx", "mpx2",
+    "amt", "mt", "mt0", "mtx", "mtx2",
+    "pM00", "pM0b", "pMl0", "pMlb",
+    "tM00", "tM0b", "tMl0", "tMlb",
+    "pl_pMl0", "pl_pMlb", "pl_tMl0", "pl_tMlb",
+    "loo_pM00", "loo_pM0b", "loo_pMl0", "loo_pMlb",
+    "loo_tM00", "loo_tM0b", "loo_tMl0", "loo_tMlb"),
+    file="~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
+#    file="lhreg-results-DE2.rda")
+```
 
 ## Results
 
 Load results and set some values:
 
 ```{r load-results}
-load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
+library(lhreg)
+#load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
+#load(system.file("extdata", "lhreg-results-DE2.rda", package = "lhreg"))
+load("~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
 
 ## AIC tables
 aict <- AIC(tM00, tMl0, tM0b, tMlb)
 aict$dAIC <- aict$AIC-min(aict$AIC)
 
-aicp <- AIC(pM0, pMl0, pM0b, pMlb)
+aicp <- AIC(pM00, pMl0, pM0b, pMlb)
 aicp$dAIC <- aicp$AIC-min(aicp$AIC)
 
-cbind(aict, t(sapply(list(tM0, tMl0, tM0b, tMlb),
+cbind(aict, t(sapply(list(tM00, tMl0, tM0b, tMlb),
     function(z) z$summary[c("sigma","lambda"), 1])))
 
-cbind(aicp, t(sapply(list(pM0, pMl0, pM0b, pMlb),
+cbind(aicp, t(sapply(list(pM00, pMl0, pM0b, pMlb),
     function(z) z$summary[c("sigma","lambda"), 1])))
 
 ## MSE
@@ -364,42 +381,58 @@ prp <- exp(loo_pMlb[,1:2])
 ### Table with estimates and MSE
 
 ```{r table-1}
-ff <- function(z) {
+sf <- function(z, loo, wald=TRUE, level=0.95) {
     zz <- z$summary
-
-    pcut <- function(p) {
-        factor(c("***", "**", "*", "+", "ns")[as.integer(cut(p,
-            c(1, 0.1, 0.05, 0.01, 0.001, 0), include.lowest=TRUE, right=FALSE))],
-            levels=c("***", "**", "*", "+", "ns"))
+    a <- c((1-level)/2, 1-(1-level)/2)
+    CI <- t(apply(rbind(zz[,1], loo[,3:ncol(loo),drop=FALSE]), 2, quantile, a))
+    if (wald) {
+        pcut <- function(p) {
+            factor(c("***", "**", "*", "+", "ns")[as.integer(cut(p,
+                c(1, 0.1, 0.05, 0.01, 0.001, 0),
+                include.lowest=TRUE, right=FALSE))],
+                levels=c("***", "**", "*", "+", "ns"))
+        }
+        out <- structure(sapply(1:nrow(zz), function(i)
+            paste0(round(zz[i,1], 3), " (SE +/- ", round(zz[i,2], 3),
+            pcut(zz[i,4]), ")")), names=rownames(zz))
+    } else {
+        out <- structure(sapply(1:nrow(zz), function(i)
+            paste0(round(zz[i,1], 3), " (", round(CI[i,1], 3), ", ",
+            round(CI[i,2], 3), ")")), names=rownames(zz))
     }
-    structure(sapply(1:nrow(zz), function(i)
-        paste0(round(zz[i,1], 3), " (SE +/- ", round(zz[i,2], 3), pcut(zz[i,4]), ")")),
-        names=rownames(zz))
+    out
 }
-zzz <- lapply(list(pM0, pMp0, pMl0, pMx, pMpx, pMlx), ff)
-m <- matrix("", length(zzz[[6]]), 6)
-rownames(m) <- names(zzz[[6]])
-colnames(m) <- c("M0", "Mp0", "Ml0", "Mx", "Mpx", "Mlx")
-for (i in 1:6) {
+Wald <- FALSE
+zzz <- list(
+    M00=sf(pM00, loo_pM00, Wald, Level),
+    Ml0=sf(pMl0, loo_pMl0, Wald, Level),
+    M0b=sf(pM0b, loo_pM0b, Wald, Level),
+    Mlb=sf(pMlb, loo_pMlb, Wald, Level))
+m <- matrix("", length(zzz[[4]]), 4)
+rownames(m) <- names(zzz[[4]])
+colnames(m) <- c("M00", "Ml0", "M0b", "Mlb")
+for (i in 1:4) {
     j <- match(names(zzz[[i]]), rownames(m))
     m[j,i] <- zzz[[i]]
 }
-ii <- grep("(SE +/- NANA)", m,fixed=TRUE)
-m[ii] <- gsub("(SE +/- NANA)", "(fixed)", m[ii], fixed=TRUE)
-m[m==""] <- "n/a"
+m["lambda", c("M00", "M0b")] <- "0 (fixed)"
+#m[m==""] <- "n/a"
 m1 <- m
 
-zzz <- lapply(list(tM0, tMp0, tMl0, tMx, tMpx, tMlx), ff)
-m <- matrix("", length(zzz[[6]]), 6)
-rownames(m) <- names(zzz[[6]])
-colnames(m) <- c("M0", "Mp0", "Ml0", "Mx", "Mpx", "Mlx")
-for (i in 1:6) {
+zzz <- list(
+    M00=sf(tM00, loo_tM00, Wald, Level),
+    Ml0=sf(tMl0, loo_tMl0, Wald, Level),
+    M0b=sf(tM0b, loo_tM0b, Wald, Level),
+    Mlb=sf(tMlb, loo_tMlb, Wald, Level))
+m <- matrix("", length(zzz[[4]]), 4)
+rownames(m) <- names(zzz[[4]])
+colnames(m) <- c("M00", "Ml0", "M0b", "Mlb")
+for (i in 1:4) {
     j <- match(names(zzz[[i]]), rownames(m))
     m[j,i] <- zzz[[i]]
 }
-ii <- grep("(SE +/- NANA)", m,fixed=TRUE)
-m[ii] <- gsub("(SE +/- NANA)", "(fixed)", m[ii], fixed=TRUE)
-m[m==""] <- "n/a"
+m["lambda", c("M00", "M0b")] <- "0 (fixed)"
+#m[m==""] <- "n/a"
 m2 <- m
 
 m1 <- rbind(m1, df=aicp$df, dAIC=round(aicp$dAIC, 3),
@@ -411,20 +444,12 @@ print.default(m1, quote=FALSE) # SR results
 print.default(m2, quote=FALSE) # DD results
 ```
 
-Note: estimates and p-values for $\lambda$ taken from profile likelihood results
-due to issues with boundary condition when traits used for
-detection distance model.
-
 ### Tree with SR and DD values
 
 We hack the `phytools::contMap` function to produce non-rainbow colors:
 
 ```{r tree-trait,fig.height=12,fig.width=12}
 library(phytools)
-tre <- compute.brlen(vcv2phylo(cor_matrix))
-stopifnot(all(tre$tip.label == rownames(lhreg_data)))
-NAMES <- abbreviate(lhreg_data$common_name, 12, named=FALSE)
-tre$tip.label <- NAMES
 
 contMap2 <-
 function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
@@ -527,16 +552,31 @@ function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
     invisible(xx)
 }
 
-#library(viridis) # use viridis, plasma, magma etc
-#col_fun <- colorRampPalette(viridis(100)[20:100])
-#col_fun <- colorRampPalette(grey(seq(0.8, 0, by=-0.1))) # grey scale
+library(ape)
+#load(system.file("extdata", "mph.rda", package = "lhreg"))
+load("~/repos/lhreg/inst/extdata/mph.rda")
+length(mph)
+tre <- mph[[1000]] # pick one tree
+
+ii <- match(tre$tip.label, rownames(lhreg_data))
+NAMES <- as.character(lhreg_data$common_name)[ii]
+tre$tip.label <- NAMES
+PHI <- structure(exp(lhreg_data$logphi)[ii], .Names=NAMES)
+TAU <- 100*structure(exp(lhreg_data$logtau)[ii], .Names=NAMES)
+
 col_fun <- colorRampPalette(Col) # red-yl-blue
+
+pdf("FigX.pdf", width=10, height=10)
+
 op <- par(mfrow=c(1,2))
-contMap2(tre, structure(exp(lhreg_data$logphi), .Names=NAMES),
-    fsize=0.5, outline=FALSE, col_fun=col_fun, main="SR")
-contMap2(tre, structure(exp(lhreg_data$logtau), .Names=NAMES),
-    fsize=0.5, outline=FALSE, col_fun=col_fun, direction="leftwards", main="DD")
+contMap2(tre, PHI,
+    fsize=0.4, outline=FALSE, col_fun=col_fun, main="SR", lwd=2)
+contMap2(tre, TAU,
+    fsize=0.4, outline=FALSE, col_fun=col_fun, direction="leftwards",
+    main="DD", lwd=2)
 par(op)
+
+dev.off()
 ```
 
 ### Profile likelihood figures
@@ -546,7 +586,7 @@ par(op)
 op <- par(mfrow=c(1,2))
 
 Res1 <- pl_pMl0
-Res2 <- pl_pMlx
+Res2 <- pl_pMlb
 yv <- exp(Res1-max(Res1))
 plot(lam, yv, type="n", lwd=1, ylim=exp(c(2*Crit, 0)),
     xlab=expression(lambda), ylab="Profile Likelihood Ratio")
@@ -575,7 +615,7 @@ round(c(Max_Ml0=ltmp[which.max(tmp1)], CI=range(ltmp[i1])), 3)
 round(c(Max_Mlx=ltmp[which.max(tmp2)], CI=range(ltmp[i2])), 3)
 
 Res1 <- pl_tMl0
-Res2 <- pl_tMlx
+Res2 <- pl_tMlb
 yv <- exp(Res1-max(Res1))
 plot(lam, yv, type="n", lwd=1, ylim=exp(c(2*Crit, 0)),
     xlab=expression(lambda), ylab="Profile Likelihood Ratio")
@@ -609,6 +649,9 @@ par(op)
 ```
 
 ### LOO cross validation plots
+
+Need to label outliers
+Need to add better legend for continuous (nested circles)
 
 ```{r fig-2,width=14,height=7}
 #pdf("Fig2.pdf", width=14, height=7)
