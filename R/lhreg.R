@@ -2,6 +2,7 @@ lhreg <-
 function(Y, X, SE, V, init=NULL, lambda=NA, method="Nelder-Mead",
 hessian=FALSE, DElimit=10, eval=FALSE)
 {
+    unit_scaling <- FALSE
     .solvenear <-
     function(x)
     {
@@ -26,8 +27,8 @@ hessian=FALSE, DElimit=10, eval=FALSE)
         cf <- par[1:ncol(X)]
         sigma_sq <- exp(par[ncol(X)+1])^2
         if (is.na(lambda)) {
-            #lambda <- plogis(par[ncol(X)+2]) # lambda in 0-1
-            lambda <- exp(par[ncol(X)+2]) # real valued lambda
+            lambda <- if (unit_scaling) # lambda in 0-1 or in 0-Inf
+                plogis(par[ncol(X)+2]) else exp(par[ncol(X)+2])
         }
         VV <- V
         VV[lower.tri(VV)] <- lambda * V[lower.tri(VV)]
@@ -62,11 +63,14 @@ hessian=FALSE, DElimit=10, eval=FALSE)
     }
     if (hessian) {
         mvn <- rmvnorm(10^4, cf, S)
+        mvn <- rbind(cf, mvn)
         mvn[,ncol(X)+1] <- exp(mvn[,ncol(X)+1])
         if (is.na(lambda)) {
-            mvn[,ncol(X)+2] <- exp(mvn[,ncol(X)+2])#plogis(mvn[,ncol(X)+2])
+            mvn[,ncol(X)+2] <- if (unit_scaling)
+                plogis(mvn[,ncol(X)+2]) else exp(mvn[,ncol(X)+2])
         }
-        trcf <- colMeans(mvn)
+        #trcf <- colMeans(mvn)
+        trcf <- mvn[1,] # transformed coefs
         trse <- apply(mvn, 2, sd)
         if (!is.na(lambda)) {
             trcf <- c(trcf, lambda)
@@ -76,7 +80,8 @@ hessian=FALSE, DElimit=10, eval=FALSE)
         trcf <- cf
         trcf[ncol(X)+1] <- exp(trcf[ncol(X)+1])
         if (is.na(lambda)) {
-            trcf[ncol(X)+2] <- exp(trcf[ncol(X)+2])#plogis(trcf[ncol(X)+2])
+            trcf[ncol(X)+2] <- if (unit_scaling)
+                plogis(trcf[ncol(X)+2]) else exp(trcf[ncol(X)+2])
         } else {
             trcf[ncol(X)+2] <- lambda
         }
