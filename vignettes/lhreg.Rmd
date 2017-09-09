@@ -692,55 +692,77 @@ par(op)
 ### LOO cross validation plots
 
 Need to label outliers
-Need to add better legend for continuous (nested circles)
 
-```{r fig-2,width=14,height=7}
-#pdf("Fig2.pdf", width=14, height=7)
+Need to check that DD is in m and not in 100m
+
+```{r fig-2,width=13,height=7}
+library(plotrix)
+size_fun <- function(x, Min=0.2, Max=1) {
+    x <- x - min(x)
+    x <- x / max(x)
+    x <- x * (Max-Min) + Min
+    x
+}
+#setwd("~/Dropbox/bam/lhreg2/rev1/")
+pdf("Fig2.pdf", width=13, height=7)
 
 op <- par(mfrow=c(1,2))
 
 Max <- 0.7
-plot(prp, xaxs = "i", yaxs = "i", type="n",
+plot(prp, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
-    xlab="Time-removal SR Estimate", ylab="LOO SR Estimate")
+    xlab="Time-removal SR Estimate (/min)", 
+    ylab="LOO SR Estimate (/min)")
 abline(0,1,lty=1, col=1)
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
 abline(0,1.5,lty=2, col="grey")
 abline(0,1/1.5,lty=2, col="grey")
-points(prp, xaxs = "i", yaxs = "i",
-    col=c(Col1,Col3)[as.integer(x$Mig2)],
-    cex=0.2+2*x$MaxFreqkHz/10)
+r0 <- size_fun(x$MaxFreqkHz, 0.2*Max/50, Max/50)
+draw.ellipse(prp[,1], prp[,2], r0, r0,
+    border=c(Col1,Col3)[as.integer(x$Mig2)])
 segments(prp[,1], PIp[,1], prp[,1], PIp[,2],
     col=c(Col1,Col3)[as.integer(x$Mig2)], lwd=1)
 box()
-legend("topleft", pch=21, col=c(Col1,Col3,1,1),
-    pt.cex=c(1.5,1.5,2,1), bty="n",
-    legend=c("Migrant", "Resident", "Song Picth: High", "Song Pitch: Low"))
+legend("topleft", pch=21, col=c(Col1,Col3),
+    pt.cex=c(2,2), bty="n",
+    legend=c("Migrant", "Resident"))
+r <- seq(0.2*Max/50, Max/50, len=5)
+draw.ellipse(rep(0.06, 5), 0.55+r-max(r), r, r, border=1)
+text(c(0.09, 0.06, 0.06), c(0.61, 0.52, 0.58), 
+    c("Song Pitch (kHz)",round(range(x$MaxFreqkHz),1)), 
+    cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[lambda*beta]-SR))
 
-Max <- 2.1
-plot(prt, xaxs = "i", yaxs = "i", type="n",
+Max <- 100*2.1
+plot(100*prt, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
-    xlab="Distance-sampling DD Estimate", ylab="LOO DD Estimate")
+    xlab="Distance-sampling DD Estimate (m)", 
+    ylab="LOO DD Estimate (m)")
 abline(0,1,lty=1, col=1)
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
 abline(0,1.5,lty=2, col="grey")
 abline(0,1/1.5,lty=2, col="grey")
-points(prt, xaxs = "i", yaxs = "i",
-    cex=0.2+2*x$logmass/5,
-    col=c(Col1,Col3)[as.integer(x$Hab2)])
-segments(prt[,1], PIt[,1], prt[,1], PIt[,2],
+r0 <- size_fun(x$logmass, 0.2*Max/50, Max/50)
+draw.ellipse(100*prt[,1], 100*prt[,2], r0, r0,
+    border=c(Col1,Col3)[as.integer(x$Hab2)])
+segments(100*prt[,1], 100*PIt[,1], 100*prt[,1], 100*PIt[,2],
     col=c(Col1,Col3)[as.integer(x$Hab2)], lwd=1)
 box()
-legend("topleft", pch=21, col=c(Col1,Col3,1,1), pt.cex=c(1.5,1.5,2,1), bty="n",
-    legend=c("Habitat: Closed", "Habitat: Open", "Body Mass: Large", "Body Mass: Small"))
+legend("topleft", pch=21, col=c(Col1,Col3), pt.cex=c(2,2), bty="n",
+    legend=c("Habitat: Closed", "Habitat: Open"))
+r <- seq(0.2*Max/50, Max/50, len=5)
+S <- Max/0.7
+draw.ellipse(S*rep(0.06, 5), S*0.55+r-max(r), r, r, border=1)
+text(S*c(0.09, 0.06, 0.06), S*c(0.61, 0.52, 0.58), 
+    c("Body Mass (g)",round(range(x$logmass),1)), 
+    cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[0*beta]-DD))
 
 par(op)
 
-#dev.off()
+dev.off()
 ```
 
 ### Bootstrap distributions
