@@ -1,4 +1,4 @@
-export(lhreg, profile_lambda1, loo1, loo2)
+export(lhreg, profile_lambda1, loo1, loo2, parametric_bootstrap)
 S3method(summary, lhreg)
 S3method(simulate, lhreg)
 S3method(logLik, lhreg)

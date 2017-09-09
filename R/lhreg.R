@@ -192,3 +192,19 @@ function(object, nsim = 1, seed = NULL, lambda = NA, obs_error = FALSE, ...)
     mu <- drop(object$X %*% object$coef[1:ncol(object$X)])
     t(mvtnorm::rmvnorm(nsim, mu, VV, ...))
 }
+
+parametric_bootstrap <-
+function(object, nsim=1, seed = NULL, method, cl=NULL, ...) {
+    if (missing(method))
+        method <- object$method
+    sim <- simulate(object, nsim=nsim, seed=seed, obs_error=FALSE)
+    est <- t(pbapply(sim, 2,
+        function(z, object, method) {
+        lhreg(Y=z, X=object$X, SE=object$SE, V=object$V,
+            init=object$coef, lambda=object$lambda, method=method,
+            hessian=FALSE, DElimit=10, eval=FALSE)$summary[,1]
+    }, object=object, method=method, cl=cl))
+    list(simulated=cbind(object$Y, sim),
+        estimates=rbind(object$summary[,1], est))
+}
+

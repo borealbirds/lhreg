@@ -6,6 +6,7 @@
 \alias{profile_lambda1}
 \alias{loo1}
 \alias{loo2}
+\alias{parametric_bootstrap}
 \title{
 Phylogeny and Species Trait Effects on Detectability
 }
@@ -24,6 +25,8 @@ profile_lambda1(object, value, ...)
 
 loo1(i, object, return_coefs=TRUE)
 loo2(i, object, return_coefs=TRUE, method=NULL)
+
+parametric_bootstrap(object, nsim=1, seed = NULL, method, cl=NULL, ...)
 }
 \arguments{
   \item{Y}{response vector.}
