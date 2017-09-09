@@ -698,3 +698,53 @@ par(op)
 #dev.off()
 ```
 
+
+## Parametric bootstrap
+
+```{r par-boot,eval=FALSE}
+parametric_bootstrap <- 
+function(object, nsim=1, seed = NULL, method, cl=NULL, ...) {
+    if (missing(method))
+        method <- object$method
+    sim <- simulate(object, nsim=nsim, seed=seed, obs_error=FALSE)
+    est <- t(pbapply(sim, 2, 
+        function(z, object, method) {
+        lhreg(Y=z, X=object$X, SE=object$SE, V=object$V, 
+            init=object$coef, lambda=object$lambda, method=method,
+            hessian=FALSE, DElimit=10, eval=FALSE)$summary[,1]
+    }, object=object, method=method, cl=cl))
+    list(simulated=cbind(object$Y, sim), 
+        estimates=rbind(object$summary[,1], est))
+}
+
+nsim <- 5
+
+cl <- makeCluster(4) # parallel if you wish
+tmp <- clusterEvalQ(cl, library(lhreg)) # load package
+
+pb_tM00 <- parametric_bootstrap(tM00, nsim=nsim, method="Nelder-Mead", cl=cl)
+pb_tMl0 <- parametric_bootstrap(tMl0, nsim=nsim, method="Nelder-Mead", cl=cl)
+pb_tM0b <- parametric_bootstrap(tM0b, nsim=nsim, method="Nelder-Mead", cl=cl)
+pb_tMlb <- parametric_bootstrap(tMlb, nsim=nsim, method="Nelder-Mead", cl=cl)
+
+pb_pM00 <- parametric_bootstrap(pM00, nsim=nsim, method="Nelder-Mead", cl=cl)
+pb_pMl0 <- parametric_bootstrap(pMl0, nsim=nsim, method="Nelder-Mead", cl=cl)
+pb_pM0b <- parametric_bootstrap(pM0b, nsim=nsim, method="Nelder-Mead", cl=cl)
+pb_pMlb <- parametric_bootstrap(pMlb, nsim=nsim, method="Nelder-Mead", cl=cl)
+
+stopCluster(cl)
+
+get_CI <- function(x, level=0.95)
+    t(apply(x$estimates, 2, quantile, c((1-level)/2, 1-(1-level)/2)))
+
+get_CI(pb_tM00, level=Level)
+get_CI(pb_tMl0, level=Level)
+get_CI(pb_tM0b, level=Level)
+get_CI(pb_tMlb, level=Level)
+
+get_CI(pb_pM00, level=Level)
+get_CI(pb_pMl0, level=Level)
+get_CI(pb_pM0b, level=Level)
+get_CI(pb_pMlb, level=Level)
+```
+
