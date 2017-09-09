@@ -200,7 +200,7 @@ function(object, nsim=1, seed = NULL, method, cl=NULL, ...) {
     sim <- simulate(object, nsim=nsim, seed=seed, obs_error=FALSE)
     est <- t(pbapply(sim, 2,
         function(z, object, method) {
-        lhreg(Y=z, X=object$X, SE=object$SE, V=object$V,
+        lhreg(Y=z, X=object$X, SE=0, V=object$V,
             init=object$coef, lambda=object$lambda, method=method,
             hessian=FALSE, DElimit=10, eval=FALSE)$summary[,1]
     }, object=object, method=method, cl=cl))

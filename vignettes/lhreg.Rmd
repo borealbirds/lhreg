@@ -299,11 +299,11 @@ stopCluster(cl)
 
 ```{r par-boot,eval=FALSE}
 nsim <- 999
+## simulated data is nice, thus quick optimization works
+metQ <- "Nelder-Mead"
 
 cl <- makeCluster(4) # parallel if you wish
 tmp <- clusterEvalQ(cl, library(lhreg)) # load package
-## simulated data is nice, thus quick optimization works
-metQ <- "Nelder-Mead"
 
 pb_tM00 <- parametric_bootstrap(tM00, nsim=nsim, method=metQ, cl=cl)
 pb_tMl0 <- parametric_bootstrap(tMl0, nsim=nsim, method=metQ, cl=cl)
@@ -317,23 +317,8 @@ pb_pMlb <- parametric_bootstrap(pMlb, nsim=nsim, method=metQ, cl=cl)
 
 stopCluster(cl)
 
-get_CI <- function(x, level=0.95)
-    t(apply(x$estimates, 2, quantile, c((1-level)/2, 1-(1-level)/2)))
+## save the results:
 
-get_CI(pb_tM00, level=Level)
-get_CI(pb_tMl0, level=Level)
-get_CI(pb_tM0b, level=Level)
-get_CI(pb_tMlb, level=Level)
-
-get_CI(pb_pM00, level=Level)
-get_CI(pb_pMl0, level=Level)
-get_CI(pb_pM0b, level=Level)
-get_CI(pb_pMlb, level=Level)
-```
-
-Save the results:
-
-```{r save,eval=FALSE}
 save(list=c("cor_matrix", "lam", "lhreg_data", "met", "n",
     "vc", "x", "X0", "Xp", "Xt",
     "amp", "mp", "mp0", "mpx", "mpx2",
@@ -342,7 +327,9 @@ save(list=c("cor_matrix", "lam", "lhreg_data", "met", "n",
     "tM00", "tM0b", "tMl0", "tMlb",
     "pl_pMl0", "pl_pMlb", "pl_tMl0", "pl_tMlb",
     "loo_pM00", "loo_pM0b", "loo_pMl0", "loo_pMlb",
-    "loo_tM00", "loo_tM0b", "loo_tMl0", "loo_tMlb"),
+    "loo_tM00", "loo_tM0b", "loo_tMl0", "loo_tMlb",
+    "pb_pM00", "pb_pM0b", "pb_pMl0", "pb_pMlb",
+    "pb_tM00", "pb_tM0b", "pb_tMl0", "pb_tMlb"),
     file="~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
 #    file="lhreg-results-DE2.rda")
 ```
@@ -462,6 +449,19 @@ m2 <- rbind(m2, df=aict$df, dAIC=round(aict$dAIC, 3),
 
 print.default(m1, quote=FALSE) # SR results
 print.default(m2, quote=FALSE) # DD results
+
+get_CI <- function(x, level=0.95)
+    t(apply(x$estimates, 2, quantile, c((1-level)/2, 1-(1-level)/2)))
+
+get_CI(pb_tM00, level=Level)
+get_CI(pb_tMl0, level=Level)
+get_CI(pb_tM0b, level=Level)
+get_CI(pb_tMlb, level=Level)
+
+get_CI(pb_pM00, level=Level)
+get_CI(pb_pMl0, level=Level)
+get_CI(pb_pM0b, level=Level)
+get_CI(pb_pMlb, level=Level)
 ```
 
 ### Tree with SR and DD values
