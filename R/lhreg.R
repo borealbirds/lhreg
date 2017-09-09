@@ -208,3 +208,40 @@ function(object, nsim=1, seed = NULL, method, cl=NULL, ...) {
         estimates=rbind(object$summary[,1], est))
 }
 
+pred_int <-
+function(object, boot, cl=NULL)
+{
+    n <- length(object$Y)
+    y <- object$Y
+    est <- boot$estimates
+    nsim <- nrow(est)
+
+    # i: observation
+    # j: bootstrap run
+    pf1 <- function(x) {
+        i <- x[1]
+        j <- x[2]
+
+        VV <- est[j,"sigma"]^2 * object$V
+        VV[lower.tri(VV)] <- est[j,"lambda"] * VV[lower.tri(VV)]
+        VV[upper.tri(VV)] <- est[j,"lambda"] * VV[upper.tri(VV)]
+
+        mu <- drop(object$X %*% est[j,1:ncol(object$X)])
+
+        y2 <- y[-i]
+        mu1 <- mu[i]
+        mu2 <- mu[-i]
+
+        #Sig11 <- VV[i,i,drop=FALSE]
+        Sig12 <- VV[i,-i,drop=FALSE]
+        #Sig21 <- VV[-i,i,drop=FALSE]
+        Sig22 <- VV[-i,-i,drop=FALSE]
+
+        ## interested in mu12 only (due to observation error)
+        mu12 <- drop(mu1 + Sig12 %*% solve(Sig22) %*% (y2-mu2))
+        mu12
+    }
+    vals <- as.matrix(expand.grid(i=1:n, j=1:100))
+    mat <- pbapply(vals, 1, pf1, cl=cl)
+    matrix(mat, n, nsim)
+}

@@ -7,6 +7,7 @@
 \alias{loo1}
 \alias{loo2}
 \alias{parametric_bootstrap}
+\alias{pred_int}
 \title{
 Phylogeny and Species Trait Effects on Detectability
 }
@@ -27,6 +28,7 @@ loo1(i, object, return_coefs=TRUE)
 loo2(i, object, return_coefs=TRUE, method=NULL)
 
 parametric_bootstrap(object, nsim=1, seed = NULL, method, cl=NULL, ...)
+pred_int(object, boot, cl=NULL)
 }
 \arguments{
   \item{Y}{response vector.}
@@ -54,6 +56,7 @@ parametric_bootstrap(object, nsim=1, seed = NULL, method, cl=NULL, ...)
   \item{obs_error}{logical, if observation error is to be taken into account.}
   \item{cl}{number of parallel processes or cluser object.}
   \item{return_coefs}{logical, if (re)estimated coefficients are to be returned.}
+  \item{boot}{an object with \code{parametric_bootstrap} results.}
   \item{\dots}{other arguments passed to underlying functions.}
 }
 \details{
@@ -79,6 +82,16 @@ Also returns coefficients based on the training data when
 corresponding prediction based on correlated mixed-effects model.
 Also returns coefficients based on the training data when
 \code{return_coefs=TRUE}.
+
+\code{parametric_bootstrap} uses the \code{simulate} method to simulate
+observations from a Multivariate Normal distribution according to the
+input object (without the observation error) to refit the model and returns
+simulated values and estimates.
+
+\code{pred_int} calculates the prediction interval for an observation
+conditional on the other species and the known tree (this one and the other
+species included), and returns the bootstrap distribution of the prediction
+that can be used to calculate quantile based prediction intervals.
 }
 \author{
 Peter Solymos <solymos@ualberta.ca>

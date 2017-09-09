@@ -297,6 +297,11 @@ stopCluster(cl)
 
 ### Parametric bootstrap
 
+We use the `simulate` method to simulate
+observations from a Multivariate Normal distribution according to the
+input object (without the observation error) to refit the model and returns
+simulated values and estimates.
+
 ```{r par-boot,eval=FALSE}
 nsim <- 999
 ## simulated data is nice, thus quick optimization works
@@ -316,6 +321,19 @@ pb_pM0b <- parametric_bootstrap(pM0b, nsim=nsim, method=metQ, cl=cl)
 pb_pMlb <- parametric_bootstrap(pMlb, nsim=nsim, method=metQ, cl=cl)
 
 stopCluster(cl)
+```
+
+### Prediction intervals
+
+We then calculate the prediction interval for an observation
+conditional on the other species and the known tree (this one and the other
+species included), and returns the bootstrap distribution of the prediction
+that can be used to calculate quantile based prediction intervals.
+
+```{r pred-int,eval=FALSE}
+
+pit <- pred_int(tM0b, pb_tM0b)
+pip <- pred_int(pMlb, pb_pMlb)
 
 ## save the results:
 
@@ -329,7 +347,8 @@ save(list=c("cor_matrix", "lam", "lhreg_data", "met", "n",
     "loo_pM00", "loo_pM0b", "loo_pMl0", "loo_pMlb",
     "loo_tM00", "loo_tM0b", "loo_tMl0", "loo_tMlb",
     "pb_pM00", "pb_pM0b", "pb_pMl0", "pb_pMlb",
-    "pb_tM00", "pb_tM0b", "pb_tMl0", "pb_tMlb"),
+    "pb_tM00", "pb_tM0b", "pb_tMl0", "pb_tMlb",
+    "pit", "pip"),
     file="~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
 #    file="lhreg-results-DE2.rda")
 ```
