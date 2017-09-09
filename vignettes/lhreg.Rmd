@@ -332,8 +332,10 @@ that can be used to calculate quantile based prediction intervals.
 
 ```{r pred-int,eval=FALSE}
 
-pit <- pred_int(tM0b, pb_tM0b)
-pip <- pred_int(pMlb, pb_pMlb)
+cl <- makeCluster(4)
+pit <- pred_int(tM0b, pb_tM0b, cl=cl)
+pip <- pred_int(pMlb, pb_pMlb, cl=cl)
+stopCluster(cl)
 
 ## save the results:
 

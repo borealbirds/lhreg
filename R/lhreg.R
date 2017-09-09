@@ -241,7 +241,7 @@ function(object, boot, cl=NULL)
         mu12 <- drop(mu1 + Sig12 %*% solve(Sig22) %*% (y2-mu2))
         mu12
     }
-    vals <- as.matrix(expand.grid(i=1:n, j=1:100))
+    vals <- as.matrix(expand.grid(i=1:n, j=1:nsim))
     mat <- pbapply(vals, 1, pf1, cl=cl)
     matrix(mat, n, nsim)
 }
