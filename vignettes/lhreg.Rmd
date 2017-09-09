@@ -404,6 +404,8 @@ Col3 <- Col[9]
 Col4 <- rgb(253/255, 174/255, 97/255, 0.5) # Col[7]
 prt <- exp(loo_tM0b[,1:2])
 prp <- exp(loo_pMlb[,1:2])
+PIt <- t(apply(exp(pit), 1, quantile, c((1-Level)/2, 1-(1-Level)/2)))
+PIp <- t(apply(exp(pip), 1, quantile, c((1-Level)/2, 1-(1-Level)/2)))
 ```
 
 ### Table with estimates and MSE
@@ -709,6 +711,8 @@ abline(0,1/1.5,lty=2, col="grey")
 points(prp, xaxs = "i", yaxs = "i",
     col=c(Col1,Col3)[as.integer(x$Mig2)],
     cex=0.2+2*x$MaxFreqkHz/10)
+segments(prp[,1], PIp[,1], prp[,1], PIp[,2],
+    col=c(Col1,Col3)[as.integer(x$Mig2)], lwd=1)
 box()
 legend("topleft", pch=21, col=c(Col1,Col3,1,1),
     pt.cex=c(1.5,1.5,2,1), bty="n",
@@ -727,6 +731,8 @@ abline(0,1/1.5,lty=2, col="grey")
 points(prt, xaxs = "i", yaxs = "i",
     cex=0.2+2*x$logmass/5,
     col=c(Col1,Col3)[as.integer(x$Hab2)])
+segments(prt[,1], PIt[,1], prt[,1], PIt[,2],
+    col=c(Col1,Col3)[as.integer(x$Hab2)], lwd=1)
 box()
 legend("topleft", pch=21, col=c(Col1,Col3,1,1), pt.cex=c(1.5,1.5,2,1), bty="n",
     legend=c("Habitat: Closed", "Habitat: Open", "Body Mass: Large", "Body Mass: Small"))
