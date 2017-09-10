@@ -115,9 +115,6 @@ str(cor_matrix)
 heatmap(cor_matrix)
 ```
 
-```{r phylo-tree,fig.height=12,fig.width=7}
-plot(compute.brlen(vcv2phylo(cor_matrix)), cex=0.5)
-```
 
 ## Analysis
 
@@ -351,8 +348,8 @@ save(list=c("cor_matrix", "lam", "lhreg_data", "met", "n",
     "pb_pM00", "pb_pM0b", "pb_pMl0", "pb_pMlb",
     "pb_tM00", "pb_tM0b", "pb_tMl0", "pb_tMlb",
     "pit", "pip"),
-    file="~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
-#    file="lhreg-results-DE2.rda")
+#    file="~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
+    file="lhreg-results-DE2.rda")
 ```
 
 ## Results
@@ -362,8 +359,8 @@ Load results and set some values:
 ```{r load-results}
 library(lhreg)
 #load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
-#load(system.file("extdata", "lhreg-results-DE2.rda", package = "lhreg"))
-load("~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
+load(system.file("extdata", "lhreg-results-DE2.rda", package = "lhreg"))
+#load("~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
 
 ## AIC tables
 aict <- AIC(tM00, tMl0, tM0b, tMlb)
@@ -406,9 +403,25 @@ prt <- exp(loo_tM0b[,1:2])
 prp <- exp(loo_pMlb[,1:2])
 PIt <- t(apply(exp(pit), 1, quantile, c((1-Level)/2, 1-(1-Level)/2)))
 PIp <- t(apply(exp(pip), 1, quantile, c((1-Level)/2, 1-(1-Level)/2)))
+
+library(plotrix)
+size_fun <- function(x, Min=0.2, Max=1) {
+    x <- x - min(x)
+    x <- x / max(x)
+    x <- x * (Max-Min) + Min
+    x
+}
+col_fun <- colorRampPalette(Col) # red-yl-blue
+size_col_fun <- function(x) {
+    q <- quantile(x, seq(0, 1, 0.01))
+    i <- as.integer(cut(x, q, include.lowest = TRUE))
+    col_fun(100)[i]
+}
 ```
 
 ### Table with estimates and MSE
+
+This table has estimates, confidence intervals, MSE, $\Delta$AIC.
 
 ```{r table-1}
 get_CI <- function(x, level=0.95)
@@ -485,142 +498,55 @@ print.default(m1, quote=FALSE) # SR results
 print.default(m2, quote=FALSE) # DD results
 ```
 
-### Tree with SR and DD values
+### Tree with SR, DD, and trait values
 
-We hack the `phytools::contMap` function to produce non-rainbow colors:
+Load the 1000 posterior trees, pick one and plot trait values
+alongside the tree.
 
-```{r tree-trait,fig.height=12,fig.width=12}
-library(phytools)
-
-contMap2 <-
-function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
-    legend = NULL, lims = NULL, outline = TRUE, sig = 3, type = "phylogram",
-    direction = "rightwards", plot = TRUE, col_fun=rainbow, ...)
-{
-    if (!inherits(tree, "phylo"))
-        stop("tree should be an object of class \"phylo\".")
-    if (hasArg(mar))
-        mar <- list(...)$mar
-    else mar <- rep(0.3, 4)
-    if (hasArg(offset))
-        offset <- list(...)$offset
-    else offset <- NULL
-    if (hasArg(method))
-        method <- list(...)$method
-    else method <- "fastAnc"
-    if (hasArg(hold))
-        hold <- list(...)$hold
-    else hold <- TRUE
-    if (hasArg(leg.txt))
-        leg.txt <- list(...)$leg.txt
-    else leg.txt <- "trait value"
-    h <- max(nodeHeights(tree))
-    steps <- 0:res/res * max(h)
-    H <- nodeHeights(tree)
-    if (method == "fastAnc")
-        a <- fastAnc(tree, x)
-    else if (method == "anc.ML") {
-        fit <- anc.ML(tree, x)
-        a <- fit$ace
-        if (!is.null(fit$missing.x))
-            x <- c(x, fit$missing.x)
-    }
-    else if (method == "user") {
-        if (hasArg(anc.states))
-            anc.states <- list(...)$anc.states
-        else {
-            cat("No ancestral states have been provided. Using states estimated with fastAnc.\n\n")
-            a <- fastAnc(tree, x)
-        }
-        if (length(anc.states) < tree$Nnode) {
-            nodes <- as.numeric(names(anc.states))
-            tt <- tree
-            for (i in 1:length(nodes)) {
-                M <- matchNodes(tt, tree, method = "distances")
-                ii <- M[which(M[, 2] == nodes[i]), 1]
-                tt <- bind.tip(tt, nodes[i], edge.length = 0,
-                  where = ii)
-            }
-            a <- fastAnc(tt, c(x, anc.states))
-            M <- matchNodes(tree, tt, method = "distances")
-            a <- a[as.character(M[, 2])]
-            names(a) <- M[, 1]
-        }
-        else {
-            if (is.null(names(anc.states)))
-                names(anc.states) <- 1:tree$Nnode + Ntip(tree)
-            a <- anc.states[as.character(1:tree$Nnode + Ntip(tree))]
-        }
-    }
-    y <- c(a, x[tree$tip.label])
-    names(y)[1:Ntip(tree) + tree$Nnode] <- 1:Ntip(tree)
-    A <- matrix(y[as.character(tree$edge)], nrow(tree$edge),
-        ncol(tree$edge))
-    cols <- col_fun(1001)
-    names(cols) <- 0:1000
-    if (is.null(lims))
-        lims <- c(min(y), max(y))
-    trans <- 0:1000/1000 * (lims[2] - lims[1]) + lims[1]
-    names(trans) <- 0:1000
-    tree$maps <- vector(mode = "list", length = nrow(tree$edge))
-    for (i in 1:nrow(tree$edge)) {
-        XX <- cbind(c(H[i, 1], steps[intersect(which(steps >
-            H[i, 1]), which(steps < H[i, 2]))]), c(steps[intersect(which(steps >
-            H[i, 1]), which(steps < H[i, 2]))], H[i, 2])) - H[i,
-            1]
-        YY <- rowMeans(XX)
-        if (!all(YY == 0)) {
-            b <- vector()
-            for (j in 1:length(YY)) b[j] <- (A[i, 1]/YY[j] +
-                A[i, 2]/(max(XX) - YY[j]))/(1/YY[j] + 1/(max(XX) -
-                YY[j]))
-        }
-        else b <- A[i, 1]
-        d <- sapply(b, phytools:::getState, trans = trans)
-        tree$maps[[i]] <- XX[, 2] - XX[, 1]
-        names(tree$maps[[i]]) <- d
-    }
-    tree$mapped.edge <- phytools:::makeMappedEdge(tree$edge, tree$maps)
-    tree$mapped.edge <- tree$mapped.edge[, order(as.numeric(colnames(tree$mapped.edge)))]
-    class(tree) <- c("simmap", setdiff(class(tree), "simmap"))
-    xx <- list(tree = tree, cols = cols, lims = lims)
-    class(xx) <- "contMap"
-    if (plot)
-        phytools:::plot.contMap(xx, fsize = fsize, ftype = ftype, lwd = lwd,
-            legend = legend, outline = outline, sig = sig, type = type,
-            mar = mar, direction = direction, offset = offset,
-            hold = hold, leg.txt = leg.txt)
-    invisible(xx)
-}
-
+```{r tree-trait,fig.height=6,fig.width=14}
 library(ape)
-#load(system.file("extdata", "mph.rda", package = "lhreg"))
-load("~/repos/lhreg/inst/extdata/mph.rda")
-length(mph)
+load(system.file("extdata", "mph.rda", package = "lhreg"))
+#load("~/repos/lhreg/inst/extdata/mph.rda")
+#length(mph)
 tre <- mph[[1000]] # pick one tree
 
 ii <- match(tre$tip.label, rownames(lhreg_data))
-NAMES <- as.character(lhreg_data$common_name)[ii]
+d2 <- lhreg_data[ii,]
+#NAMES <- as.character(d2$common_name)
+NAMES <- paste0(d2$common_name, " (", d2$spp, ")")
 tre$tip.label <- NAMES
-PHI <- structure(exp(lhreg_data$logphi)[ii], .Names=NAMES)
-TAU <- 100*structure(exp(lhreg_data$logtau)[ii], .Names=NAMES)
+xy <- data.frame(
+    x=node.depth.edgelength(tre)[1:length(tre$tip.label)], 
+    y=node.height(tre)[1:length(tre$tip.label)])
+phy_pts_col <- function(z, vari, ...)
+    points(xy[,1] + z, xy[,2], pch=19, col=size_col_fun(vari), ...)
+phy_pts_size <- function(z, vari, ...)
+    points(xy[,1] + z, xy[,2], pch=19, cex=size_fun(vari), ...)
+phy_pts_2 <- function(z, vari, cex=0.6, col="#000000", ...) {
+    points(xy[,1] + z, xy[,2], pch=19, 
+        col=c(col, "#FFFFFF")[as.integer(vari)], cex=cex, ...)
+    points(xy[,1] + z, xy[,2], pch=21, col=col, cex=cex)
+}
 
-col_fun <- colorRampPalette(Col) # red-yl-blue
+#pdf("FigX2.pdf", width=6, height=14)
+op <- par(mar=c(1,1,1,1))
 
-pdf("FigX.pdf", width=10, height=10)
-
-op <- par(mfrow=c(1,2))
-contMap2(tre, PHI,
-    fsize=0.4, outline=FALSE, col_fun=col_fun, main="SR", lwd=2)
-contMap2(tre, TAU,
-    fsize=0.4, outline=FALSE, col_fun=col_fun, direction="leftwards",
-    main="DD", lwd=2)
+plot(tre, cex=0.6, label.offset=22, font=1)
+segments(xy[,1], xy[,2], xy[,1]+21, xy[,2], lwd=1, col=1)
+phy_pts_size(2, d2$logphi, col=Col1)
+phy_pts_size(5, d2$logtau, col=Col3)
+phy_pts_2(10, d2$Mig2)
+phy_pts_size(13, d2$xMaxFreqkHz)
+phy_pts_size(16, d2$logmass)
+phy_pts_2(19, d2$Hab2)
+text(xy[1,1]+c(2,5,10,13,16,19), rep(142, 6), 
+    c("SR", "DD", "Migr", "Pitch", "Mass", "Habitat"), 
+    pos=4, srt=90, cex=0.65, offset=0)
 par(op)
-
-dev.off()
+#dev.off()
 ```
 
-### Profile likelihood figures
+### Profile likelihood profiles for lambda
 
 ```{r fig-1,width=14,height=6}
 #pdf("Fig1.pdf", width=14, height=6)
@@ -689,6 +615,21 @@ par(op)
 #dev.off()
 ```
 
+### Bootstrap distributions of lambda
+
+```{r fig-boot,width=7,height=7}
+op <- par(mfrow=c(2,2))
+plot(density(pb_pMl0$estimates[,"lambda"]), 
+    xlim=c(0,1), main="SR Ml0", col=Col1)
+plot(density(pb_pMlb$estimates[,"lambda"]), 
+    xlim=c(0,1), main="SR Mlb", col=Col1)
+plot(density(pb_tMl0$estimates[,"lambda"]), 
+    xlim=c(0,1), main="DD Ml0", col=Col3)
+plot(density(pb_tMlb$estimates[,"lambda"]), 
+    xlim=c(0,1), main="DD Mlb", col=Col3)
+par(op)
+```
+
 ### LOO cross validation plots
 
 Need to label outliers
@@ -696,28 +637,23 @@ Need to label outliers
 Need to check that DD is in m and not in 100m
 
 ```{r fig-2,width=13,height=7}
-library(plotrix)
-size_fun <- function(x, Min=0.2, Max=1) {
-    x <- x - min(x)
-    x <- x / max(x)
-    x <- x * (Max-Min) + Min
-    x
-}
 #setwd("~/Dropbox/bam/lhreg2/rev1/")
-pdf("Fig2.pdf", width=13, height=7)
-
+#pdf("Fig2.pdf", width=12.75, height=7)
 op <- par(mfrow=c(1,2))
 
 Max <- 0.7
+D <- as.matrix(dist(prp))
+diag(D) <- Inf
+D <- apply(D, 1, min)
 plot(prp, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
     xlab="Time-removal SR Estimate (/min)", 
     ylab="LOO SR Estimate (/min)")
-abline(0,1,lty=1, col=1)
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
 abline(0,1.5,lty=2, col="grey")
 abline(0,1/1.5,lty=2, col="grey")
+abline(0,1,lty=1, col=1)
 r0 <- size_fun(x$MaxFreqkHz, 0.2*Max/50, Max/50)
 draw.ellipse(prp[,1], prp[,2], r0, r0,
     border=c(Col1,Col3)[as.integer(x$Mig2)])
@@ -733,17 +669,23 @@ text(c(0.09, 0.06, 0.06), c(0.61, 0.52, 0.58),
     c("Song Pitch (kHz)",round(range(x$MaxFreqkHz),1)), 
     cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[lambda*beta]-SR))
+Ti <- D > 0.03 #| (prp[,1]/prp[,2] > 2 | prp[,1]/prp[,2] < 1/2) 
+text(prp[,1], prp[,2], ifelse(Ti, as.character(x$spp), NA), 
+    cex=0.6, pos=3, col=1)
 
 Max <- 100*2.1
+D <- as.matrix(dist(prt))
+diag(D) <- Inf
+D <- apply(D, 1, min)
 plot(100*prt, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
     xlab="Distance-sampling DD Estimate (m)", 
     ylab="LOO DD Estimate (m)")
-abline(0,1,lty=1, col=1)
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
 abline(0,1.5,lty=2, col="grey")
 abline(0,1/1.5,lty=2, col="grey")
+abline(0,1,lty=1, col=1)
 r0 <- size_fun(x$logmass, 0.2*Max/50, Max/50)
 draw.ellipse(100*prt[,1], 100*prt[,2], r0, r0,
     border=c(Col1,Col3)[as.integer(x$Hab2)])
@@ -759,20 +701,12 @@ text(S*c(0.09, 0.06, 0.06), S*c(0.61, 0.52, 0.58),
     c("Body Mass (g)",round(range(x$logmass),1)), 
     cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[0*beta]-DD))
+Ti <- D > 0.09 | (prt[,1]/prt[,2] > 2 | prt[,1]/prt[,2] < 1/2) 
+text(100*prt[,1], 100*prt[,2], ifelse(Ti, as.character(x$spp), NA), 
+    cex=0.6, pos=3, col=1)
 
 par(op)
-
-dev.off()
+#dev.off()
 ```
 
-### Bootstrap distributions
-
-```{r fig-boot}
-op <- par(mfrow=c(2,2))
-plot(density(pb_pMl0$estimates[,"lambda"]), main="SR Ml0")
-plot(density(pb_pMlb$estimates[,"lambda"]), main="SR Mlb")
-plot(density(pb_tMl0$estimates[,"lambda"]), main="DD Ml0")
-plot(density(pb_tMlb$estimates[,"lambda"]), main="DD Mlb")
-par(op)
-```
 
