@@ -2,6 +2,7 @@ lhreg <-
 function(Y, X, SE, V, init=NULL, lambda=NA, method="Nelder-Mead",
 hessian=FALSE, DElimit=10, eval=FALSE)
 {
+    unit_scaling <- FALSE
     .solvenear <-
     function(x)
     {
@@ -25,8 +26,10 @@ hessian=FALSE, DElimit=10, eval=FALSE)
     nllfun <- function(par) {
         cf <- par[1:ncol(X)]
         sigma_sq <- exp(par[ncol(X)+1])^2
-        if (is.na(lambda))
-            lambda <- exp(par[ncol(X)+2]) # plogis(par[ncol(X)+2])
+        if (is.na(lambda)) {
+            lambda <- if (unit_scaling) # lambda in 0-1 or in 0-Inf
+                plogis(par[ncol(X)+2]) else exp(par[ncol(X)+2])
+        }
         VV <- V
         VV[lower.tri(VV)] <- lambda * V[lower.tri(VV)]
         VV[upper.tri(VV)] <- lambda * V[upper.tri(VV)]
@@ -60,11 +63,14 @@ hessian=FALSE, DElimit=10, eval=FALSE)
     }
     if (hessian) {
         mvn <- rmvnorm(10^4, cf, S)
+        mvn <- rbind(cf, mvn)
         mvn[,ncol(X)+1] <- exp(mvn[,ncol(X)+1])
         if (is.na(lambda)) {
-            mvn[,ncol(X)+2] <- exp(mvn[,ncol(X)+2])#plogis(mvn[,ncol(X)+2])
+            mvn[,ncol(X)+2] <- if (unit_scaling)
+                plogis(mvn[,ncol(X)+2]) else exp(mvn[,ncol(X)+2])
         }
-        trcf <- colMeans(mvn)
+        #trcf <- colMeans(mvn)
+        trcf <- mvn[1,] # transformed coefs
         trse <- apply(mvn, 2, sd)
         if (!is.na(lambda)) {
             trcf <- c(trcf, lambda)
@@ -74,7 +80,8 @@ hessian=FALSE, DElimit=10, eval=FALSE)
         trcf <- cf
         trcf[ncol(X)+1] <- exp(trcf[ncol(X)+1])
         if (is.na(lambda)) {
-            trcf[ncol(X)+2] <- exp(trcf[ncol(X)+2])#plogis(trcf[ncol(X)+2])
+            trcf[ncol(X)+2] <- if (unit_scaling)
+                plogis(trcf[ncol(X)+2]) else exp(trcf[ncol(X)+2])
         } else {
             trcf[ncol(X)+2] <- lambda
         }
@@ -114,21 +121,26 @@ function(object, value, ...)
 }
 
 loo1 <-
-function(i, object)
+function(i, object, return_coefs=TRUE)
 {
     yy <- object$Y[-i]
     xx <- object$X[-i,,drop=FALSE]
     mod <- lm(yy ~ xx-1)
     pr <- drop(object$X[i,,drop=FALSE] %*% coef(mod))
-    c(est=object$Y[i], pred=pr)
+    out <- c(obs=unname(object$Y[i]), pred=unname(pr))
+    if (return_coefs)
+        out <- c(out, est=c(coef(mod), sigma=summary(mt0)$sigma))
+    out
 }
 
 loo2 <-
-function(i, object)
+function(i, object, return_coefs=TRUE, method=NULL)
 {
+    if (is.null(method))
+        method <- object$method
     remod <- lhreg(Y=object$Y[-i], X=object$X[-i,,drop=FALSE], SE=object$SE[-i],
         V=object$V[-i,-i,drop=FALSE], lambda=object$lambda, hessian=FALSE,
-        method=object$method, init=object$coef)
+        method=method, init=object$coef)
 
     VV <- remod$summary["sigma",1]^2 * object$V
     VV[lower.tri(VV)] <- remod$summary["lambda",1] * VV[lower.tri(VV)]
@@ -149,7 +161,10 @@ function(i, object)
 
     ## interested in mu12 only (due to observation error)
     mu12 <- drop(mu1 + Sig12 %*% solve(Sig22) %*% (y2-mu2))
-    c(est=y[i], pred=mu12)
+    out <- c(obs=unname(y[i]), pred=unname(mu12))
+    if (return_coefs)
+        out <- c(out, est=remod$summary[,1])
+    out
 }
 
 simulate.lhreg <-
@@ -175,5 +190,58 @@ function(object, nsim = 1, seed = NULL, lambda = NA, obs_error = FALSE, ...)
     if (obs_error)
         diag(VV) <- diag(VV) + object$SE
     mu <- drop(object$X %*% object$coef[1:ncol(object$X)])
-    mvtnorm::rmvnorm(nsim, mu, VV, ...)
+    t(mvtnorm::rmvnorm(nsim, mu, VV, ...))
+}
+
+parametric_bootstrap <-
+function(object, nsim=1, seed = NULL, method, cl=NULL, ...) {
+    if (missing(method))
+        method <- object$method
+    sim <- simulate(object, nsim=nsim, seed=seed, obs_error=FALSE)
+    est <- t(pbapply(sim, 2,
+        function(z, object, method) {
+        lhreg(Y=z, X=object$X, SE=0, V=object$V,
+            init=object$coef, lambda=object$lambda, method=method,
+            hessian=FALSE, DElimit=10, eval=FALSE)$summary[,1]
+    }, object=object, method=method, cl=cl))
+    list(simulated=cbind(object$Y, sim),
+        estimates=rbind(object$summary[,1], est))
+}
+
+pred_int <-
+function(object, boot, cl=NULL)
+{
+    n <- length(object$Y)
+    y <- object$Y
+    est <- boot$estimates
+    nsim <- nrow(est)
+
+    # i: observation
+    # j: bootstrap run
+    pf1 <- function(x) {
+        i <- x[1]
+        j <- x[2]
+
+        VV <- est[j,"sigma"]^2 * object$V
+        VV[lower.tri(VV)] <- est[j,"lambda"] * VV[lower.tri(VV)]
+        VV[upper.tri(VV)] <- est[j,"lambda"] * VV[upper.tri(VV)]
+
+        mu <- drop(object$X %*% est[j,1:ncol(object$X)])
+
+        y2 <- y[-i]
+        mu1 <- mu[i]
+        mu2 <- mu[-i]
+
+        #Sig11 <- VV[i,i,drop=FALSE]
+        Sig12 <- VV[i,-i,drop=FALSE]
+        #Sig21 <- VV[-i,i,drop=FALSE]
+        Sig22 <- VV[-i,-i,drop=FALSE]
+
+        ## interested in mu12 only (due to observation error)
+        mu12 <- drop(mu1 + Sig12 %*% solve(Sig22) %*% (y2-mu2))
+        mu12
+    }
+    vals <- as.matrix(expand.grid(i=1:n, j=1:nsim))
+    mat <- pbapply(vals, 1, pf1, cl=cl)
+    matrix(mat, n, nsim)
 }

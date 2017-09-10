@@ -1,5 +1,6 @@
 ## ----update-stuff,eval=FALSE,results='hide',echo=FALSE-------------------
 #  devtools::install_github("borealbirds/lhreg")
+#  #devtools::install_github("borealbirds/lhreg", ref="bootstrap")
 #  devtools::build_vignettes("~/repos/lhreg")
 
 ## ----install,eval=FALSE--------------------------------------------------
@@ -42,13 +43,15 @@ legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2),
 ## ----heatmap-------------------------------------------------------------
 library(ape)
 data(cor_matrix)
+data(lhreg_tree)
 str(cor_matrix)
 heatmap(cor_matrix)
 
-## ----phylo-tree,fig.height=12,fig.width=7--------------------------------
-plot(compute.brlen(vcv2phylo(cor_matrix)), cex=0.5)
-
 ## ----screening-sr--------------------------------------------------------
+library(lhreg)
+data(lhreg_data)
+data(cor_matrix)
+
 y <- lhreg_data$logphi
 m4 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab4, lhreg_data)
 m3 <- lm(y ~ logmass + Mig2 + Nesthm + xMaxFreqkHz + Hab3, lhreg_data)
@@ -109,134 +112,156 @@ summary(mtx2)
 #  Xt <- model.matrix(mt) # DD
 #  Xp <- model.matrix(mp) # SR
 #  
-#  ## --- model selection
+#  ## fit models for tau
 #  
-#  
-#  ## tau model selection
-#  
-#  tM0 <- lhreg(Y=x$logtau, X=X0, SE=x$logtauSE, V=vc, lambda=0,
-#      hessian=TRUE, method=met)
-#  tMp0 <- lhreg(Y=x$logtau, X=X0, SE=x$logtauSE, V=vc, lambda=1,
+#  tM00 <- lhreg(Y=x$logtau, X=X0, SE=x$logtauSE, V=vc, lambda=0,
 #      hessian=TRUE, method=met)
 #  tMl0 <- lhreg(Y=x$logtau, X=X0, SE=x$logtauSE, V=vc, lambda=NA,
 #      hessian=TRUE, method=met)
-#  tMx <- lhreg(Y=x$logtau, X=Xt, SE=x$logtauSE, V=vc, lambda=0,
+#  tM0b <- lhreg(Y=x$logtau, X=Xt, SE=x$logtauSE, V=vc, lambda=0,
 #      hessian=TRUE, method=met)
-#  tMpx <- lhreg(Y=x$logtau, X=Xt, SE=x$logtauSE, V=vc, lambda=1,
-#      hessian=TRUE, method=met)
-#  tMlx <- lhreg(Y=x$logtau, X=Xt, SE=x$logtauSE, V=vc, lambda=NA,
+#  tMlb <- lhreg(Y=x$logtau, X=Xt, SE=x$logtauSE, V=vc, lambda=NA,
 #      hessian=TRUE, method=met)
 #  
-#  ## phi model selection
+#  ## fit models for phi
 #  
-#  pM0 <- lhreg(Y=x$logphi, X=X0, SE=x$logphiSE, V=vc, lambda=0,
-#      hessian=TRUE, method=met)
-#  pMp0 <- lhreg(Y=x$logphi, X=X0, SE=x$logphiSE, V=vc, lambda=1,
+#  pM00 <- lhreg(Y=x$logphi, X=X0, SE=x$logphiSE, V=vc, lambda=0,
 #      hessian=TRUE, method=met)
 #  pMl0 <- lhreg(Y=x$logphi, X=X0, SE=x$logphiSE, V=vc, lambda=NA,
 #      hessian=TRUE, method=met)
-#  pMx <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=0,
+#  pM0b <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=0,
 #      hessian=TRUE, method=met)
-#  pMpx <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=1,
+#  pMlb <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=NA,
 #      hessian=TRUE, method=met)
-#  pMlx <- lhreg(Y=x$logphi, X=Xp, SE=x$logphiSE, V=vc, lambda=NA,
-#      hessian=TRUE, method=met)
-#  
-#  aict <- AIC(tM0, tMp0, tMl0, tMx, tMpx, tMlx)
-#  aict$dAIC <- aict$AIC-min(aict$AIC)
-#  
-#  aicp <- AIC(pM0, pMp0, pMl0, pMx, pMpx, pMlx)
-#  aicp$dAIC <- aicp$AIC-min(aicp$AIC)
-#  
-#  cbind(aict, t(sapply(list(tM0, tMp0, tMl0, tMx, tMpx, tMlx),
-#      function(z) z$summary[c("sigma","lambda"), 1])))
-#  
-#  cbind(aicp, t(sapply(list(pM0, pMp0, pMl0, pMx, pMpx, pMlx),
-#      function(z) z$summary[c("sigma","lambda"), 1])))
 
 ## ----profile-lik,eval=FALSE----------------------------------------------
-#  library(parallel)
+#  ## set up lambda values to evaluate at
+#  lam <- seq(0, 1, by=0.01)
 #  
-#  lam <- seq(0, 2, by=0.01)
-#  
+#  ## parallel computation is faster
 #  cl <- makeCluster(4)
-#  
+#  ## load package on workers
 #  tmp <- clusterEvalQ(cl, library(lhreg))
 #  
 #  object <- tMl0
 #  clusterExport(cl, "object")
-#  pl_tMl0 <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...), cl=cl,
-#      method=met)
+#  pl_tMl0 <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...),
+#      cl=cl, method=met)
 #  
-#  object <- tMlx
+#  object <- tMlb
 #  clusterExport(cl, "object")
-#  pl_tMlx <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...), cl=cl,
-#      method=met)
+#  pl_tMlb <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...),
+#      cl=cl, method=met)
 #  
 #  object <- pMl0
 #  clusterExport(cl, "object")
-#  pl_pMl0 <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...), cl=cl,
-#      method=met)
+#  pl_pMl0 <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...),
+#      cl=cl, method=met)
 #  
-#  object <- pMlx
+#  object <- pMlb
 #  clusterExport(cl, "object")
-#  pl_pMlx <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...), cl=cl,
-#      method=met)
+#  pl_pMlb <- pbsapply(lam, function(z, ...) profile_lambda1(object, z, ...),
+#      cl=cl, method=met)
 #  
-#  stopCluster(cl)
+#  stopCluster(cl) # close cluster
 
 ## ----loo,eval=FALSE------------------------------------------------------
-#  ## makes sense to use lm for EDR LOO
-#  tM0$coef
-#  c(coef(mt0), log(summary(mt0)$sigma))
-#  tMx$coef
-#  c(coef(mt), log(summary(mt)$sigma))
+#  n <- nrow(x) # we will do n runs
 #  
-#  pM0$coef
-#  c(coef(mp0), log(summary(mp0)$sigma))
-#  pMx$coef
-#  c(coef(mp), log(summary(mp)$sigma))
+#  cl <- makeCluster(4) # parallel if you wish
+#  tmp <- clusterEvalQ(cl, library(lhreg)) # load package
 #  
-#  n <- nrow(x)
-#  cl <- makeCluster(4)
+#  loo_tM00 <- t(pbsapply(1:n, loo2, object=tM00, cl=cl, method=met))
+#  loo_tMl0 <- t(pbsapply(1:n, loo2, object=tMl0, cl=cl, method=met))
+#  loo_tM0b <- t(pbsapply(1:n, loo2, object=tM0b, cl=cl, method=met))
+#  loo_tMlb <- t(pbsapply(1:n, loo2, object=tMlb, cl=cl, method=met))
 #  
-#  pr_tM0  <- t(pbsapply(1:n, loo1, mm=tM0))
-#  pr_tMp0 <- t(pbsapply(1:n, loo2, mm=tMp0))
-#  pr_tMl0 <- t(pbsapply(1:n, loo2, mm=tMl0))
-#  pr_tMx  <- t(pbsapply(1:n, loo1, mm=tMx))
-#  pr_tMpx <- t(pbsapply(1:n, loo2, mm=tMpx))
-#  pr_tMlx <- t(pbsapply(1:n, loo2, mm=tMlx))
-#  
-#  pr_pM0  <- t(pbsapply(1:n, loo1, mm=pM0))
-#  pr_pMp0 <- t(pbsapply(1:n, loo2, mm=pMp0))
-#  pr_pMl0 <- t(pbsapply(1:n, loo2, mm=pMl0))
-#  pr_pMx  <- t(pbsapply(1:n, loo1, mm=pMx))
-#  pr_pMpx <- t(pbsapply(1:n, loo2, mm=pMpx))
-#  pr_pMlx <- t(pbsapply(1:n, loo2, mm=pMlx))
+#  loo_pM00 <- t(pbsapply(1:n, loo2, object=pM00, cl=cl, method=met))
+#  loo_pMl0 <- t(pbsapply(1:n, loo2, object=pMl0, cl=cl, method=met))
+#  loo_pM0b <- t(pbsapply(1:n, loo2, object=pM0b, cl=cl, method=met))
+#  loo_pMlb <- t(pbsapply(1:n, loo2, object=pMlb, cl=cl, method=met))
 #  
 #  stopCluster(cl)
+
+## ----par-boot,eval=FALSE-------------------------------------------------
+#  nsim <- 999
+#  ## simulated data is nice, thus quick optimization works
+#  metQ <- "Nelder-Mead"
 #  
-#  SSEt <- c(
-#      tM0 = sum((pr_tM0 - tM0$Y)^2),
-#      tMp0 = sum((pr_tMp0 - tMp0$Y)^2),
-#      tMl0 = sum((pr_tMl0 - tMl0$Y)^2),
-#      tMx = sum((pr_tMx - tMx$Y)^2),
-#      tMpx = sum((pr_tMpx - tMpx$Y)^2),
-#      tMlx = sum((pr_tMlx - tMlx$Y)^2))
-#  SSEp <- c(
-#      pM0 = sum((pr_pM0 - pM0$Y)^2),
-#      pMp0 = sum((pr_pMp0 - pMp0$Y)^2),
-#      pMl0 = sum((pr_pMl0 - pMl0$Y)^2),
-#      pMx = sum((pr_pMx - pMx$Y)^2),
-#      pMpx = sum((pr_pMpx - pMpx$Y)^2),
-#      pMlx = sum((pr_pMlx - pMlx$Y)^2))
-#  MSEt <- SSEt / n
-#  MSEp <- SSEp / n
+#  cl <- makeCluster(4) # parallel if you wish
+#  tmp <- clusterEvalQ(cl, library(lhreg)) # load package
+#  
+#  pb_tM00 <- parametric_bootstrap(tM00, nsim=nsim, method=metQ, cl=cl)
+#  pb_tMl0 <- parametric_bootstrap(tMl0, nsim=nsim, method=metQ, cl=cl)
+#  pb_tM0b <- parametric_bootstrap(tM0b, nsim=nsim, method=metQ, cl=cl)
+#  pb_tMlb <- parametric_bootstrap(tMlb, nsim=nsim, method=metQ, cl=cl)
+#  
+#  pb_pM00 <- parametric_bootstrap(pM00, nsim=nsim, method=metQ, cl=cl)
+#  pb_pMl0 <- parametric_bootstrap(pMl0, nsim=nsim, method=metQ, cl=cl)
+#  pb_pM0b <- parametric_bootstrap(pM0b, nsim=nsim, method=metQ, cl=cl)
+#  pb_pMlb <- parametric_bootstrap(pMlb, nsim=nsim, method=metQ, cl=cl)
+#  
+#  stopCluster(cl)
+
+## ----pred-int,eval=FALSE-------------------------------------------------
+#  
+#  cl <- makeCluster(4)
+#  pit <- pred_int(tM0b, pb_tM0b, cl=cl)
+#  pip <- pred_int(pMlb, pb_pMlb, cl=cl)
+#  stopCluster(cl)
+#  
+#  ## save the results:
+#  
+#  save(list=c("cor_matrix", "lam", "lhreg_data", "met", "n",
+#      "vc", "x", "X0", "Xp", "Xt",
+#      "amp", "mp", "mp0", "mpx", "mpx2",
+#      "amt", "mt", "mt0", "mtx", "mtx2",
+#      "pM00", "pM0b", "pMl0", "pMlb",
+#      "tM00", "tM0b", "tMl0", "tMlb",
+#      "pl_pMl0", "pl_pMlb", "pl_tMl0", "pl_tMlb",
+#      "loo_pM00", "loo_pM0b", "loo_pMl0", "loo_pMlb",
+#      "loo_tM00", "loo_tM0b", "loo_tMl0", "loo_tMlb",
+#      "pb_pM00", "pb_pM0b", "pb_pMl0", "pb_pMlb",
+#      "pb_tM00", "pb_tM0b", "pb_tMl0", "pb_tMlb",
+#      "pit", "pip"),
+#  #    file="~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
+#      file="lhreg-results-DE2.rda")
 
 ## ----load-results--------------------------------------------------------
-load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
+library(lhreg)
+#load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
+load(system.file("extdata", "lhreg-results-DE2.rda", package = "lhreg"))
+#load("~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
 
-Crit <- -0.5*qchisq(0.95, 1)
+## AIC tables
+aict <- AIC(tM00, tMl0, tM0b, tMlb)
+aict$dAIC <- aict$AIC-min(aict$AIC)
+
+aicp <- AIC(pM00, pMl0, pM0b, pMlb)
+aicp$dAIC <- aicp$AIC-min(aicp$AIC)
+
+cbind(aict, t(sapply(list(tM00, tMl0, tM0b, tMlb),
+    function(z) z$summary[c("sigma","lambda"), 1])))
+
+cbind(aicp, t(sapply(list(pM00, pMl0, pM0b, pMlb),
+    function(z) z$summary[c("sigma","lambda"), 1])))
+
+## MSE
+SSEt <- c(
+    tM00 = sum((loo_tM00[,"pred"] - tM00$Y)^2),
+    tMl0 = sum((loo_tMl0[,"pred"] - tMl0$Y)^2),
+    tM0b = sum((loo_tM0b[,"pred"] - tM0b$Y)^2),
+    tMlb = sum((loo_tMlb[,"pred"] - tMlb$Y)^2))
+SSEp <- c(
+    pM00 = sum((loo_pM00[,"pred"] - pM00$Y)^2),
+    pMl0 = sum((loo_pMl0[,"pred"] - pMl0$Y)^2),
+    pM0b = sum((loo_pM0b[,"pred"] - pM0b$Y)^2),
+    pMlb = sum((loo_pMlb[,"pred"] - pMlb$Y)^2))
+MSEt <- SSEt / n
+MSEp <- SSEp / n
+
+Level <- 0.95
+Crit <- -0.5*qchisq(Level, 1)
 ltmp <- seq(0, 1, by=0.0001)
 ## red-yl-blue
 Col <- c("#2C7BB6", "#6BAACF", "#ABD9E9", "#D4ECD3", "#FFFFBF", "#FED690",
@@ -245,46 +270,89 @@ Col1 <- Col[1]
 Col2 <- rgb(171/255, 217/255, 233/255, 0.5) # Col[3]
 Col3 <- Col[9]
 Col4 <- rgb(253/255, 174/255, 97/255, 0.5) # Col[7]
-prt <- exp(pr_tMx)
-prp <- exp(pr_pMlx)
+prt <- exp(loo_tM0b[,1:2])
+prp <- exp(loo_pMlb[,1:2])
+PIt <- t(apply(exp(pit), 1, quantile, c((1-Level)/2, 1-(1-Level)/2)))
+PIp <- t(apply(exp(pip), 1, quantile, c((1-Level)/2, 1-(1-Level)/2)))
+
+library(plotrix)
+size_fun <- function(x, Min=0.2, Max=1) {
+    x <- x - min(x)
+    x <- x / max(x)
+    x <- x * (Max-Min) + Min
+    x
+}
+col_fun <- colorRampPalette(Col) # red-yl-blue
+size_col_fun <- function(x) {
+    q <- quantile(x, seq(0, 1, 0.01))
+    i <- as.integer(cut(x, q, include.lowest = TRUE))
+    col_fun(100)[i]
+}
 
 ## ----table-1-------------------------------------------------------------
-ff <- function(z) {
+get_CI <- function(x, level=0.95)
+    t(apply(x$estimates, 2, quantile, c((1-level)/2, 1-(1-level)/2)))
+sf <- function(z, loo, pb, type=c("wald", "jack", "boot"), level=0.95) {
     zz <- z$summary
-
-    pcut <- function(p) {
-        factor(c("***", "**", "*", "+", "ns")[as.integer(cut(p,
-            c(1, 0.1, 0.05, 0.01, 0.001, 0), include.lowest=TRUE, right=FALSE))],
-            levels=c("***", "**", "*", "+", "ns"))
+    a <- c((1-level)/2, 1-(1-level)/2)
+    dig <- 2
+    if (type == "wald") {
+        pcut <- function(p) {
+            factor(c("***", "**", "*", "+", "ns")[as.integer(cut(p,
+                c(1, 0.1, 0.05, 0.01, 0.001, 0),
+                include.lowest=TRUE, right=FALSE))],
+                levels=c("***", "**", "*", "+", "ns"))
+        }
+        out <- structure(sapply(1:nrow(zz), function(i)
+            paste0(round(zz[i,1], dig), " (SE +/- ", round(zz[i,2], dig),
+            pcut(zz[i,4]), ")")), names=rownames(zz))
     }
-    structure(sapply(1:nrow(zz), function(i)
-        paste0(round(zz[i,1], 3), " (SE +/- ", round(zz[i,2], 3), pcut(zz[i,4]), ")")),
-        names=rownames(zz))
+    if (type == "jack") {
+        CI <- t(apply(rbind(zz[,1], loo[,3:ncol(loo),drop=FALSE]), 2, 
+            quantile, a))
+        out <- structure(sapply(1:nrow(zz), function(i)
+            paste0(round(zz[i,1], dig), " (", round(CI[i,1], dig), ", ",
+            round(CI[i,2], dig), ")")), names=rownames(zz))
+    }
+    if (type == "boot") {
+        CI <- get_CI(pb, level)
+        out <- structure(sapply(1:nrow(zz), function(i)
+            paste0(round(zz[i,1], dig), " (", round(CI[i,1], dig), ", ",
+            round(CI[i,2], dig), ")")), names=rownames(zz))
+    }
+    out
 }
-zzz <- lapply(list(pM0, pMp0, pMl0, pMx, pMpx, pMlx), ff)
-m <- matrix("", length(zzz[[6]]), 6)
-rownames(m) <- names(zzz[[6]])
-colnames(m) <- c("M0", "Mp0", "Ml0", "Mx", "Mpx", "Mlx")
-for (i in 1:6) {
+Type <- "boot"
+zzz <- list(
+    M00=sf(pM00, loo_pM00, pb_pM00, Type, Level),
+    Ml0=sf(pMl0, loo_pMl0, pb_pMl0, Type, Level),
+    M0b=sf(pM0b, loo_pM0b, pb_pM0b, Type, Level),
+    Mlb=sf(pMlb, loo_pMlb, pb_pMlb, Type, Level))
+m <- matrix("", length(zzz[[4]]), 4)
+rownames(m) <- names(zzz[[4]])
+colnames(m) <- c("M00", "Ml0", "M0b", "Mlb")
+for (i in 1:4) {
     j <- match(names(zzz[[i]]), rownames(m))
     m[j,i] <- zzz[[i]]
 }
-ii <- grep("(SE +/- NANA)", m,fixed=TRUE)
-m[ii] <- gsub("(SE +/- NANA)", "(fixed)", m[ii], fixed=TRUE)
-m[m==""] <- "n/a"
+m["lambda", c("M00", "M0b")] <- "0 (fixed)"
+#m[m==""] <- "n/a"
 m1 <- m
 
-zzz <- lapply(list(tM0, tMp0, tMl0, tMx, tMpx, tMlx), ff)
-m <- matrix("", length(zzz[[6]]), 6)
-rownames(m) <- names(zzz[[6]])
-colnames(m) <- c("M0", "Mp0", "Ml0", "Mx", "Mpx", "Mlx")
-for (i in 1:6) {
+zzz <- list(
+    M00=sf(tM00, loo_tM00, pb_tM00, Type, Level),
+    Ml0=sf(tMl0, loo_tMl0, pb_tMl0, Type, Level),
+    M0b=sf(tM0b, loo_tM0b, pb_tM0b, Type, Level),
+    Mlb=sf(tMlb, loo_tMlb, pb_tMlb, Type, Level))
+m <- matrix("", length(zzz[[4]]), 4)
+rownames(m) <- names(zzz[[4]])
+colnames(m) <- c("M00", "Ml0", "M0b", "Mlb")
+for (i in 1:4) {
     j <- match(names(zzz[[i]]), rownames(m))
     m[j,i] <- zzz[[i]]
 }
-ii <- grep("(SE +/- NANA)", m,fixed=TRUE)
-m[ii] <- gsub("(SE +/- NANA)", "(fixed)", m[ii], fixed=TRUE)
-m[m==""] <- "n/a"
+m["lambda", c("M00", "M0b")] <- "0 (fixed)"
+#m[m==""] <- "n/a"
 m2 <- m
 
 m1 <- rbind(m1, df=aicp$df, dAIC=round(aicp$dAIC, 3),
@@ -295,12 +363,54 @@ m2 <- rbind(m2, df=aict$df, dAIC=round(aict$dAIC, 3),
 print.default(m1, quote=FALSE) # SR results
 print.default(m2, quote=FALSE) # DD results
 
+## ----tree-trait,fig.height=6,fig.width=14--------------------------------
+library(ape)
+load(system.file("extdata", "mph.rda", package = "lhreg"))
+#load("~/repos/lhreg/inst/extdata/mph.rda")
+#length(mph)
+tre <- mph[[1000]] # pick one tree
+
+ii <- match(tre$tip.label, rownames(lhreg_data))
+d2 <- lhreg_data[ii,]
+#NAMES <- as.character(d2$common_name)
+NAMES <- paste0(d2$common_name, " (", d2$spp, ")")
+tre$tip.label <- NAMES
+xy <- data.frame(
+    x=node.depth.edgelength(tre)[1:length(tre$tip.label)], 
+    y=node.height(tre)[1:length(tre$tip.label)])
+phy_pts_col <- function(z, vari, ...)
+    points(xy[,1] + z, xy[,2], pch=19, col=size_col_fun(vari), ...)
+phy_pts_size <- function(z, vari, ...)
+    points(xy[,1] + z, xy[,2], pch=19, cex=size_fun(vari), ...)
+phy_pts_2 <- function(z, vari, cex=0.6, col="#000000", ...) {
+    points(xy[,1] + z, xy[,2], pch=19, 
+        col=c(col, "#FFFFFF")[as.integer(vari)], cex=cex, ...)
+    points(xy[,1] + z, xy[,2], pch=21, col=col, cex=cex)
+}
+
+#pdf("FigX2.pdf", width=6, height=14)
+op <- par(mar=c(1,1,1,1))
+
+plot(tre, cex=0.6, label.offset=22, font=1)
+segments(xy[,1], xy[,2], xy[,1]+21, xy[,2], lwd=1, col=1)
+phy_pts_size(2, d2$logphi, col=Col1)
+phy_pts_size(5, d2$logtau, col=Col3)
+phy_pts_2(10, d2$Mig2)
+phy_pts_size(13, d2$xMaxFreqkHz)
+phy_pts_size(16, d2$logmass)
+phy_pts_2(19, d2$Hab2)
+text(xy[1,1]+c(2,5,10,13,16,19), rep(142, 6), 
+    c("SR", "DD", "Migr", "Pitch", "Mass", "Habitat"), 
+    pos=4, srt=90, cex=0.65, offset=0)
+par(op)
+#dev.off()
+
 ## ----fig-1,width=14,height=6---------------------------------------------
 #pdf("Fig1.pdf", width=14, height=6)
 op <- par(mfrow=c(1,2))
 
 Res1 <- pl_pMl0
-Res2 <- pl_pMlx
+Res2 <- pl_pMlb
 yv <- exp(Res1-max(Res1))
 plot(lam, yv, type="n", lwd=1, ylim=exp(c(2*Crit, 0)),
     xlab=expression(lambda), ylab="Profile Likelihood Ratio")
@@ -329,7 +439,7 @@ round(c(Max_Ml0=ltmp[which.max(tmp1)], CI=range(ltmp[i1])), 3)
 round(c(Max_Mlx=ltmp[which.max(tmp2)], CI=range(ltmp[i2])), 3)
 
 Res1 <- pl_tMl0
-Res2 <- pl_tMlx
+Res2 <- pl_tMlb
 yv <- exp(Res1-max(Res1))
 plot(lam, yv, type="n", lwd=1, ylim=exp(c(2*Crit, 0)),
     xlab=expression(lambda), ylab="Profile Likelihood Ratio")
@@ -361,47 +471,87 @@ par(op)
 
 #dev.off()
 
-## ----fig-2,width=14,height=7---------------------------------------------
-#pdf("Fig2.pdf", width=14, height=7)
+## ----fig-boot,width=7,height=7-------------------------------------------
+op <- par(mfrow=c(2,2))
+plot(density(pb_pMl0$estimates[,"lambda"]), 
+    xlim=c(0,1), main="SR Ml0", col=Col1)
+plot(density(pb_pMlb$estimates[,"lambda"]), 
+    xlim=c(0,1), main="SR Mlb", col=Col1)
+plot(density(pb_tMl0$estimates[,"lambda"]), 
+    xlim=c(0,1), main="DD Ml0", col=Col3)
+plot(density(pb_tMlb$estimates[,"lambda"]), 
+    xlim=c(0,1), main="DD Mlb", col=Col3)
+par(op)
 
+## ----fig-2,width=13,height=7---------------------------------------------
+#setwd("~/Dropbox/bam/lhreg2/rev1/")
+#pdf("Fig2.pdf", width=12.75, height=7)
 op <- par(mfrow=c(1,2))
 
 Max <- 0.7
-plot(prp, xaxs = "i", yaxs = "i", type="n",
+D <- as.matrix(dist(prp))
+diag(D) <- Inf
+D <- apply(D, 1, min)
+plot(prp, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
-    xlab="Time-removal SR Estimate", ylab="LOO SR Estimate")
-abline(0,1,lty=1, col=1)
+    xlab="Time-removal SR Estimate (/min)", 
+    ylab="LOO SR Estimate (/min)")
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
 abline(0,1.5,lty=2, col="grey")
 abline(0,1/1.5,lty=2, col="grey")
-points(prp, xaxs = "i", yaxs = "i",
-    col=c(Col1,Col3)[as.integer(x$Mig2)],
-    cex=0.2+2*x$MaxFreqkHz/10)
+abline(0,1,lty=1, col=1)
+r0 <- size_fun(x$MaxFreqkHz, 0.2*Max/50, Max/50)
+draw.ellipse(prp[,1], prp[,2], r0, r0,
+    border=c(Col1,Col3)[as.integer(x$Mig2)])
+segments(prp[,1], PIp[,1], prp[,1], PIp[,2],
+    col=c(Col1,Col3)[as.integer(x$Mig2)], lwd=1)
 box()
-legend("topleft", pch=21, col=c(Col1,Col3,1,1),
-    pt.cex=c(1.5,1.5,2,1), bty="n",
-    legend=c("Migrant", "Resident", "Song Picth: High", "Song Pitch: Low"))
+legend("topleft", pch=21, col=c(Col1,Col3),
+    pt.cex=c(2,2), bty="n",
+    legend=c("Migrant", "Resident"))
+r <- seq(0.2*Max/50, Max/50, len=5)
+draw.ellipse(rep(0.06, 5), 0.55+r-max(r), r, r, border=1)
+text(c(0.09, 0.06, 0.06), c(0.61, 0.52, 0.58), 
+    c("Song Pitch (kHz)",round(range(x$MaxFreqkHz),1)), 
+    cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[lambda*beta]-SR))
+Ti <- D > 0.03 #| (prp[,1]/prp[,2] > 2 | prp[,1]/prp[,2] < 1/2) 
+text(prp[,1], prp[,2], ifelse(Ti, as.character(x$spp), NA), 
+    cex=0.6, pos=3, col=1)
 
-Max <- 2.1
-plot(prt, xaxs = "i", yaxs = "i", type="n",
+Max <- 100*2.1
+D <- as.matrix(dist(prt))
+diag(D) <- Inf
+D <- apply(D, 1, min)
+plot(100*prt, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
-    xlab="Distance-sampling DD Estimate", ylab="LOO DD Estimate")
-abline(0,1,lty=1, col=1)
+    xlab="Distance-sampling DD Estimate (m)", 
+    ylab="LOO DD Estimate (m)")
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
 abline(0,1.5,lty=2, col="grey")
 abline(0,1/1.5,lty=2, col="grey")
-points(prt, xaxs = "i", yaxs = "i",
-    cex=0.2+2*x$logmass/5,
-    col=c(Col1,Col3)[as.integer(x$Hab2)])
+abline(0,1,lty=1, col=1)
+r0 <- size_fun(x$logmass, 0.2*Max/50, Max/50)
+draw.ellipse(100*prt[,1], 100*prt[,2], r0, r0,
+    border=c(Col1,Col3)[as.integer(x$Hab2)])
+segments(100*prt[,1], 100*PIt[,1], 100*prt[,1], 100*PIt[,2],
+    col=c(Col1,Col3)[as.integer(x$Hab2)], lwd=1)
 box()
-legend("topleft", pch=21, col=c(Col1,Col3,1,1), pt.cex=c(1.5,1.5,2,1), bty="n",
-    legend=c("Habitat: Closed", "Habitat: Open", "Body Mass: Large", "Body Mass: Small"))
+legend("topleft", pch=21, col=c(Col1,Col3), pt.cex=c(2,2), bty="n",
+    legend=c("Habitat: Closed", "Habitat: Open"))
+r <- seq(0.2*Max/50, Max/50, len=5)
+S <- Max/0.7
+draw.ellipse(S*rep(0.06, 5), S*0.55+r-max(r), r, r, border=1)
+text(S*c(0.09, 0.06, 0.06), S*c(0.61, 0.52, 0.58), 
+    c("Body Mass (g)",round(range(x$logmass),1)), 
+    cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[0*beta]-DD))
+Ti <- D > 0.09 | (prt[,1]/prt[,2] > 2 | prt[,1]/prt[,2] < 1/2) 
+text(100*prt[,1], 100*prt[,2], ifelse(Ti, as.character(x$spp), NA), 
+    cex=0.6, pos=3, col=1)
 
 par(op)
-
 #dev.off()
 
