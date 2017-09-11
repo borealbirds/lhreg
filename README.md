@@ -28,4 +28,8 @@ The present document can be viewed as:
 vignette(topic = "lhreg", package = "lhreg")
 ```
 
+The following figure shows singing rates ($SR$)
+and detection distances ($DD$) alon a phylogenetic tree for 141 bird species.
+
 ![](tree.png)
+
