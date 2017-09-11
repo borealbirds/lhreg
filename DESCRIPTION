@@ -2,7 +2,7 @@ Package: lhreg
 Type: Package
 Title: Phylogeny and Species Trait Effects on Detectability
 Version: 0.1-1
-Date: 2017-09-01
+Date: 2017-09-11
 Author: Peter Solymos [cre, aut]
 Maintainer: Peter Solymos <solymos@ualberta.ca>
 Description: Phylogeny and species trait effects on detectability,
@@ -12,7 +12,7 @@ Description: Phylogeny and species trait effects on detectability,
 URL: https://github.com/borealbirds/lhreg
 BugReports: https://github.com/borealbirds/lhreg/issues
 Depends: Matrix, DEoptim, mvtnorm, pbapply
-Suggests: knitr, rmarkdown, ape, parallel, plotrix
+Suggests: knitr, rmarkdown, ape, parallel, plotrix, phytools
 VignetteBuilder: knitr
 License: GPL-2
 LazyLoad: yes

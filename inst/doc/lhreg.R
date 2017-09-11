@@ -230,33 +230,6 @@ library(lhreg)
 #load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
 load(system.file("extdata", "lhreg-results-DE2.rda", package = "lhreg"))
 
-## AIC tables
-aict <- AIC(tM00, tMl0, tM0b, tMlb)
-aict$dAIC <- aict$AIC-min(aict$AIC)
-
-aicp <- AIC(pM00, pMl0, pM0b, pMlb)
-aicp$dAIC <- aicp$AIC-min(aicp$AIC)
-
-cbind(aict, t(sapply(list(tM00, tMl0, tM0b, tMlb),
-    function(z) z$summary[c("sigma","lambda"), 1])))
-
-cbind(aicp, t(sapply(list(pM00, pMl0, pM0b, pMlb),
-    function(z) z$summary[c("sigma","lambda"), 1])))
-
-## MSE
-SSEt <- c(
-    tM00 = sum((loo_tM00[,"pred"] - tM00$Y)^2),
-    tMl0 = sum((loo_tMl0[,"pred"] - tMl0$Y)^2),
-    tM0b = sum((loo_tM0b[,"pred"] - tM0b$Y)^2),
-    tMlb = sum((loo_tMlb[,"pred"] - tMlb$Y)^2))
-SSEp <- c(
-    pM00 = sum((loo_pM00[,"pred"] - pM00$Y)^2),
-    pMl0 = sum((loo_pMl0[,"pred"] - pMl0$Y)^2),
-    pM0b = sum((loo_pM0b[,"pred"] - pM0b$Y)^2),
-    pMlb = sum((loo_pMlb[,"pred"] - pMlb$Y)^2))
-MSEt <- SSEt / n
-MSEp <- SSEp / n
-
 Level <- 0.95
 Crit <- -0.5*qchisq(Level, 1)
 ltmp <- seq(0, 1, by=0.0001)
@@ -280,8 +253,12 @@ size_fun <- function(x, Min=0.2, Max=1) {
     x
 }
 col_fun <- colorRampPalette(Col) # red-yl-blue
-size_col_fun <- function(x) {
-    q <- quantile(x, seq(0, 1, 0.01))
+size_col_fun <- function(x, nbins=10, type=c("percent", "range")) {
+    type <- match.arg(type)
+    if (type == "percent")
+        q <- quantile(x, seq(0, 1, 1/nbins))
+    if (type == "range")
+        q <- seq(min(x), max(x), by=diff(range(x))/nbins)
     i <- as.integer(cut(x, q, include.lowest = TRUE))
     col_fun(100)[i]
 }
@@ -290,6 +267,7 @@ size_col_fun <- function(x) {
 get_CI <- function(x, level=0.95)
     t(apply(x$estimates, 2, quantile, c((1-level)/2, 1-(1-level)/2)))
 sf <- function(z, loo, pb, type=c("wald", "jack", "boot"), level=0.95) {
+    type <- match.arg(type)
     zz <- z$summary
     a <- c((1-level)/2, 1-(1-level)/2)
     dig <- 2
@@ -319,7 +297,34 @@ sf <- function(z, loo, pb, type=c("wald", "jack", "boot"), level=0.95) {
     }
     out
 }
-Type <- "boot"
+## AIC tables
+aict <- AIC(tM00, tMl0, tM0b, tMlb)
+aict$dAIC <- aict$AIC-min(aict$AIC)
+
+aicp <- AIC(pM00, pMl0, pM0b, pMlb)
+aicp$dAIC <- aicp$AIC-min(aicp$AIC)
+
+cbind(aict, t(sapply(list(tM00, tMl0, tM0b, tMlb),
+    function(z) z$summary[c("sigma","lambda"), 1])))
+
+cbind(aicp, t(sapply(list(pM00, pMl0, pM0b, pMlb),
+    function(z) z$summary[c("sigma","lambda"), 1])))
+
+## MSE
+SSEt <- c(
+    tM00 = sum((loo_tM00[,"pred"] - tM00$Y)^2),
+    tMl0 = sum((loo_tMl0[,"pred"] - tMl0$Y)^2),
+    tM0b = sum((loo_tM0b[,"pred"] - tM0b$Y)^2),
+    tMlb = sum((loo_tMlb[,"pred"] - tMlb$Y)^2))
+SSEp <- c(
+    pM00 = sum((loo_pM00[,"pred"] - pM00$Y)^2),
+    pMl0 = sum((loo_pMl0[,"pred"] - pMl0$Y)^2),
+    pM0b = sum((loo_pM0b[,"pred"] - pM0b$Y)^2),
+    pMlb = sum((loo_pMlb[,"pred"] - pMlb$Y)^2))
+MSEt <- SSEt / n
+MSEp <- SSEp / n
+
+Type <- "boot" # can be wald, jack, boot
 zzz <- list(
     M00=sf(pM00, loo_pM00, pb_pM00, Type, Level),
     Ml0=sf(pMl0, loo_pMl0, pb_pMl0, Type, Level),
@@ -360,7 +365,7 @@ m2 <- rbind(m2, df=aict$df, dAIC=round(aict$dAIC, 3),
 print.default(m1, quote=FALSE) # SR results
 print.default(m2, quote=FALSE) # DD results
 
-## ----tree-trait,fig.height=6,fig.width=14--------------------------------
+## ----tree-trait,fig.height=10,fig.width=15-------------------------------
 library(ape)
 load(system.file("extdata", "mph.rda", package = "lhreg"))
 tre <- mph[[1000]] # pick one tree
@@ -375,29 +380,29 @@ xy <- data.frame(
 phy_pts_col <- function(z, vari, ...)
     points(xy[,1] + z, xy[,2], pch=19, col=size_col_fun(vari), ...)
 phy_pts_size <- function(z, vari, ...)
-    points(xy[,1] + z, xy[,2], pch=19, cex=size_fun(vari), ...)
+    points(xy[,1] + z, xy[,2], pch=19, cex=size_fun(vari, Min=0.3, Max=1.2), ...)
 phy_pts_2 <- function(z, vari, cex=0.6, col="#000000", ...) {
     points(xy[,1] + z, xy[,2], pch=19, 
         col=c(col, "#FFFFFF")[as.integer(vari)], cex=cex, ...)
     points(xy[,1] + z, xy[,2], pch=21, col=col, cex=cex)
 }
 
-#pdf("Fig1.pdf", width=6, height=14)
+pdf("Fig1.pdf", width=10, height=15)
 op <- par(mar=c(1,1,1,1))
 
 plot(tre, cex=0.6, label.offset=22, font=1)
 segments(xy[,1], xy[,2], xy[,1]+21, xy[,2], lwd=1, col=1)
-phy_pts_size(2, d2$logphi, col=Col1)
-phy_pts_size(5, d2$logtau, col=Col3)
+phy_pts_size(2, exp(d2$logphi), col=Col1)
+phy_pts_size(5, exp(d2$logtau), col=Col3)
 phy_pts_2(10, d2$Mig2, col=1)
-phy_pts_size(13, d2$xMaxFreqkHz, col="#4daf4a")
-phy_pts_size(16, d2$logmass, col="#984ea3")
+phy_pts_size(13, d2$MaxFreqkHz, col="#4daf4a")
+phy_pts_size(16, sqrt(exp(d2$logmass)), col="#984ea3")
 phy_pts_2(19, d2$Hab2, col="#ff7f00")
 text(xy[1,1]+c(2,5,10,13,16,19), rep(142, 6), 
     c("SR", "DD", "Migr", "Pitch", "Mass", "Habitat"), 
     pos=4, srt=90, cex=0.65, offset=0)
 par(op)
-#dev.off()
+dev.off()
 
 ## ----fig-1,width=14,height=6---------------------------------------------
 #pdf("FigPL.pdf", width=14, height=6)
@@ -548,4 +553,126 @@ text(100*prt[,1], 100*prt[,2], ifelse(Ti, as.character(x$spp), NA),
 
 par(op)
 #dev.off()
+
+## ----tree-trait-2,fig.height=12,fig.width=12-----------------------------
+library(phytools)
+contMap2 <-
+function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
+    legend = NULL, lims = NULL, outline = TRUE, sig = 3, type = "phylogram",
+    direction = "rightwards", plot = TRUE, col_fun=rainbow, ...)
+{
+    if (!inherits(tree, "phylo"))
+        stop("tree should be an object of class \"phylo\".")
+    if (hasArg(mar))
+        mar <- list(...)$mar
+    else mar <- rep(0.3, 4)
+    if (hasArg(offset))
+        offset <- list(...)$offset
+    else offset <- NULL
+    if (hasArg(method))
+        method <- list(...)$method
+    else method <- "fastAnc"
+    if (hasArg(hold))
+        hold <- list(...)$hold
+    else hold <- TRUE
+    if (hasArg(leg.txt))
+        leg.txt <- list(...)$leg.txt
+    else leg.txt <- "trait value"
+    h <- max(nodeHeights(tree))
+    steps <- 0:res/res * max(h)
+    H <- nodeHeights(tree)
+    if (method == "fastAnc")
+        a <- fastAnc(tree, x)
+    else if (method == "anc.ML") {
+        fit <- anc.ML(tree, x)
+        a <- fit$ace
+        if (!is.null(fit$missing.x))
+            x <- c(x, fit$missing.x)
+    }
+    else if (method == "user") {
+        if (hasArg(anc.states))
+            anc.states <- list(...)$anc.states
+        else {
+            cat("No ancestral states have been provided. Using states estimated with fastAnc.\n\n")
+            a <- fastAnc(tree, x)
+        }
+        if (length(anc.states) < tree$Nnode) {
+            nodes <- as.numeric(names(anc.states))
+            tt <- tree
+            for (i in 1:length(nodes)) {
+                M <- matchNodes(tt, tree, method = "distances")
+                ii <- M[which(M[, 2] == nodes[i]), 1]
+                tt <- bind.tip(tt, nodes[i], edge.length = 0,
+                  where = ii)
+            }
+            a <- fastAnc(tt, c(x, anc.states))
+            M <- matchNodes(tree, tt, method = "distances")
+            a <- a[as.character(M[, 2])]
+            names(a) <- M[, 1]
+        }
+        else {
+            if (is.null(names(anc.states)))
+                names(anc.states) <- 1:tree$Nnode + Ntip(tree)
+            a <- anc.states[as.character(1:tree$Nnode + Ntip(tree))]
+        }
+    }
+    y <- c(a, x[tree$tip.label])
+    names(y)[1:Ntip(tree) + tree$Nnode] <- 1:Ntip(tree)
+    A <- matrix(y[as.character(tree$edge)], nrow(tree$edge),
+        ncol(tree$edge))
+    cols <- col_fun(1001)
+    names(cols) <- 0:1000
+    if (is.null(lims))
+        lims <- c(min(y), max(y))
+    trans <- 0:1000/1000 * (lims[2] - lims[1]) + lims[1]
+    names(trans) <- 0:1000
+    tree$maps <- vector(mode = "list", length = nrow(tree$edge))
+    for (i in 1:nrow(tree$edge)) {
+        XX <- cbind(c(H[i, 1], steps[intersect(which(steps >
+            H[i, 1]), which(steps < H[i, 2]))]), c(steps[intersect(which(steps >
+            H[i, 1]), which(steps < H[i, 2]))], H[i, 2])) - H[i,
+            1]
+        YY <- rowMeans(XX)
+        if (!all(YY == 0)) {
+            b <- vector()
+            for (j in 1:length(YY)) b[j] <- (A[i, 1]/YY[j] +
+                A[i, 2]/(max(XX) - YY[j]))/(1/YY[j] + 1/(max(XX) -
+                YY[j]))
+        }
+        else b <- A[i, 1]
+        d <- sapply(b, phytools:::getState, trans = trans)
+        tree$maps[[i]] <- XX[, 2] - XX[, 1]
+        names(tree$maps[[i]]) <- d
+    }
+    tree$mapped.edge <- phytools:::makeMappedEdge(tree$edge, tree$maps)
+    tree$mapped.edge <- tree$mapped.edge[, order(as.numeric(colnames(tree$mapped.edge)))]
+    class(tree) <- c("simmap", setdiff(class(tree), "simmap"))
+    xx <- list(tree = tree, cols = cols, lims = lims)
+    class(xx) <- "contMap"
+    if (plot)
+        phytools:::plot.contMap(xx, fsize = fsize, ftype = ftype, lwd = lwd,
+            legend = legend, outline = outline, sig = sig, type = type,
+            mar = mar, direction = direction, offset = offset,
+            hold = hold, leg.txt = leg.txt)
+    invisible(xx)
+}
+
+## log singing rates
+contMap2(tre, structure(d2$logphi, .Names=NAMES), 
+    fsize=0.5, outline=FALSE, col_fun=col_fun)
+## log detection distances
+contMap2(tre, structure(d2$logtau, .Names=NAMES), 
+    fsize=0.5, outline=FALSE, col_fun=col_fun)
+## log body mass
+contMap2(tre, structure(d2$logmass, .Names=NAMES), 
+    fsize=0.5, outline=FALSE, col_fun=col_fun)
+## pitch
+contMap2(tre, structure(d2$MaxFreqkHz, .Names=NAMES), 
+    fsize=0.5, outline=FALSE, col_fun=col_fun)
+## migratory status
+contMap2(tre, structure(d2$Mig2, .Names=NAMES), 
+    fsize=0.5, outline=FALSE, col_fun=col_fun)
+## habitat associations
+contMap2(tre, structure(d2$Hab2, .Names=NAMES), 
+    fsize=0.5, outline=FALSE, col_fun=col_fun)
 
