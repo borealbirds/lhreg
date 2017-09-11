@@ -612,14 +612,11 @@ size_fun &lt;-<span class="st"> </span>function(x, <span class="dt">Min=</span><
     x
 }
 col_fun &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(Col) <span class="co"># red-yl-blue</span>
-size_col_fun &lt;-<span class="st"> </span>function(x, <span class="dt">nbins=</span><span class="dv">10</span>, <span class="dt">type=</span><span class="kw">c</span>(<span class="st">&quot;percent&quot;</span>, <span class="st">&quot;range&quot;</span>)) {
-    type &lt;-<span class="st"> </span><span class="kw">match.arg</span>(type)
-    if (type ==<span class="st"> &quot;percent&quot;</span>)
-        q &lt;-<span class="st"> </span><span class="kw">quantile</span>(x, <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>/nbins))
-    if (type ==<span class="st"> &quot;range&quot;</span>)
-        q &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="kw">min</span>(x), <span class="kw">max</span>(x), <span class="dt">by=</span><span class="kw">diff</span>(<span class="kw">range</span>(x))/nbins)
+size_col_fun &lt;-<span class="st"> </span>function(x, col_fun, <span class="dt">nbins=</span><span class="dv">100</span>, ...) {
+    x &lt;-<span class="st"> </span><span class="kw">size_fun</span>(x, ...)
+    q &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="kw">min</span>(x), <span class="kw">max</span>(x), <span class="dt">by=</span><span class="kw">diff</span>(<span class="kw">range</span>(x))/nbins)
     i &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">cut</span>(x, q, <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>))
-    <span class="kw">col_fun</span>(<span class="dv">100</span>)[i]
+    <span class="kw">col_fun</span>(nbins)[i]
 }</code></pre></div>
 <div id="table-with-estimates-and-mse" class="section level3">
 <h3>Table with estimates and MSE</h3>
@@ -787,10 +784,12 @@ tre$tip.label &lt;-<span class="st"> </span>NAMES
 xy &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
     <span class="dt">x=</span><span class="kw">node.depth.edgelength</span>(tre)[<span class="dv">1</span>:<span class="kw">length</span>(tre$tip.label)], 
     <span class="dt">y=</span><span class="kw">node.height</span>(tre)[<span class="dv">1</span>:<span class="kw">length</span>(tre$tip.label)])
-phy_pts_col &lt;-<span class="st"> </span>function(z, vari, ...)
-    <span class="kw">points</span>(xy[,<span class="dv">1</span>] +<span class="st"> </span>z, xy[,<span class="dv">2</span>], <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">col=</span><span class="kw">size_col_fun</span>(vari), ...)
 phy_pts_size &lt;-<span class="st"> </span>function(z, vari, ...)
     <span class="kw">points</span>(xy[,<span class="dv">1</span>] +<span class="st"> </span>z, xy[,<span class="dv">2</span>], <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="kw">size_fun</span>(vari, <span class="dt">Min=</span><span class="fl">0.3</span>, <span class="dt">Max=</span><span class="fl">1.2</span>), ...)
+phy_pts_col &lt;-<span class="st"> </span>function(z, vari, <span class="dt">col=</span><span class="dv">1</span>, ...)
+    <span class="kw">points</span>(xy[,<span class="dv">1</span>] +<span class="st"> </span>z, xy[,<span class="dv">2</span>], <span class="dt">pch=</span><span class="dv">19</span>, 
+        <span class="dt">cex=</span><span class="kw">size_fun</span>(vari, <span class="dt">Min=</span><span class="fl">0.3</span>, <span class="dt">Max=</span><span class="fl">1.2</span>), 
+        <span class="dt">col=</span><span class="kw">size_col_fun</span>(vari, <span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="st">&quot;#000000&quot;</span>, col)), <span class="dt">Min=</span><span class="fl">0.3</span>), ...)
 phy_pts_2 &lt;-<span class="st"> </span>function(z, vari, <span class="dt">cex=</span><span class="fl">0.6</span>, <span class="dt">col=</span><span class="st">&quot;#000000&quot;</span>, ...) {
     <span class="kw">points</span>(xy[,<span class="dv">1</span>] +<span class="st"> </span>z, xy[,<span class="dv">2</span>], <span class="dt">pch=</span><span class="dv">19</span>, 
         <span class="dt">col=</span><span class="kw">c</span>(col, <span class="st">&quot;#FFFFFF&quot;</span>)[<span class="kw">as.integer</span>(vari)], <span class="dt">cex=</span>cex, ...)

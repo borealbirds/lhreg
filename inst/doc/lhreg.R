@@ -253,14 +253,11 @@ size_fun <- function(x, Min=0.2, Max=1) {
     x
 }
 col_fun <- colorRampPalette(Col) # red-yl-blue
-size_col_fun <- function(x, nbins=10, type=c("percent", "range")) {
-    type <- match.arg(type)
-    if (type == "percent")
-        q <- quantile(x, seq(0, 1, 1/nbins))
-    if (type == "range")
-        q <- seq(min(x), max(x), by=diff(range(x))/nbins)
+size_col_fun <- function(x, col_fun, nbins=100, ...) {
+    x <- size_fun(x, ...)
+    q <- seq(min(x), max(x), by=diff(range(x))/nbins)
     i <- as.integer(cut(x, q, include.lowest = TRUE))
-    col_fun(100)[i]
+    col_fun(nbins)[i]
 }
 
 ## ----table-1-------------------------------------------------------------
@@ -377,10 +374,12 @@ tre$tip.label <- NAMES
 xy <- data.frame(
     x=node.depth.edgelength(tre)[1:length(tre$tip.label)], 
     y=node.height(tre)[1:length(tre$tip.label)])
-phy_pts_col <- function(z, vari, ...)
-    points(xy[,1] + z, xy[,2], pch=19, col=size_col_fun(vari), ...)
 phy_pts_size <- function(z, vari, ...)
     points(xy[,1] + z, xy[,2], pch=19, cex=size_fun(vari, Min=0.3, Max=1.2), ...)
+phy_pts_col <- function(z, vari, col=1, ...)
+    points(xy[,1] + z, xy[,2], pch=19, 
+        cex=size_fun(vari, Min=0.3, Max=1.2), 
+        col=size_col_fun(vari, colorRampPalette(c("#000000", col)), Min=0.3), ...)
 phy_pts_2 <- function(z, vari, cex=0.6, col="#000000", ...) {
     points(xy[,1] + z, xy[,2], pch=19, 
         col=c(col, "#FFFFFF")[as.integer(vari)], cex=cex, ...)
