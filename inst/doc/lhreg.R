@@ -1,6 +1,5 @@
 ## ----update-stuff,eval=FALSE,results='hide',echo=FALSE-------------------
 #  devtools::install_github("borealbirds/lhreg")
-#  #devtools::install_github("borealbirds/lhreg", ref="bootstrap")
 #  devtools::build_vignettes("~/repos/lhreg")
 
 ## ----install,eval=FALSE--------------------------------------------------
@@ -224,14 +223,12 @@ summary(mtx2)
 #      "pb_pM00", "pb_pM0b", "pb_pMl0", "pb_pMlb",
 #      "pb_tM00", "pb_tM0b", "pb_tMl0", "pb_tMlb",
 #      "pit", "pip"),
-#  #    file="~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
 #      file="lhreg-results-DE2.rda")
 
 ## ----load-results--------------------------------------------------------
 library(lhreg)
 #load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
 load(system.file("extdata", "lhreg-results-DE2.rda", package = "lhreg"))
-#load("~/repos/lhreg/inst/extdata/lhreg-results-DE2.rda")
 
 ## AIC tables
 aict <- AIC(tM00, tMl0, tM0b, tMlb)
@@ -366,13 +363,10 @@ print.default(m2, quote=FALSE) # DD results
 ## ----tree-trait,fig.height=6,fig.width=14--------------------------------
 library(ape)
 load(system.file("extdata", "mph.rda", package = "lhreg"))
-#load("~/repos/lhreg/inst/extdata/mph.rda")
-#length(mph)
 tre <- mph[[1000]] # pick one tree
 
 ii <- match(tre$tip.label, rownames(lhreg_data))
 d2 <- lhreg_data[ii,]
-#NAMES <- as.character(d2$common_name)
 NAMES <- paste0(d2$common_name, " (", d2$spp, ")")
 tre$tip.label <- NAMES
 xy <- data.frame(
@@ -388,17 +382,17 @@ phy_pts_2 <- function(z, vari, cex=0.6, col="#000000", ...) {
     points(xy[,1] + z, xy[,2], pch=21, col=col, cex=cex)
 }
 
-#pdf("FigX2.pdf", width=6, height=14)
+#pdf("Fig1.pdf", width=6, height=14)
 op <- par(mar=c(1,1,1,1))
 
 plot(tre, cex=0.6, label.offset=22, font=1)
 segments(xy[,1], xy[,2], xy[,1]+21, xy[,2], lwd=1, col=1)
 phy_pts_size(2, d2$logphi, col=Col1)
 phy_pts_size(5, d2$logtau, col=Col3)
-phy_pts_2(10, d2$Mig2)
-phy_pts_size(13, d2$xMaxFreqkHz)
-phy_pts_size(16, d2$logmass)
-phy_pts_2(19, d2$Hab2)
+phy_pts_2(10, d2$Mig2, col=1)
+phy_pts_size(13, d2$xMaxFreqkHz, col="#4daf4a")
+phy_pts_size(16, d2$logmass, col="#984ea3")
+phy_pts_2(19, d2$Hab2, col="#ff7f00")
 text(xy[1,1]+c(2,5,10,13,16,19), rep(142, 6), 
     c("SR", "DD", "Migr", "Pitch", "Mass", "Habitat"), 
     pos=4, srt=90, cex=0.65, offset=0)
@@ -406,7 +400,7 @@ par(op)
 #dev.off()
 
 ## ----fig-1,width=14,height=6---------------------------------------------
-#pdf("Fig1.pdf", width=14, height=6)
+#pdf("FigPL.pdf", width=14, height=6)
 op <- par(mfrow=c(1,2))
 
 Res1 <- pl_pMl0
@@ -468,10 +462,10 @@ round(c(Max_Ml0=ltmp[which.max(tmp1)], CI=range(ltmp[i1])), 3)
 round(c(Max_Mlx=ltmp[which.max(tmp2)], CI=range(ltmp[i2])), 3)
 
 par(op)
-
 #dev.off()
 
 ## ----fig-boot,width=7,height=7-------------------------------------------
+#pdf("FigPB.pdf", width=10, height=10)
 op <- par(mfrow=c(2,2))
 plot(density(pb_pMl0$estimates[,"lambda"]), 
     xlim=c(0,1), main="SR Ml0", col=Col1)
@@ -482,9 +476,9 @@ plot(density(pb_tMl0$estimates[,"lambda"]),
 plot(density(pb_tMlb$estimates[,"lambda"]), 
     xlim=c(0,1), main="DD Mlb", col=Col3)
 par(op)
+#dev.off()
 
 ## ----fig-2,width=13,height=7---------------------------------------------
-#setwd("~/Dropbox/bam/lhreg2/rev1/")
 #pdf("Fig2.pdf", width=12.75, height=7)
 op <- par(mfrow=c(1,2))
 
