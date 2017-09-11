@@ -4,16 +4,28 @@
 [![DOI](https://zenodo.org/badge/90998177.svg)](https://zenodo.org/badge/latestdoi/90998177)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
-A package to reproduce analysis from a manuscript.
+The **lhreg** R extension package is a supporting material for the manuscript entitled
+*Phylogeny and species traits predict songbird detectability* by
+Peter Solymos, Steven M. Matsuoka, Diana Stralberg, Erin M. Bayne, and Nicole K. S. Barker.
 
-Here is how to grab the package:
+The package contains the (1) data, (2) analysis code used in the manuscript,
+and (3) code required to summarize the results and produce tables and figures.
 
-```R
+The R package is hosted on [GitHub](https://github.com/borealbirds/lhreg),
+Please submit issues [here](https://github.com/borealbirds/lhreg/issues).
+
+The package is archived on Zenodo under the DOI [10.5281/zenodo.574886](https://zenodo.org/badge/latestdoi/90998177).
+
+The package can be installed as:
+
+```{r install,eval=FALSE}
 devtools::install_github("borealbirds/lhreg")
 ```
 
-Check out the vignette:
+The present document can be viewed as:
 
-```R
+```{r vignette,eval=FALSE}
 vignette(topic = "lhreg", package = "lhreg")
 ```
+
+![](tree.png)
