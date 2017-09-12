@@ -12,7 +12,7 @@
 
 <meta name="author" content="Peter Solymos" />
 
-<meta name="date" content="2017-09-11" />
+<meta name="date" content="2017-09-12" />
 
 <title>Phylogeny and Species Trait Effects on Detectability</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Phylogeny and Species Trait Effects on Detectability</h1>
 <h4 class="author"><em>Peter Solymos</em></h4>
-<h4 class="date"><em>2017-09-11</em></h4>
+<h4 class="date"><em>2017-09-12</em></h4>
 
 
 
@@ -92,8 +92,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="data-and-data-processing" class="section level2">
 <h2>Data and data processing</h2>
-<div id="trait-variables" class="section level3">
-<h3>Trait variables</h3>
+<div id="variables" class="section level3">
+<h3>Variables</h3>
 <p>The <code>lhreg_data</code> is a data frame with all response variables (<code>logphi</code> is log singing rate, <code>logtau</code> is log detection distance) and trait values (unmodified and transformed versions).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(lhreg)
 <span class="kw">data</span>(lhreg_data)
@@ -129,6 +129,3151 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
     <span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;Migratory/Closed&quot;</span>, <span class="st">&quot;Resident/Closed&quot;</span>,
     <span class="st">&quot;Migratory/Open&quot;</span>, <span class="st">&quot;Resident/Open&quot;</span>))</code></pre></div>
 <p><img src="data:image/png;base64,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" width="672" /></p>
+<p>Here is a list of species used in the manuscript:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">common_name</th>
+<th align="left">scientific_name</th>
+<th align="left">spp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Alder Flycatcher</td>
+<td align="left">Empidonax alnorum</td>
+<td align="left">ALFL</td>
+</tr>
+<tr class="even">
+<td align="left">American Crow</td>
+<td align="left">Corvus brachyrhynchos</td>
+<td align="left">AMCR</td>
+</tr>
+<tr class="odd">
+<td align="left">American Goldfinch</td>
+<td align="left">Spinus tristis</td>
+<td align="left">AMGO</td>
+</tr>
+<tr class="even">
+<td align="left">American Pipit</td>
+<td align="left">Anthus rubescens</td>
+<td align="left">AMPI</td>
+</tr>
+<tr class="odd">
+<td align="left">American Redstart</td>
+<td align="left">Setophaga ruticilla</td>
+<td align="left">AMRE</td>
+</tr>
+<tr class="even">
+<td align="left">American Robin</td>
+<td align="left">Turdus migratorius</td>
+<td align="left">AMRO</td>
+</tr>
+<tr class="odd">
+<td align="left">American Tree Sparrow</td>
+<td align="left">Spizella arborea</td>
+<td align="left">ATSP</td>
+</tr>
+<tr class="even">
+<td align="left">American Three-toed Woodpecker</td>
+<td align="left">Picoides dorsalis</td>
+<td align="left">ATTW</td>
+</tr>
+<tr class="odd">
+<td align="left">Bank Swallow</td>
+<td align="left">Riparia riparia</td>
+<td align="left">BANS</td>
+</tr>
+<tr class="even">
+<td align="left">Baltimore Oriole</td>
+<td align="left">Icterus galbula</td>
+<td align="left">BAOR</td>
+</tr>
+<tr class="odd">
+<td align="left">Barn Swallow</td>
+<td align="left">Hirundo rustica</td>
+<td align="left">BARS</td>
+</tr>
+<tr class="even">
+<td align="left">Black-and-white Warbler</td>
+<td align="left">Mniotilta varia</td>
+<td align="left">BAWW</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-billed Cuckoo</td>
+<td align="left">Coccyzus erythropthalmus</td>
+<td align="left">BBCU</td>
+</tr>
+<tr class="even">
+<td align="left">Black-billed Magpie</td>
+<td align="left">Pica hudsonia</td>
+<td align="left">BBMA</td>
+</tr>
+<tr class="odd">
+<td align="left">Bay-breasted Warbler</td>
+<td align="left">Setophaga castanea</td>
+<td align="left">BBWA</td>
+</tr>
+<tr class="even">
+<td align="left">Black-backed Woodpecker</td>
+<td align="left">Picoides arcticus</td>
+<td align="left">BBWO</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-capped Chickadee</td>
+<td align="left">Poecile atricapillus</td>
+<td align="left">BCCH</td>
+</tr>
+<tr class="even">
+<td align="left">Belted Kingfisher</td>
+<td align="left">Megaceryle alcyon</td>
+<td align="left">BEKI</td>
+</tr>
+<tr class="odd">
+<td align="left">Brown-headed Cowbird</td>
+<td align="left">Molothrus ater</td>
+<td align="left">BHCO</td>
+</tr>
+<tr class="even">
+<td align="left">Blue-headed Vireo</td>
+<td align="left">Vireo solitarius</td>
+<td align="left">BHVI</td>
+</tr>
+<tr class="odd">
+<td align="left">Blackburnian Warbler</td>
+<td align="left">Setophaga fusca</td>
+<td align="left">BLBW</td>
+</tr>
+<tr class="even">
+<td align="left">Blue Jay</td>
+<td align="left">Cyanocitta cristata</td>
+<td align="left">BLJA</td>
+</tr>
+<tr class="odd">
+<td align="left">Blackpoll Warbler</td>
+<td align="left">Setophaga striata</td>
+<td align="left">BLPW</td>
+</tr>
+<tr class="even">
+<td align="left">Boreal Chickadee</td>
+<td align="left">Poecile hudsonicus</td>
+<td align="left">BOCH</td>
+</tr>
+<tr class="odd">
+<td align="left">Bohemian Waxwing</td>
+<td align="left">Bombycilla garrulus</td>
+<td align="left">BOWA</td>
+</tr>
+<tr class="even">
+<td align="left">Brewer’s Blackbird</td>
+<td align="left">Euphagus cyanocephalus</td>
+<td align="left">BRBL</td>
+</tr>
+<tr class="odd">
+<td align="left">Brown Creeper</td>
+<td align="left">Certhia americana</td>
+<td align="left">BRCR</td>
+</tr>
+<tr class="even">
+<td align="left">Brown Thrasher</td>
+<td align="left">Toxostoma rufum</td>
+<td align="left">BRTH</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-throated Blue Warbler</td>
+<td align="left">Setophaga caerulescens</td>
+<td align="left">BTBW</td>
+</tr>
+<tr class="even">
+<td align="left">Black-throated Green Warbler</td>
+<td align="left">Setophaga virens</td>
+<td align="left">BTNW</td>
+</tr>
+<tr class="odd">
+<td align="left">Blue-winged Warbler</td>
+<td align="left">Vermivora cyanoptera</td>
+<td align="left">BWWA</td>
+</tr>
+<tr class="even">
+<td align="left">Canada Warbler</td>
+<td align="left">Cardellina canadensis</td>
+<td align="left">CAWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Clay-colored Sparrow</td>
+<td align="left">Spizella pallida</td>
+<td align="left">CCSP</td>
+</tr>
+<tr class="even">
+<td align="left">Cedar Waxwing</td>
+<td align="left">Bombycilla cedrorum</td>
+<td align="left">CEDW</td>
+</tr>
+<tr class="odd">
+<td align="left">Chipping Sparrow</td>
+<td align="left">Spizella passerina</td>
+<td align="left">CHSP</td>
+</tr>
+<tr class="even">
+<td align="left">Cliff Swallow</td>
+<td align="left">Petrochelidon pyrrhonota</td>
+<td align="left">CLSW</td>
+</tr>
+<tr class="odd">
+<td align="left">Cape May Warbler</td>
+<td align="left">Setophaga tigrina</td>
+<td align="left">CMWA</td>
+</tr>
+<tr class="even">
+<td align="left">Common Grackle</td>
+<td align="left">Quiscalus quiscula</td>
+<td align="left">COGR</td>
+</tr>
+<tr class="odd">
+<td align="left">Connecticut Warbler</td>
+<td align="left">Oporornis agilis</td>
+<td align="left">CONW</td>
+</tr>
+<tr class="even">
+<td align="left">Common Raven</td>
+<td align="left">Corvus corax</td>
+<td align="left">CORA</td>
+</tr>
+<tr class="odd">
+<td align="left">Common Yellowthroat</td>
+<td align="left">Geothlypis trichas</td>
+<td align="left">COYE</td>
+</tr>
+<tr class="even">
+<td align="left">Chestnut-sided Warbler</td>
+<td align="left">Setophaga pensylvanica</td>
+<td align="left">CSWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Dark-eyed Junco</td>
+<td align="left">Junco hyemalis</td>
+<td align="left">DEJU</td>
+</tr>
+<tr class="even">
+<td align="left">Downy Woodpecker</td>
+<td align="left">Picoides pubescens</td>
+<td align="left">DOWO</td>
+</tr>
+<tr class="odd">
+<td align="left">Dunlin</td>
+<td align="left">Calidris alpina</td>
+<td align="left">DUNL</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Bluebird</td>
+<td align="left">Sialia sialis</td>
+<td align="left">EABL</td>
+</tr>
+<tr class="odd">
+<td align="left">Eastern Kingbird</td>
+<td align="left">Tyrannus tyrannus</td>
+<td align="left">EAKI</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Phoebe</td>
+<td align="left">Sayornis phoebe</td>
+<td align="left">EAPH</td>
+</tr>
+<tr class="odd">
+<td align="left">Eastern Towhee</td>
+<td align="left">Pipilo erythrophthalmus</td>
+<td align="left">EATO</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Wood-Pewee</td>
+<td align="left">Contopus virens</td>
+<td align="left">EAWP</td>
+</tr>
+<tr class="odd">
+<td align="left">European Starling</td>
+<td align="left">Sturnus vulgaris</td>
+<td align="left">EUST</td>
+</tr>
+<tr class="even">
+<td align="left">Evening Grosbeak</td>
+<td align="left">Coccothraustes vespertinus</td>
+<td align="left">EVGR</td>
+</tr>
+<tr class="odd">
+<td align="left">Field Sparrow</td>
+<td align="left">Spizella pusilla</td>
+<td align="left">FISP</td>
+</tr>
+<tr class="even">
+<td align="left">Fox Sparrow</td>
+<td align="left">Passerella iliaca</td>
+<td align="left">FOSP</td>
+</tr>
+<tr class="odd">
+<td align="left">Great Crested Flycatcher</td>
+<td align="left">Myiarchus crinitus</td>
+<td align="left">GCFL</td>
+</tr>
+<tr class="even">
+<td align="left">Golden-crowned Kinglet</td>
+<td align="left">Regulus satrapa</td>
+<td align="left">GCKI</td>
+</tr>
+<tr class="odd">
+<td align="left">Golden-crowned Sparrow</td>
+<td align="left">Zonotrichia atricapilla</td>
+<td align="left">GCSP</td>
+</tr>
+<tr class="even">
+<td align="left">Gray-cheeked Thrush</td>
+<td align="left">Catharus minimus</td>
+<td align="left">GCTH</td>
+</tr>
+<tr class="odd">
+<td align="left">Gray Jay</td>
+<td align="left">Perisoreus canadensis</td>
+<td align="left">GRAJ</td>
+</tr>
+<tr class="even">
+<td align="left">Gray Catbird</td>
+<td align="left">Dumetella carolinensis</td>
+<td align="left">GRCA</td>
+</tr>
+<tr class="odd">
+<td align="left">Greater Yellowlegs</td>
+<td align="left">Tringa melanoleuca</td>
+<td align="left">GRYE</td>
+</tr>
+<tr class="even">
+<td align="left">Golden-winged Warbler</td>
+<td align="left">Vermivora chrysoptera</td>
+<td align="left">GWWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Hammond’s Flycatcher</td>
+<td align="left">Empidonax hammondii</td>
+<td align="left">HAFL</td>
+</tr>
+<tr class="even">
+<td align="left">Hairy Woodpecker</td>
+<td align="left">Picoides villosus</td>
+<td align="left">HAWO</td>
+</tr>
+<tr class="odd">
+<td align="left">Hermit Thrush</td>
+<td align="left">Catharus guttatus</td>
+<td align="left">HETH</td>
+</tr>
+<tr class="even">
+<td align="left">Horned Lark</td>
+<td align="left">Eremophila alpestris</td>
+<td align="left">HOLA</td>
+</tr>
+<tr class="odd">
+<td align="left">House Sparrow</td>
+<td align="left">Passer domesticus</td>
+<td align="left">HOSP</td>
+</tr>
+<tr class="even">
+<td align="left">House Wren</td>
+<td align="left">Troglodytes aedon</td>
+<td align="left">HOWR</td>
+</tr>
+<tr class="odd">
+<td align="left">Indigo Bunting</td>
+<td align="left">Passerina cyanea</td>
+<td align="left">INBU</td>
+</tr>
+<tr class="even">
+<td align="left">Killdeer</td>
+<td align="left">Charadrius vociferus</td>
+<td align="left">KILL</td>
+</tr>
+<tr class="odd">
+<td align="left">Lapland Longspur</td>
+<td align="left">Calcarius lapponicus</td>
+<td align="left">LALO</td>
+</tr>
+<tr class="even">
+<td align="left">Le Conte’s Sparrow</td>
+<td align="left">Ammodramus leconteii</td>
+<td align="left">LCSP</td>
+</tr>
+<tr class="odd">
+<td align="left">Least Flycatcher</td>
+<td align="left">Empidonax minimus</td>
+<td align="left">LEFL</td>
+</tr>
+<tr class="even">
+<td align="left">Lesser Yellowlegs</td>
+<td align="left">Tringa flavipes</td>
+<td align="left">LEYE</td>
+</tr>
+<tr class="odd">
+<td align="left">Lincoln’s Sparrow</td>
+<td align="left">Melospiza lincolnii</td>
+<td align="left">LISP</td>
+</tr>
+<tr class="even">
+<td align="left">Magnolia Warbler</td>
+<td align="left">Setophaga magnolia</td>
+<td align="left">MAWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Marsh Wren</td>
+<td align="left">Cistothorus palustris</td>
+<td align="left">MAWR</td>
+</tr>
+<tr class="even">
+<td align="left">Mountain Bluebird</td>
+<td align="left">Sialia currucoides</td>
+<td align="left">MOBL</td>
+</tr>
+<tr class="odd">
+<td align="left">Mourning Dove</td>
+<td align="left">Zenaida macroura</td>
+<td align="left">MODO</td>
+</tr>
+<tr class="even">
+<td align="left">Mourning Warbler</td>
+<td align="left">Geothlypis philadelphia</td>
+<td align="left">MOWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Nashville Warbler</td>
+<td align="left">Oreothlypis ruficapilla</td>
+<td align="left">NAWA</td>
+</tr>
+<tr class="even">
+<td align="left">Nelson’s Sparrow</td>
+<td align="left">Ammodramus nelsoni</td>
+<td align="left">NESP</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Flicker</td>
+<td align="left">Colaptes auratus</td>
+<td align="left">NOFL</td>
+</tr>
+<tr class="even">
+<td align="left">Northern Parula</td>
+<td align="left">Setophaga americana</td>
+<td align="left">NOPA</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Waterthrush</td>
+<td align="left">Parkesia noveboracensis</td>
+<td align="left">NOWA</td>
+</tr>
+<tr class="even">
+<td align="left">Orange-crowned Warbler</td>
+<td align="left">Oreothlypis celata</td>
+<td align="left">OCWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Olive-sided Flycatcher</td>
+<td align="left">Contopus cooperi</td>
+<td align="left">OSFL</td>
+</tr>
+<tr class="even">
+<td align="left">Ovenbird</td>
+<td align="left">Seiurus aurocapilla</td>
+<td align="left">OVEN</td>
+</tr>
+<tr class="odd">
+<td align="left">Palm Warbler</td>
+<td align="left">Setophaga palmarum</td>
+<td align="left">PAWA</td>
+</tr>
+<tr class="even">
+<td align="left">Philadelphia Vireo</td>
+<td align="left">Vireo philadelphicus</td>
+<td align="left">PHVI</td>
+</tr>
+<tr class="odd">
+<td align="left">Pine Grosbeak</td>
+<td align="left">Pinicola enucleator</td>
+<td align="left">PIGR</td>
+</tr>
+<tr class="even">
+<td align="left">Pine Siskin</td>
+<td align="left">Spinus pinus</td>
+<td align="left">PISI</td>
+</tr>
+<tr class="odd">
+<td align="left">Pine Warbler</td>
+<td align="left">Setophaga pinus</td>
+<td align="left">PIWA</td>
+</tr>
+<tr class="even">
+<td align="left">Pileated Woodpecker</td>
+<td align="left">Dryocopus pileatus</td>
+<td align="left">PIWO</td>
+</tr>
+<tr class="odd">
+<td align="left">Purple Finch</td>
+<td align="left">Carpodacus purpureus</td>
+<td align="left">PUFI</td>
+</tr>
+<tr class="even">
+<td align="left">Rose-breasted Grosbeak</td>
+<td align="left">Pheucticus ludovicianus</td>
+<td align="left">RBGR</td>
+</tr>
+<tr class="odd">
+<td align="left">Red-breasted Nuthatch</td>
+<td align="left">Sitta canadensis</td>
+<td align="left">RBNU</td>
+</tr>
+<tr class="even">
+<td align="left">Ruby-crowned Kinglet</td>
+<td align="left">Regulus calendula</td>
+<td align="left">RCKI</td>
+</tr>
+<tr class="odd">
+<td align="left">Red Crossbill</td>
+<td align="left">Loxia curvirostra</td>
+<td align="left">RECR</td>
+</tr>
+<tr class="even">
+<td align="left">Red-eyed Vireo</td>
+<td align="left">Vireo olivaceus</td>
+<td align="left">REVI</td>
+</tr>
+<tr class="odd">
+<td align="left">Rock Sandpiper</td>
+<td align="left">Calidris ptilocnemis</td>
+<td align="left">ROSA</td>
+</tr>
+<tr class="even">
+<td align="left">Ruby-throated Hummingbird</td>
+<td align="left">Archilochus colubris</td>
+<td align="left">RTHU</td>
+</tr>
+<tr class="odd">
+<td align="left">Rusty Blackbird</td>
+<td align="left">Euphagus carolinus</td>
+<td align="left">RUBL</td>
+</tr>
+<tr class="even">
+<td align="left">Ruffed Grouse</td>
+<td align="left">Bonasa umbellus</td>
+<td align="left">RUGR</td>
+</tr>
+<tr class="odd">
+<td align="left">Red-winged Blackbird</td>
+<td align="left">Agelaius phoeniceus</td>
+<td align="left">RWBL</td>
+</tr>
+<tr class="even">
+<td align="left">Savannah Sparrow</td>
+<td align="left">Passerculus sandwichensis</td>
+<td align="left">SAVS</td>
+</tr>
+<tr class="odd">
+<td align="left">Scarlet Tanager</td>
+<td align="left">Piranga olivacea</td>
+<td align="left">SCTA</td>
+</tr>
+<tr class="even">
+<td align="left">Sedge Wren</td>
+<td align="left">Cistothorus platensis</td>
+<td align="left">SEWR</td>
+</tr>
+<tr class="odd">
+<td align="left">Solitary Sandpiper</td>
+<td align="left">Tringa solitaria</td>
+<td align="left">SOSA</td>
+</tr>
+<tr class="even">
+<td align="left">Song Sparrow</td>
+<td align="left">Melospiza melodia</td>
+<td align="left">SOSP</td>
+</tr>
+<tr class="odd">
+<td align="left">Spruce Grouse</td>
+<td align="left">Falcipennis canadensis</td>
+<td align="left">SPGR</td>
+</tr>
+<tr class="even">
+<td align="left">Spotted Sandpiper</td>
+<td align="left">Actitis macularius</td>
+<td align="left">SPSA</td>
+</tr>
+<tr class="odd">
+<td align="left">Swamp Sparrow</td>
+<td align="left">Melospiza georgiana</td>
+<td align="left">SWSP</td>
+</tr>
+<tr class="even">
+<td align="left">Swainson’s Thrush</td>
+<td align="left">Catharus ustulatus</td>
+<td align="left">SWTH</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee Warbler</td>
+<td align="left">Oreothlypis peregrina</td>
+<td align="left">TEWA</td>
+</tr>
+<tr class="even">
+<td align="left">Townsend’s Solitaire</td>
+<td align="left">Myadestes townsendi</td>
+<td align="left">TOSO</td>
+</tr>
+<tr class="odd">
+<td align="left">Townsend’s Warbler</td>
+<td align="left">Setophaga townsendi</td>
+<td align="left">TOWA</td>
+</tr>
+<tr class="even">
+<td align="left">Tree Swallow</td>
+<td align="left">Tachycineta bicolor</td>
+<td align="left">TRES</td>
+</tr>
+<tr class="odd">
+<td align="left">Upland Sandpiper</td>
+<td align="left">Bartramia longicauda</td>
+<td align="left">UPSA</td>
+</tr>
+<tr class="even">
+<td align="left">Varied Thrush</td>
+<td align="left">Ixoreus naevius</td>
+<td align="left">VATH</td>
+</tr>
+<tr class="odd">
+<td align="left">Veery</td>
+<td align="left">Catharus fuscescens</td>
+<td align="left">VEER</td>
+</tr>
+<tr class="even">
+<td align="left">Vesper Sparrow</td>
+<td align="left">Pooecetes gramineus</td>
+<td align="left">VESP</td>
+</tr>
+<tr class="odd">
+<td align="left">Warbling Vireo</td>
+<td align="left">Vireo gilvus</td>
+<td align="left">WAVI</td>
+</tr>
+<tr class="even">
+<td align="left">White-breasted Nuthatch</td>
+<td align="left">Sitta carolinensis</td>
+<td align="left">WBNU</td>
+</tr>
+<tr class="odd">
+<td align="left">White-crowned Sparrow</td>
+<td align="left">Zonotrichia leucophrys</td>
+<td align="left">WCSP</td>
+</tr>
+<tr class="even">
+<td align="left">Western Tanager</td>
+<td align="left">Piranga ludoviciana</td>
+<td align="left">WETA</td>
+</tr>
+<tr class="odd">
+<td align="left">Western Wood-Pewee</td>
+<td align="left">Contopus sordidulus</td>
+<td align="left">WEWP</td>
+</tr>
+<tr class="even">
+<td align="left">Willow Ptarmigan</td>
+<td align="left">Lagopus lagopus</td>
+<td align="left">WIPT</td>
+</tr>
+<tr class="odd">
+<td align="left">Wilson’s Snipe</td>
+<td align="left">Gallinago delicata</td>
+<td align="left">WISN</td>
+</tr>
+<tr class="even">
+<td align="left">Wilson’s Warbler</td>
+<td align="left">Cardellina pusilla</td>
+<td align="left">WIWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Winter Wren</td>
+<td align="left">Troglodytes hiemalis</td>
+<td align="left">WIWR</td>
+</tr>
+<tr class="even">
+<td align="left">Wood Thrush</td>
+<td align="left">Hylocichla mustelina</td>
+<td align="left">WOTH</td>
+</tr>
+<tr class="odd">
+<td align="left">White-throated Sparrow</td>
+<td align="left">Zonotrichia albicollis</td>
+<td align="left">WTSP</td>
+</tr>
+<tr class="even">
+<td align="left">White-winged Crossbill</td>
+<td align="left">Loxia leucoptera</td>
+<td align="left">WWCR</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-billed Cuckoo</td>
+<td align="left">Coccyzus americanus</td>
+<td align="left">YBCU</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow-bellied Flycatcher</td>
+<td align="left">Empidonax flaviventris</td>
+<td align="left">YBFL</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-bellied Sapsucker</td>
+<td align="left">Sphyrapicus varius</td>
+<td align="left">YBSA</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow Warbler</td>
+<td align="left">Setophaga petechia</td>
+<td align="left">YEWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-headed Blackbird</td>
+<td align="left">Xanthocephalus xanthocephalus</td>
+<td align="left">YHBL</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow-rumped Warbler</td>
+<td align="left">Setophaga coronata</td>
+<td align="left">YRWA</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-throated Vireo</td>
+<td align="left">Vireo flavifrons</td>
+<td align="left">YTVI</td>
+</tr>
+</tbody>
+</table>
+<p>Here are the response variables and their standard errors:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">common_name</th>
+<th align="right">SR</th>
+<th align="right">logphi</th>
+<th align="right">logphiSE</th>
+<th align="right">DD</th>
+<th align="right">logtau</th>
+<th align="right">logtauSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Alder Flycatcher</td>
+<td align="right">0.320</td>
+<td align="right">-1.138</td>
+<td align="right">0.015</td>
+<td align="right">82.006</td>
+<td align="right">-0.198</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="even">
+<td align="left">American Crow</td>
+<td align="right">0.257</td>
+<td align="right">-1.358</td>
+<td align="right">0.016</td>
+<td align="right">184.538</td>
+<td align="right">0.613</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="odd">
+<td align="left">American Goldfinch</td>
+<td align="right">0.114</td>
+<td align="right">-2.175</td>
+<td align="right">0.073</td>
+<td align="right">79.222</td>
+<td align="right">-0.233</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="even">
+<td align="left">American Pipit</td>
+<td align="right">0.189</td>
+<td align="right">-1.669</td>
+<td align="right">0.121</td>
+<td align="right">109.467</td>
+<td align="right">0.090</td>
+<td align="right">0.115</td>
+</tr>
+<tr class="odd">
+<td align="left">American Redstart</td>
+<td align="right">0.311</td>
+<td align="right">-1.169</td>
+<td align="right">0.014</td>
+<td align="right">58.398</td>
+<td align="right">-0.538</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="even">
+<td align="left">American Robin</td>
+<td align="right">0.233</td>
+<td align="right">-1.456</td>
+<td align="right">0.013</td>
+<td align="right">93.723</td>
+<td align="right">-0.065</td>
+<td align="right">0.003</td>
+</tr>
+<tr class="odd">
+<td align="left">American Tree Sparrow</td>
+<td align="right">0.239</td>
+<td align="right">-1.430</td>
+<td align="right">0.042</td>
+<td align="right">96.194</td>
+<td align="right">-0.039</td>
+<td align="right">0.037</td>
+</tr>
+<tr class="even">
+<td align="left">American Three-toed Woodpecker</td>
+<td align="right">0.157</td>
+<td align="right">-1.852</td>
+<td align="right">0.119</td>
+<td align="right">83.733</td>
+<td align="right">-0.178</td>
+<td align="right">0.024</td>
+</tr>
+<tr class="odd">
+<td align="left">Bank Swallow</td>
+<td align="right">0.207</td>
+<td align="right">-1.573</td>
+<td align="right">0.141</td>
+<td align="right">104.713</td>
+<td align="right">0.046</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="even">
+<td align="left">Baltimore Oriole</td>
+<td align="right">0.223</td>
+<td align="right">-1.502</td>
+<td align="right">0.078</td>
+<td align="right">83.612</td>
+<td align="right">-0.179</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td align="left">Barn Swallow</td>
+<td align="right">0.126</td>
+<td align="right">-2.072</td>
+<td align="right">0.176</td>
+<td align="right">91.939</td>
+<td align="right">-0.084</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="even">
+<td align="left">Black-and-white Warbler</td>
+<td align="right">0.244</td>
+<td align="right">-1.411</td>
+<td align="right">0.019</td>
+<td align="right">61.796</td>
+<td align="right">-0.481</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-billed Cuckoo</td>
+<td align="right">0.126</td>
+<td align="right">-2.075</td>
+<td align="right">0.146</td>
+<td align="right">129.832</td>
+<td align="right">0.261</td>
+<td align="right">0.026</td>
+</tr>
+<tr class="even">
+<td align="left">Black-billed Magpie</td>
+<td align="right">0.231</td>
+<td align="right">-1.464</td>
+<td align="right">0.045</td>
+<td align="right">201.149</td>
+<td align="right">0.699</td>
+<td align="right">0.091</td>
+</tr>
+<tr class="odd">
+<td align="left">Bay-breasted Warbler</td>
+<td align="right">0.293</td>
+<td align="right">-1.226</td>
+<td align="right">0.030</td>
+<td align="right">40.285</td>
+<td align="right">-0.909</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="even">
+<td align="left">Black-backed Woodpecker</td>
+<td align="right">0.197</td>
+<td align="right">-1.624</td>
+<td align="right">0.102</td>
+<td align="right">73.152</td>
+<td align="right">-0.313</td>
+<td align="right">0.025</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-capped Chickadee</td>
+<td align="right">0.170</td>
+<td align="right">-1.773</td>
+<td align="right">0.024</td>
+<td align="right">69.245</td>
+<td align="right">-0.368</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="even">
+<td align="left">Belted Kingfisher</td>
+<td align="right">0.066</td>
+<td align="right">-2.714</td>
+<td align="right">0.501</td>
+<td align="right">101.418</td>
+<td align="right">0.014</td>
+<td align="right">0.024</td>
+</tr>
+<tr class="odd">
+<td align="left">Brown-headed Cowbird</td>
+<td align="right">0.204</td>
+<td align="right">-1.588</td>
+<td align="right">0.031</td>
+<td align="right">70.703</td>
+<td align="right">-0.347</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="even">
+<td align="left">Blue-headed Vireo</td>
+<td align="right">0.220</td>
+<td align="right">-1.514</td>
+<td align="right">0.029</td>
+<td align="right">67.926</td>
+<td align="right">-0.387</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="odd">
+<td align="left">Blackburnian Warbler</td>
+<td align="right">0.269</td>
+<td align="right">-1.312</td>
+<td align="right">0.020</td>
+<td align="right">58.645</td>
+<td align="right">-0.534</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="even">
+<td align="left">Blue Jay</td>
+<td align="right">0.157</td>
+<td align="right">-1.853</td>
+<td align="right">0.021</td>
+<td align="right">123.055</td>
+<td align="right">0.207</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="odd">
+<td align="left">Blackpoll Warbler</td>
+<td align="right">0.263</td>
+<td align="right">-1.336</td>
+<td align="right">0.065</td>
+<td align="right">47.355</td>
+<td align="right">-0.747</td>
+<td align="right">0.015</td>
+</tr>
+<tr class="even">
+<td align="left">Boreal Chickadee</td>
+<td align="right">0.139</td>
+<td align="right">-1.974</td>
+<td align="right">0.059</td>
+<td align="right">44.585</td>
+<td align="right">-0.808</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td align="left">Bohemian Waxwing</td>
+<td align="right">0.055</td>
+<td align="right">-2.892</td>
+<td align="right">0.595</td>
+<td align="right">50.822</td>
+<td align="right">-0.677</td>
+<td align="right">0.036</td>
+</tr>
+<tr class="even">
+<td align="left">Brewer’s Blackbird</td>
+<td align="right">0.282</td>
+<td align="right">-1.265</td>
+<td align="right">0.065</td>
+<td align="right">109.238</td>
+<td align="right">0.088</td>
+<td align="right">0.037</td>
+</tr>
+<tr class="odd">
+<td align="left">Brown Creeper</td>
+<td align="right">0.180</td>
+<td align="right">-1.713</td>
+<td align="right">0.039</td>
+<td align="right">49.242</td>
+<td align="right">-0.708</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="even">
+<td align="left">Brown Thrasher</td>
+<td align="right">0.284</td>
+<td align="right">-1.259</td>
+<td align="right">0.067</td>
+<td align="right">108.198</td>
+<td align="right">0.079</td>
+<td align="right">0.019</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-throated Blue Warbler</td>
+<td align="right">0.243</td>
+<td align="right">-1.414</td>
+<td align="right">0.049</td>
+<td align="right">69.802</td>
+<td align="right">-0.360</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="even">
+<td align="left">Black-throated Green Warbler</td>
+<td align="right">0.287</td>
+<td align="right">-1.247</td>
+<td align="right">0.014</td>
+<td align="right">72.827</td>
+<td align="right">-0.317</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="odd">
+<td align="left">Blue-winged Warbler</td>
+<td align="right">0.234</td>
+<td align="right">-1.452</td>
+<td align="right">0.148</td>
+<td align="right">60.032</td>
+<td align="right">-0.510</td>
+<td align="right">0.056</td>
+</tr>
+<tr class="even">
+<td align="left">Canada Warbler</td>
+<td align="right">0.300</td>
+<td align="right">-1.204</td>
+<td align="right">0.022</td>
+<td align="right">62.876</td>
+<td align="right">-0.464</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="odd">
+<td align="left">Clay-colored Sparrow</td>
+<td align="right">0.462</td>
+<td align="right">-0.772</td>
+<td align="right">0.015</td>
+<td align="right">62.238</td>
+<td align="right">-0.474</td>
+<td align="right">0.011</td>
+</tr>
+<tr class="even">
+<td align="left">Cedar Waxwing</td>
+<td align="right">0.114</td>
+<td align="right">-2.169</td>
+<td align="right">0.058</td>
+<td align="right">63.010</td>
+<td align="right">-0.462</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="odd">
+<td align="left">Chipping Sparrow</td>
+<td align="right">0.282</td>
+<td align="right">-1.267</td>
+<td align="right">0.012</td>
+<td align="right">70.107</td>
+<td align="right">-0.355</td>
+<td align="right">0.003</td>
+</tr>
+<tr class="even">
+<td align="left">Cliff Swallow</td>
+<td align="right">0.226</td>
+<td align="right">-1.485</td>
+<td align="right">0.127</td>
+<td align="right">76.801</td>
+<td align="right">-0.264</td>
+<td align="right">0.017</td>
+</tr>
+<tr class="odd">
+<td align="left">Cape May Warbler</td>
+<td align="right">0.276</td>
+<td align="right">-1.287</td>
+<td align="right">0.036</td>
+<td align="right">42.780</td>
+<td align="right">-0.849</td>
+<td align="right">0.014</td>
+</tr>
+<tr class="even">
+<td align="left">Common Grackle</td>
+<td align="right">0.225</td>
+<td align="right">-1.493</td>
+<td align="right">0.129</td>
+<td align="right">89.164</td>
+<td align="right">-0.115</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="odd">
+<td align="left">Connecticut Warbler</td>
+<td align="right">0.431</td>
+<td align="right">-0.843</td>
+<td align="right">0.030</td>
+<td align="right">70.520</td>
+<td align="right">-0.349</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="even">
+<td align="left">Common Raven</td>
+<td align="right">0.193</td>
+<td align="right">-1.642</td>
+<td align="right">0.024</td>
+<td align="right">155.587</td>
+<td align="right">0.442</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="odd">
+<td align="left">Common Yellowthroat</td>
+<td align="right">0.309</td>
+<td align="right">-1.174</td>
+<td align="right">0.014</td>
+<td align="right">83.614</td>
+<td align="right">-0.179</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="even">
+<td align="left">Chestnut-sided Warbler</td>
+<td align="right">0.297</td>
+<td align="right">-1.215</td>
+<td align="right">0.011</td>
+<td align="right">78.740</td>
+<td align="right">-0.239</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="odd">
+<td align="left">Dark-eyed Junco</td>
+<td align="right">0.222</td>
+<td align="right">-1.504</td>
+<td align="right">0.017</td>
+<td align="right">68.121</td>
+<td align="right">-0.384</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="even">
+<td align="left">Downy Woodpecker</td>
+<td align="right">0.109</td>
+<td align="right">-2.221</td>
+<td align="right">0.100</td>
+<td align="right">75.998</td>
+<td align="right">-0.274</td>
+<td align="right">0.013</td>
+</tr>
+<tr class="odd">
+<td align="left">Dunlin</td>
+<td align="right">0.086</td>
+<td align="right">-2.459</td>
+<td align="right">0.839</td>
+<td align="right">133.989</td>
+<td align="right">0.293</td>
+<td align="right">0.122</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Bluebird</td>
+<td align="right">0.071</td>
+<td align="right">-2.649</td>
+<td align="right">0.522</td>
+<td align="right">86.761</td>
+<td align="right">-0.142</td>
+<td align="right">0.027</td>
+</tr>
+<tr class="odd">
+<td align="left">Eastern Kingbird</td>
+<td align="right">0.244</td>
+<td align="right">-1.412</td>
+<td align="right">0.081</td>
+<td align="right">84.235</td>
+<td align="right">-0.172</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Phoebe</td>
+<td align="right">0.186</td>
+<td align="right">-1.682</td>
+<td align="right">0.135</td>
+<td align="right">92.117</td>
+<td align="right">-0.082</td>
+<td align="right">0.015</td>
+</tr>
+<tr class="odd">
+<td align="left">Eastern Towhee</td>
+<td align="right">0.271</td>
+<td align="right">-1.307</td>
+<td align="right">0.046</td>
+<td align="right">97.063</td>
+<td align="right">-0.030</td>
+<td align="right">0.024</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Wood-Pewee</td>
+<td align="right">0.306</td>
+<td align="right">-1.184</td>
+<td align="right">0.019</td>
+<td align="right">113.558</td>
+<td align="right">0.127</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td align="left">European Starling</td>
+<td align="right">0.327</td>
+<td align="right">-1.118</td>
+<td align="right">0.068</td>
+<td align="right">106.409</td>
+<td align="right">0.062</td>
+<td align="right">0.003</td>
+</tr>
+<tr class="even">
+<td align="left">Evening Grosbeak</td>
+<td align="right">0.121</td>
+<td align="right">-2.116</td>
+<td align="right">0.112</td>
+<td align="right">79.757</td>
+<td align="right">-0.226</td>
+<td align="right">0.016</td>
+</tr>
+<tr class="odd">
+<td align="left">Field Sparrow</td>
+<td align="right">0.183</td>
+<td align="right">-1.701</td>
+<td align="right">0.156</td>
+<td align="right">123.472</td>
+<td align="right">0.211</td>
+<td align="right">0.021</td>
+</tr>
+<tr class="even">
+<td align="left">Fox Sparrow</td>
+<td align="right">0.212</td>
+<td align="right">-1.552</td>
+<td align="right">0.037</td>
+<td align="right">118.792</td>
+<td align="right">0.172</td>
+<td align="right">0.015</td>
+</tr>
+<tr class="odd">
+<td align="left">Great Crested Flycatcher</td>
+<td align="right">0.168</td>
+<td align="right">-1.785</td>
+<td align="right">0.051</td>
+<td align="right">111.781</td>
+<td align="right">0.111</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="even">
+<td align="left">Golden-crowned Kinglet</td>
+<td align="right">0.201</td>
+<td align="right">-1.606</td>
+<td align="right">0.030</td>
+<td align="right">42.337</td>
+<td align="right">-0.860</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="odd">
+<td align="left">Golden-crowned Sparrow</td>
+<td align="right">0.201</td>
+<td align="right">-1.605</td>
+<td align="right">0.125</td>
+<td align="right">126.875</td>
+<td align="right">0.238</td>
+<td align="right">0.080</td>
+</tr>
+<tr class="even">
+<td align="left">Gray-cheeked Thrush</td>
+<td align="right">0.214</td>
+<td align="right">-1.540</td>
+<td align="right">0.083</td>
+<td align="right">95.460</td>
+<td align="right">-0.046</td>
+<td align="right">0.025</td>
+</tr>
+<tr class="odd">
+<td align="left">Gray Jay</td>
+<td align="right">0.152</td>
+<td align="right">-1.884</td>
+<td align="right">0.026</td>
+<td align="right">68.387</td>
+<td align="right">-0.380</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="even">
+<td align="left">Gray Catbird</td>
+<td align="right">0.213</td>
+<td align="right">-1.548</td>
+<td align="right">0.062</td>
+<td align="right">77.834</td>
+<td align="right">-0.251</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="odd">
+<td align="left">Greater Yellowlegs</td>
+<td align="right">0.256</td>
+<td align="right">-1.363</td>
+<td align="right">0.053</td>
+<td align="right">105.813</td>
+<td align="right">0.057</td>
+<td align="right">0.022</td>
+</tr>
+<tr class="even">
+<td align="left">Golden-winged Warbler</td>
+<td align="right">0.214</td>
+<td align="right">-1.540</td>
+<td align="right">0.058</td>
+<td align="right">78.960</td>
+<td align="right">-0.236</td>
+<td align="right">0.029</td>
+</tr>
+<tr class="odd">
+<td align="left">Hammond’s Flycatcher</td>
+<td align="right">0.281</td>
+<td align="right">-1.270</td>
+<td align="right">0.083</td>
+<td align="right">51.427</td>
+<td align="right">-0.665</td>
+<td align="right">0.021</td>
+</tr>
+<tr class="even">
+<td align="left">Hairy Woodpecker</td>
+<td align="right">0.133</td>
+<td align="right">-2.016</td>
+<td align="right">0.063</td>
+<td align="right">72.297</td>
+<td align="right">-0.324</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td align="left">Hermit Thrush</td>
+<td align="right">0.323</td>
+<td align="right">-1.131</td>
+<td align="right">0.009</td>
+<td align="right">103.884</td>
+<td align="right">0.038</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="even">
+<td align="left">Horned Lark</td>
+<td align="right">0.492</td>
+<td align="right">-0.709</td>
+<td align="right">0.020</td>
+<td align="right">96.165</td>
+<td align="right">-0.039</td>
+<td align="right">0.014</td>
+</tr>
+<tr class="odd">
+<td align="left">House Sparrow</td>
+<td align="right">0.448</td>
+<td align="right">-0.803</td>
+<td align="right">0.054</td>
+<td align="right">83.446</td>
+<td align="right">-0.181</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="even">
+<td align="left">House Wren</td>
+<td align="right">0.418</td>
+<td align="right">-0.873</td>
+<td align="right">0.024</td>
+<td align="right">90.529</td>
+<td align="right">-0.099</td>
+<td align="right">0.011</td>
+</tr>
+<tr class="odd">
+<td align="left">Indigo Bunting</td>
+<td align="right">0.240</td>
+<td align="right">-1.427</td>
+<td align="right">0.045</td>
+<td align="right">91.039</td>
+<td align="right">-0.094</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="even">
+<td align="left">Killdeer</td>
+<td align="right">0.215</td>
+<td align="right">-1.535</td>
+<td align="right">0.065</td>
+<td align="right">108.961</td>
+<td align="right">0.086</td>
+<td align="right">0.011</td>
+</tr>
+<tr class="odd">
+<td align="left">Lapland Longspur</td>
+<td align="right">0.302</td>
+<td align="right">-1.197</td>
+<td align="right">0.109</td>
+<td align="right">80.618</td>
+<td align="right">-0.215</td>
+<td align="right">0.026</td>
+</tr>
+<tr class="even">
+<td align="left">Le Conte’s Sparrow</td>
+<td align="right">0.588</td>
+<td align="right">-0.531</td>
+<td align="right">0.035</td>
+<td align="right">65.010</td>
+<td align="right">-0.431</td>
+<td align="right">0.017</td>
+</tr>
+<tr class="odd">
+<td align="left">Least Flycatcher</td>
+<td align="right">0.417</td>
+<td align="right">-0.874</td>
+<td align="right">0.010</td>
+<td align="right">59.191</td>
+<td align="right">-0.524</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="even">
+<td align="left">Lesser Yellowlegs</td>
+<td align="right">0.165</td>
+<td align="right">-1.800</td>
+<td align="right">0.078</td>
+<td align="right">127.868</td>
+<td align="right">0.246</td>
+<td align="right">0.022</td>
+</tr>
+<tr class="odd">
+<td align="left">Lincoln’s Sparrow</td>
+<td align="right">0.305</td>
+<td align="right">-1.186</td>
+<td align="right">0.018</td>
+<td align="right">70.078</td>
+<td align="right">-0.356</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="even">
+<td align="left">Magnolia Warbler</td>
+<td align="right">0.280</td>
+<td align="right">-1.274</td>
+<td align="right">0.015</td>
+<td align="right">63.650</td>
+<td align="right">-0.452</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="odd">
+<td align="left">Marsh Wren</td>
+<td align="right">0.376</td>
+<td align="right">-0.979</td>
+<td align="right">0.118</td>
+<td align="right">82.367</td>
+<td align="right">-0.194</td>
+<td align="right">0.039</td>
+</tr>
+<tr class="even">
+<td align="left">Mountain Bluebird</td>
+<td align="right">0.221</td>
+<td align="right">-1.509</td>
+<td align="right">0.298</td>
+<td align="right">32.282</td>
+<td align="right">-1.131</td>
+<td align="right">0.070</td>
+</tr>
+<tr class="odd">
+<td align="left">Mourning Dove</td>
+<td align="right">0.234</td>
+<td align="right">-1.453</td>
+<td align="right">0.049</td>
+<td align="right">106.783</td>
+<td align="right">0.066</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="even">
+<td align="left">Mourning Warbler</td>
+<td align="right">0.300</td>
+<td align="right">-1.204</td>
+<td align="right">0.016</td>
+<td align="right">66.992</td>
+<td align="right">-0.401</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="odd">
+<td align="left">Nashville Warbler</td>
+<td align="right">0.335</td>
+<td align="right">-1.095</td>
+<td align="right">0.008</td>
+<td align="right">79.270</td>
+<td align="right">-0.232</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="even">
+<td align="left">Nelson’s Sparrow</td>
+<td align="right">0.260</td>
+<td align="right">-1.348</td>
+<td align="right">0.163</td>
+<td align="right">87.756</td>
+<td align="right">-0.131</td>
+<td align="right">0.100</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Flicker</td>
+<td align="right">0.122</td>
+<td align="right">-2.106</td>
+<td align="right">0.052</td>
+<td align="right">108.218</td>
+<td align="right">0.079</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="even">
+<td align="left">Northern Parula</td>
+<td align="right">0.236</td>
+<td align="right">-1.443</td>
+<td align="right">0.029</td>
+<td align="right">75.542</td>
+<td align="right">-0.280</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Waterthrush</td>
+<td align="right">0.252</td>
+<td align="right">-1.380</td>
+<td align="right">0.029</td>
+<td align="right">93.509</td>
+<td align="right">-0.067</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="even">
+<td align="left">Orange-crowned Warbler</td>
+<td align="right">0.205</td>
+<td align="right">-1.586</td>
+<td align="right">0.035</td>
+<td align="right">63.042</td>
+<td align="right">-0.461</td>
+<td align="right">0.011</td>
+</tr>
+<tr class="odd">
+<td align="left">Olive-sided Flycatcher</td>
+<td align="right">0.281</td>
+<td align="right">-1.271</td>
+<td align="right">0.042</td>
+<td align="right">103.299</td>
+<td align="right">0.032</td>
+<td align="right">0.015</td>
+</tr>
+<tr class="even">
+<td align="left">Ovenbird</td>
+<td align="right">0.387</td>
+<td align="right">-0.949</td>
+<td align="right">0.005</td>
+<td align="right">87.886</td>
+<td align="right">-0.129</td>
+<td align="right">0.002</td>
+</tr>
+<tr class="odd">
+<td align="left">Palm Warbler</td>
+<td align="right">0.336</td>
+<td align="right">-1.091</td>
+<td align="right">0.021</td>
+<td align="right">60.507</td>
+<td align="right">-0.502</td>
+<td align="right">0.009</td>
+</tr>
+<tr class="even">
+<td align="left">Philadelphia Vireo</td>
+<td align="right">0.347</td>
+<td align="right">-1.058</td>
+<td align="right">0.052</td>
+<td align="right">59.176</td>
+<td align="right">-0.525</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td align="left">Pine Grosbeak</td>
+<td align="right">0.099</td>
+<td align="right">-2.312</td>
+<td align="right">0.305</td>
+<td align="right">76.915</td>
+<td align="right">-0.262</td>
+<td align="right">0.034</td>
+</tr>
+<tr class="even">
+<td align="left">Pine Siskin</td>
+<td align="right">0.174</td>
+<td align="right">-1.750</td>
+<td align="right">0.035</td>
+<td align="right">50.350</td>
+<td align="right">-0.686</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="odd">
+<td align="left">Pine Warbler</td>
+<td align="right">0.239</td>
+<td align="right">-1.433</td>
+<td align="right">0.032</td>
+<td align="right">88.971</td>
+<td align="right">-0.117</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="even">
+<td align="left">Pileated Woodpecker</td>
+<td align="right">0.122</td>
+<td align="right">-2.102</td>
+<td align="right">0.063</td>
+<td align="right">137.597</td>
+<td align="right">0.319</td>
+<td align="right">0.014</td>
+</tr>
+<tr class="odd">
+<td align="left">Purple Finch</td>
+<td align="right">0.110</td>
+<td align="right">-2.203</td>
+<td align="right">0.101</td>
+<td align="right">74.682</td>
+<td align="right">-0.292</td>
+<td align="right">0.013</td>
+</tr>
+<tr class="even">
+<td align="left">Rose-breasted Grosbeak</td>
+<td align="right">0.256</td>
+<td align="right">-1.364</td>
+<td align="right">0.016</td>
+<td align="right">89.651</td>
+<td align="right">-0.109</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="odd">
+<td align="left">Red-breasted Nuthatch</td>
+<td align="right">0.160</td>
+<td align="right">-1.833</td>
+<td align="right">0.026</td>
+<td align="right">78.936</td>
+<td align="right">-0.237</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="even">
+<td align="left">Ruby-crowned Kinglet</td>
+<td align="right">0.286</td>
+<td align="right">-1.251</td>
+<td align="right">0.013</td>
+<td align="right">78.320</td>
+<td align="right">-0.244</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="odd">
+<td align="left">Red Crossbill</td>
+<td align="right">0.261</td>
+<td align="right">-1.345</td>
+<td align="right">0.104</td>
+<td align="right">58.916</td>
+<td align="right">-0.529</td>
+<td align="right">0.032</td>
+</tr>
+<tr class="even">
+<td align="left">Red-eyed Vireo</td>
+<td align="right">0.377</td>
+<td align="right">-0.976</td>
+<td align="right">0.006</td>
+<td align="right">85.637</td>
+<td align="right">-0.155</td>
+<td align="right">0.002</td>
+</tr>
+<tr class="odd">
+<td align="left">Rock Sandpiper</td>
+<td align="right">0.233</td>
+<td align="right">-1.457</td>
+<td align="right">0.172</td>
+<td align="right">136.519</td>
+<td align="right">0.311</td>
+<td align="right">0.068</td>
+</tr>
+<tr class="even">
+<td align="left">Ruby-throated Hummingbird</td>
+<td align="right">0.060</td>
+<td align="right">-2.822</td>
+<td align="right">0.363</td>
+<td align="right">46.531</td>
+<td align="right">-0.765</td>
+<td align="right">0.032</td>
+</tr>
+<tr class="odd">
+<td align="left">Rusty Blackbird</td>
+<td align="right">0.157</td>
+<td align="right">-1.852</td>
+<td align="right">0.117</td>
+<td align="right">83.421</td>
+<td align="right">-0.181</td>
+<td align="right">0.027</td>
+</tr>
+<tr class="even">
+<td align="left">Ruffed Grouse</td>
+<td align="right">0.274</td>
+<td align="right">-1.295</td>
+<td align="right">0.031</td>
+<td align="right">99.020</td>
+<td align="right">-0.010</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="odd">
+<td align="left">Red-winged Blackbird</td>
+<td align="right">0.394</td>
+<td align="right">-0.931</td>
+<td align="right">0.016</td>
+<td align="right">97.989</td>
+<td align="right">-0.020</td>
+<td align="right">0.003</td>
+</tr>
+<tr class="even">
+<td align="left">Savannah Sparrow</td>
+<td align="right">0.467</td>
+<td align="right">-0.762</td>
+<td align="right">0.013</td>
+<td align="right">91.330</td>
+<td align="right">-0.091</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="odd">
+<td align="left">Scarlet Tanager</td>
+<td align="right">0.192</td>
+<td align="right">-1.648</td>
+<td align="right">0.034</td>
+<td align="right">102.820</td>
+<td align="right">0.028</td>
+<td align="right">0.013</td>
+</tr>
+<tr class="even">
+<td align="left">Sedge Wren</td>
+<td align="right">0.286</td>
+<td align="right">-1.253</td>
+<td align="right">0.085</td>
+<td align="right">96.805</td>
+<td align="right">-0.032</td>
+<td align="right">0.043</td>
+</tr>
+<tr class="odd">
+<td align="left">Solitary Sandpiper</td>
+<td align="right">0.099</td>
+<td align="right">-2.309</td>
+<td align="right">0.169</td>
+<td align="right">83.096</td>
+<td align="right">-0.185</td>
+<td align="right">0.029</td>
+</tr>
+<tr class="even">
+<td align="left">Song Sparrow</td>
+<td align="right">0.291</td>
+<td align="right">-1.234</td>
+<td align="right">0.021</td>
+<td align="right">88.024</td>
+<td align="right">-0.128</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="odd">
+<td align="left">Spruce Grouse</td>
+<td align="right">0.224</td>
+<td align="right">-1.495</td>
+<td align="right">0.235</td>
+<td align="right">47.933</td>
+<td align="right">-0.735</td>
+<td align="right">0.055</td>
+</tr>
+<tr class="even">
+<td align="left">Spotted Sandpiper</td>
+<td align="right">0.176</td>
+<td align="right">-1.734</td>
+<td align="right">0.101</td>
+<td align="right">95.297</td>
+<td align="right">-0.048</td>
+<td align="right">0.029</td>
+</tr>
+<tr class="odd">
+<td align="left">Swamp Sparrow</td>
+<td align="right">0.251</td>
+<td align="right">-1.382</td>
+<td align="right">0.029</td>
+<td align="right">83.775</td>
+<td align="right">-0.177</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="even">
+<td align="left">Swainson’s Thrush</td>
+<td align="right">0.327</td>
+<td align="right">-1.119</td>
+<td align="right">0.009</td>
+<td align="right">83.893</td>
+<td align="right">-0.176</td>
+<td align="right">0.003</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee Warbler</td>
+<td align="right">0.451</td>
+<td align="right">-0.797</td>
+<td align="right">0.008</td>
+<td align="right">59.540</td>
+<td align="right">-0.519</td>
+<td align="right">0.003</td>
+</tr>
+<tr class="even">
+<td align="left">Townsend’s Solitaire</td>
+<td align="right">0.123</td>
+<td align="right">-2.093</td>
+<td align="right">0.353</td>
+<td align="right">44.970</td>
+<td align="right">-0.799</td>
+<td align="right">0.027</td>
+</tr>
+<tr class="odd">
+<td align="left">Townsend’s Warbler</td>
+<td align="right">0.123</td>
+<td align="right">-2.092</td>
+<td align="right">0.144</td>
+<td align="right">70.887</td>
+<td align="right">-0.344</td>
+<td align="right">0.022</td>
+</tr>
+<tr class="even">
+<td align="left">Tree Swallow</td>
+<td align="right">0.227</td>
+<td align="right">-1.482</td>
+<td align="right">0.055</td>
+<td align="right">93.982</td>
+<td align="right">-0.062</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="odd">
+<td align="left">Upland Sandpiper</td>
+<td align="right">0.164</td>
+<td align="right">-1.811</td>
+<td align="right">0.120</td>
+<td align="right">141.986</td>
+<td align="right">0.351</td>
+<td align="right">0.039</td>
+</tr>
+<tr class="even">
+<td align="left">Varied Thrush</td>
+<td align="right">0.252</td>
+<td align="right">-1.380</td>
+<td align="right">0.034</td>
+<td align="right">101.896</td>
+<td align="right">0.019</td>
+<td align="right">0.011</td>
+</tr>
+<tr class="odd">
+<td align="left">Veery</td>
+<td align="right">0.265</td>
+<td align="right">-1.327</td>
+<td align="right">0.013</td>
+<td align="right">101.160</td>
+<td align="right">0.012</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="even">
+<td align="left">Vesper Sparrow</td>
+<td align="right">0.532</td>
+<td align="right">-0.630</td>
+<td align="right">0.017</td>
+<td align="right">114.315</td>
+<td align="right">0.134</td>
+<td align="right">0.020</td>
+</tr>
+<tr class="odd">
+<td align="left">Warbling Vireo</td>
+<td align="right">0.333</td>
+<td align="right">-1.099</td>
+<td align="right">0.028</td>
+<td align="right">74.126</td>
+<td align="right">-0.299</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="even">
+<td align="left">White-breasted Nuthatch</td>
+<td align="right">0.150</td>
+<td align="right">-1.900</td>
+<td align="right">0.058</td>
+<td align="right">79.684</td>
+<td align="right">-0.227</td>
+<td align="right">0.014</td>
+</tr>
+<tr class="odd">
+<td align="left">White-crowned Sparrow</td>
+<td align="right">0.266</td>
+<td align="right">-1.326</td>
+<td align="right">0.023</td>
+<td align="right">106.838</td>
+<td align="right">0.066</td>
+<td align="right">0.013</td>
+</tr>
+<tr class="even">
+<td align="left">Western Tanager</td>
+<td align="right">0.290</td>
+<td align="right">-1.240</td>
+<td align="right">0.026</td>
+<td align="right">73.146</td>
+<td align="right">-0.313</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="odd">
+<td align="left">Western Wood-Pewee</td>
+<td align="right">0.306</td>
+<td align="right">-1.184</td>
+<td align="right">0.049</td>
+<td align="right">72.781</td>
+<td align="right">-0.318</td>
+<td align="right">0.016</td>
+</tr>
+<tr class="even">
+<td align="left">Willow Ptarmigan</td>
+<td align="right">0.057</td>
+<td align="right">-2.863</td>
+<td align="right">0.514</td>
+<td align="right">177.379</td>
+<td align="right">0.573</td>
+<td align="right">0.158</td>
+</tr>
+<tr class="odd">
+<td align="left">Wilson’s Snipe</td>
+<td align="right">0.281</td>
+<td align="right">-1.270</td>
+<td align="right">0.021</td>
+<td align="right">122.850</td>
+<td align="right">0.206</td>
+<td align="right">0.010</td>
+</tr>
+<tr class="even">
+<td align="left">Wilson’s Warbler</td>
+<td align="right">0.254</td>
+<td align="right">-1.370</td>
+<td align="right">0.032</td>
+<td align="right">60.642</td>
+<td align="right">-0.500</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="odd">
+<td align="left">Winter Wren</td>
+<td align="right">0.348</td>
+<td align="right">-1.056</td>
+<td align="right">0.014</td>
+<td align="right">95.182</td>
+<td align="right">-0.049</td>
+<td align="right">0.004</td>
+</tr>
+<tr class="even">
+<td align="left">Wood Thrush</td>
+<td align="right">0.305</td>
+<td align="right">-1.187</td>
+<td align="right">0.038</td>
+<td align="right">119.083</td>
+<td align="right">0.175</td>
+<td align="right">0.013</td>
+</tr>
+<tr class="odd">
+<td align="left">White-throated Sparrow</td>
+<td align="right">0.301</td>
+<td align="right">-1.200</td>
+<td align="right">0.007</td>
+<td align="right">92.758</td>
+<td align="right">-0.075</td>
+<td align="right">0.002</td>
+</tr>
+<tr class="even">
+<td align="left">White-winged Crossbill</td>
+<td align="right">0.129</td>
+<td align="right">-2.050</td>
+<td align="right">0.052</td>
+<td align="right">68.731</td>
+<td align="right">-0.375</td>
+<td align="right">0.008</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-billed Cuckoo</td>
+<td align="right">0.155</td>
+<td align="right">-1.866</td>
+<td align="right">0.176</td>
+<td align="right">107.157</td>
+<td align="right">0.069</td>
+<td align="right">0.069</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow-bellied Flycatcher</td>
+<td align="right">0.272</td>
+<td align="right">-1.301</td>
+<td align="right">0.021</td>
+<td align="right">72.750</td>
+<td align="right">-0.318</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-bellied Sapsucker</td>
+<td align="right">0.155</td>
+<td align="right">-1.866</td>
+<td align="right">0.024</td>
+<td align="right">86.465</td>
+<td align="right">-0.145</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow Warbler</td>
+<td align="right">0.329</td>
+<td align="right">-1.112</td>
+<td align="right">0.020</td>
+<td align="right">69.862</td>
+<td align="right">-0.359</td>
+<td align="right">0.005</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-headed Blackbird</td>
+<td align="right">0.441</td>
+<td align="right">-0.819</td>
+<td align="right">0.055</td>
+<td align="right">88.653</td>
+<td align="right">-0.120</td>
+<td align="right">0.104</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow-rumped Warbler</td>
+<td align="right">0.287</td>
+<td align="right">-1.248</td>
+<td align="right">0.008</td>
+<td align="right">59.107</td>
+<td align="right">-0.526</td>
+<td align="right">0.002</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-throated Vireo</td>
+<td align="right">0.199</td>
+<td align="right">-1.612</td>
+<td align="right">0.062</td>
+<td align="right">85.886</td>
+<td align="right">-0.152</td>
+<td align="right">0.042</td>
+</tr>
+</tbody>
+</table>
+<p>Other trait variables used are predictors:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">common_name</th>
+<th align="right">mass</th>
+<th align="right">MaxFreqkHz</th>
+<th align="left">Mig2</th>
+<th align="left">Hab2</th>
+<th align="right">Nesthm</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Alder Flycatcher</td>
+<td align="right">12.70</td>
+<td align="right">6.40</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">American Crow</td>
+<td align="right">448.76</td>
+<td align="right">1.62</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="odd">
+<td align="left">American Goldfinch</td>
+<td align="right">12.79</td>
+<td align="right">8.25</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">American Pipit</td>
+<td align="right">20.68</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">American Redstart</td>
+<td align="right">8.24</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">American Robin</td>
+<td align="right">78.50</td>
+<td align="right">4.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">American Tree Sparrow</td>
+<td align="right">17.83</td>
+<td align="right">6.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">American Three-toed Woodpecker</td>
+<td align="right">55.05</td>
+<td align="right">3.20</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">5.6</td>
+</tr>
+<tr class="odd">
+<td align="left">Bank Swallow</td>
+<td align="right">12.68</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="even">
+<td align="left">Baltimore Oriole</td>
+<td align="right">32.83</td>
+<td align="right">3.90</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Barn Swallow</td>
+<td align="right">17.91</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Black-and-white Warbler</td>
+<td align="right">10.90</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-billed Cuckoo</td>
+<td align="right">50.90</td>
+<td align="right">2.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Black-billed Magpie</td>
+<td align="right">217.48</td>
+<td align="right">6.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Bay-breasted Warbler</td>
+<td align="right">11.80</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="even">
+<td align="left">Black-backed Woodpecker</td>
+<td align="right">69.24</td>
+<td align="right">12.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-capped Chickadee</td>
+<td align="right">10.80</td>
+<td align="right">3.20</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Belted Kingfisher</td>
+<td align="right">148.00</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Brown-headed Cowbird</td>
+<td align="right">40.26</td>
+<td align="right">12.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Blue-headed Vireo</td>
+<td align="right">15.30</td>
+<td align="right">6.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Blackburnian Warbler</td>
+<td align="right">9.74</td>
+<td align="right">11.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">9.0</td>
+</tr>
+<tr class="even">
+<td align="left">Blue Jay</td>
+<td align="right">88.00</td>
+<td align="right">3.20</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Blackpoll Warbler</td>
+<td align="right">11.84</td>
+<td align="right">10.22</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Boreal Chickadee</td>
+<td align="right">9.80</td>
+<td align="right">7.70</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Bohemian Waxwing</td>
+<td align="right">54.41</td>
+<td align="right">10.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">Brewer’s Blackbird</td>
+<td align="right">62.48</td>
+<td align="right">6.70</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Brown Creeper</td>
+<td align="right">8.10</td>
+<td align="right">8.50</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="even">
+<td align="left">Brown Thrasher</td>
+<td align="right">68.80</td>
+<td align="right">6.50</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Black-throated Blue Warbler</td>
+<td align="right">10.14</td>
+<td align="right">6.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Black-throated Green Warbler</td>
+<td align="right">8.69</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">5.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Blue-winged Warbler</td>
+<td align="right">8.90</td>
+<td align="right">6.80</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Canada Warbler</td>
+<td align="right">10.04</td>
+<td align="right">7.39</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Clay-colored Sparrow</td>
+<td align="right">11.20</td>
+<td align="right">5.50</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Cedar Waxwing</td>
+<td align="right">31.58</td>
+<td align="right">8.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Chipping Sparrow</td>
+<td align="right">12.20</td>
+<td align="right">5.98</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Cliff Swallow</td>
+<td align="right">21.60</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Cape May Warbler</td>
+<td align="right">10.04</td>
+<td align="right">8.65</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">11.0</td>
+</tr>
+<tr class="even">
+<td align="left">Common Grackle</td>
+<td align="right">105.18</td>
+<td align="right">4.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Connecticut Warbler</td>
+<td align="right">13.30</td>
+<td align="right">16.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Common Raven</td>
+<td align="right">927.97</td>
+<td align="right">4.00</td>
+<td align="left">W</td>
+<td align="left">Open</td>
+<td align="right">17.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Common Yellowthroat</td>
+<td align="right">9.54</td>
+<td align="right">6.30</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Chestnut-sided Warbler</td>
+<td align="right">9.29</td>
+<td align="right">7.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Dark-eyed Junco</td>
+<td align="right">19.50</td>
+<td align="right">8.20</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Downy Woodpecker</td>
+<td align="right">25.55</td>
+<td align="right">4.25</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">6.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Dunlin</td>
+<td align="right">51.89</td>
+<td align="right">3.50</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Bluebird</td>
+<td align="right">27.50</td>
+<td align="right">3.50</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Eastern Kingbird</td>
+<td align="right">39.85</td>
+<td align="right">8.20</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Phoebe</td>
+<td align="right">19.70</td>
+<td align="right">5.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Eastern Towhee</td>
+<td align="right">40.03</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.5</td>
+</tr>
+<tr class="even">
+<td align="left">Eastern Wood-Pewee</td>
+<td align="right">13.90</td>
+<td align="right">5.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">7.0</td>
+</tr>
+<tr class="odd">
+<td align="left">European Starling</td>
+<td align="right">77.14</td>
+<td align="right">6.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">6.0</td>
+</tr>
+<tr class="even">
+<td align="left">Evening Grosbeak</td>
+<td align="right">57.30</td>
+<td align="right">4.20</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">12.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Field Sparrow</td>
+<td align="right">12.50</td>
+<td align="right">4.10</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Fox Sparrow</td>
+<td align="right">33.25</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Great Crested Flycatcher</td>
+<td align="right">32.10</td>
+<td align="right">3.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="even">
+<td align="left">Golden-crowned Kinglet</td>
+<td align="right">6.19</td>
+<td align="right">9.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">10.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Golden-crowned Sparrow</td>
+<td align="right">31.99</td>
+<td align="right">5.50</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Gray-cheeked Thrush</td>
+<td align="right">31.58</td>
+<td align="right">7.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Gray Jay</td>
+<td align="right">71.58</td>
+<td align="right">1.80</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="even">
+<td align="left">Gray Catbird</td>
+<td align="right">35.30</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Greater Yellowlegs</td>
+<td align="right">161.74</td>
+<td align="right">3.45</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Golden-winged Warbler</td>
+<td align="right">8.74</td>
+<td align="right">8.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Hammond’s Flycatcher</td>
+<td align="right">10.44</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">Hairy Woodpecker</td>
+<td align="right">62.65</td>
+<td align="right">5.50</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Hermit Thrush</td>
+<td align="right">30.10</td>
+<td align="right">6.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Horned Lark</td>
+<td align="right">33.33</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">House Sparrow</td>
+<td align="right">26.51</td>
+<td align="right">5.00</td>
+<td align="left">W</td>
+<td align="left">Open</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="even">
+<td align="left">House Wren</td>
+<td align="right">10.85</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Indigo Bunting</td>
+<td align="right">14.69</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Killdeer</td>
+<td align="right">96.44</td>
+<td align="right">2.58</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Lapland Longspur</td>
+<td align="right">27.84</td>
+<td align="right">5.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Le Conte’s Sparrow</td>
+<td align="right">13.00</td>
+<td align="right">11.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Least Flycatcher</td>
+<td align="right">10.00</td>
+<td align="right">7.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">6.0</td>
+</tr>
+<tr class="even">
+<td align="left">Lesser Yellowlegs</td>
+<td align="right">77.50</td>
+<td align="right">2.79</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Lincoln’s Sparrow</td>
+<td align="right">16.60</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Magnolia Warbler</td>
+<td align="right">8.14</td>
+<td align="right">7.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Marsh Wren</td>
+<td align="right">10.80</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Mountain Bluebird</td>
+<td align="right">29.60</td>
+<td align="right">3.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Mourning Dove</td>
+<td align="right">118.93</td>
+<td align="right">0.47</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Mourning Warbler</td>
+<td align="right">11.74</td>
+<td align="right">5.46</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Nashville Warbler</td>
+<td align="right">8.09</td>
+<td align="right">9.25</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Nelson’s Sparrow</td>
+<td align="right">15.11</td>
+<td align="right">7.30</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Flicker</td>
+<td align="right">131.46</td>
+<td align="right">3.35</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">7.0</td>
+</tr>
+<tr class="even">
+<td align="left">Northern Parula</td>
+<td align="right">7.84</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">9.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Northern Waterthrush</td>
+<td align="right">16.30</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Orange-crowned Warbler</td>
+<td align="right">9.19</td>
+<td align="right">8.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Olive-sided Flycatcher</td>
+<td align="right">32.10</td>
+<td align="right">3.80</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">Ovenbird</td>
+<td align="right">18.80</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Palm Warbler</td>
+<td align="right">10.30</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Philadelphia Vireo</td>
+<td align="right">11.50</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">9.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Pine Grosbeak</td>
+<td align="right">56.40</td>
+<td align="right">4.50</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="even">
+<td align="left">Pine Siskin</td>
+<td align="right">12.70</td>
+<td align="right">8.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">5.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Pine Warbler</td>
+<td align="right">11.79</td>
+<td align="right">5.70</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">12.0</td>
+</tr>
+<tr class="even">
+<td align="left">Pileated Woodpecker</td>
+<td align="right">286.59</td>
+<td align="right">6.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">10.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Purple Finch</td>
+<td align="right">23.30</td>
+<td align="right">6.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="even">
+<td align="left">Rose-breasted Grosbeak</td>
+<td align="right">42.00</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Red-breasted Nuthatch</td>
+<td align="right">9.80</td>
+<td align="right">8.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">6.0</td>
+</tr>
+<tr class="even">
+<td align="left">Ruby-crowned Kinglet</td>
+<td align="right">6.19</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">5.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Red Crossbill</td>
+<td align="right">38.29</td>
+<td align="right">6.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">Red-eyed Vireo</td>
+<td align="right">16.06</td>
+<td align="right">6.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Rock Sandpiper</td>
+<td align="right">81.32</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Ruby-throated Hummingbird</td>
+<td align="right">3.09</td>
+<td align="right">6.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Rusty Blackbird</td>
+<td align="right">59.57</td>
+<td align="right">9.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Ruffed Grouse</td>
+<td align="right">530.91</td>
+<td align="right">4.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Red-winged Blackbird</td>
+<td align="right">50.78</td>
+<td align="right">6.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Savannah Sparrow</td>
+<td align="right">19.97</td>
+<td align="right">10.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Scarlet Tanager</td>
+<td align="right">28.20</td>
+<td align="right">5.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">6.0</td>
+</tr>
+<tr class="even">
+<td align="left">Sedge Wren</td>
+<td align="right">9.04</td>
+<td align="right">7.80</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Solitary Sandpiper</td>
+<td align="right">48.40</td>
+<td align="right">5.80</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">7.0</td>
+</tr>
+<tr class="even">
+<td align="left">Song Sparrow</td>
+<td align="right">21.91</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Spruce Grouse</td>
+<td align="right">473.65</td>
+<td align="right">6.00</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Spotted Sandpiper</td>
+<td align="right">40.40</td>
+<td align="right">5.43</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Swamp Sparrow</td>
+<td align="right">16.10</td>
+<td align="right">7.66</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Swainson’s Thrush</td>
+<td align="right">30.30</td>
+<td align="right">6.05</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Tennessee Warbler</td>
+<td align="right">8.90</td>
+<td align="right">10.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Townsend’s Solitaire</td>
+<td align="right">33.20</td>
+<td align="right">5.50</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Townsend’s Warbler</td>
+<td align="right">8.84</td>
+<td align="right">8.20</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">11.0</td>
+</tr>
+<tr class="even">
+<td align="left">Tree Swallow</td>
+<td align="right">21.20</td>
+<td align="right">5.95</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Upland Sandpiper</td>
+<td align="right">158.92</td>
+<td align="right">4.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Varied Thrush</td>
+<td align="right">77.50</td>
+<td align="right">5.85</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">6.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Veery</td>
+<td align="right">31.90</td>
+<td align="right">5.60</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Vesper Sparrow</td>
+<td align="right">25.68</td>
+<td align="right">6.85</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Warbling Vireo</td>
+<td align="right">12.67</td>
+<td align="right">6.90</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">White-breasted Nuthatch</td>
+<td align="right">21.00</td>
+<td align="right">2.90</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">5.0</td>
+</tr>
+<tr class="odd">
+<td align="left">White-crowned Sparrow</td>
+<td align="right">28.00</td>
+<td align="right">7.00</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Western Tanager</td>
+<td align="right">28.10</td>
+<td align="right">4.42</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">11.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Western Wood-Pewee</td>
+<td align="right">13.10</td>
+<td align="right">5.25</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">Willow Ptarmigan</td>
+<td align="right">566.86</td>
+<td align="right">7.00</td>
+<td align="left">W</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Wilson’s Snipe</td>
+<td align="right">112.94</td>
+<td align="right">2.40</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Wilson’s Warbler</td>
+<td align="right">6.96</td>
+<td align="right">8.10</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Winter Wren</td>
+<td align="right">9.74</td>
+<td align="right">9.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="even">
+<td align="left">Wood Thrush</td>
+<td align="right">50.09</td>
+<td align="right">4.43</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">White-throated Sparrow</td>
+<td align="right">24.40</td>
+<td align="right">6.60</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">White-winged Crossbill</td>
+<td align="right">28.69</td>
+<td align="right">6.20</td>
+<td align="left">W</td>
+<td align="left">Closed</td>
+<td align="right">12.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-billed Cuckoo</td>
+<td align="right">64.00</td>
+<td align="right">0.90</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow-bellied Flycatcher</td>
+<td align="right">11.80</td>
+<td align="right">4.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-bellied Sapsucker</td>
+<td align="right">50.30</td>
+<td align="right">2.41</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow Warbler</td>
+<td align="right">10.22</td>
+<td align="right">6.75</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">1.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-headed Blackbird</td>
+<td align="right">62.68</td>
+<td align="right">7.30</td>
+<td align="left">M</td>
+<td align="left">Open</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Yellow-rumped Warbler</td>
+<td align="right">11.94</td>
+<td align="right">5.80</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">4.0</td>
+</tr>
+<tr class="odd">
+<td align="left">Yellow-throated Vireo</td>
+<td align="right">18.00</td>
+<td align="right">5.00</td>
+<td align="left">M</td>
+<td align="left">Closed</td>
+<td align="right">12.0</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="phylogenetic-correlations" class="section level3">
 <h3>Phylogenetic correlations</h3>
@@ -1001,11 +4146,25 @@ Ti &lt;-<span class="st"> </span>D &gt;<span class="st"> </span><span class="fl"
 <p>The percent of species where prediction intervals overlapped the estimated values:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(intrval)
 ## SR
-<span class="dv">100</span> *<span class="st"> </span><span class="kw">sum</span>(prp[,<span class="st">&quot;obs&quot;</span>] %[]%<span class="st"> </span>PIp) /<span class="st"> </span><span class="kw">nrow</span>(prp)</code></pre></div>
-<pre><code>## [1] 17.7305</code></pre>
+## # species with overlapping PI
+<span class="kw">sum</span>(prp[,<span class="st">&quot;obs&quot;</span>] %[]%<span class="st"> </span>PIp)</code></pre></div>
+<pre><code>## [1] 25</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## # species with &gt;150% or &lt;66% of original estimates
+<span class="kw">sum</span>((prp[,<span class="st">&quot;pred&quot;</span>]/prp[,<span class="st">&quot;obs&quot;</span>]) %)(%<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>/<span class="dv">2</span>, <span class="dv">2</span>/<span class="dv">3</span>))</code></pre></div>
+<pre><code>## [1] 34</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## # species with &gt;200% or &lt;50% of original estimates
+<span class="kw">sum</span>((prp[,<span class="st">&quot;pred&quot;</span>]/prp[,<span class="st">&quot;obs&quot;</span>]) %)(%<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>/<span class="dv">2</span>))</code></pre></div>
+<pre><code>## [1] 12</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## DD
-<span class="dv">100</span> *<span class="st"> </span><span class="kw">sum</span>(prt[,<span class="st">&quot;obs&quot;</span>] %[]%<span class="st"> </span>PIt) /<span class="st"> </span><span class="kw">nrow</span>(prt)</code></pre></div>
-<pre><code>## [1] 31.91489</code></pre>
+## % species with overlapping PI
+<span class="kw">sum</span>(prt[,<span class="st">&quot;obs&quot;</span>] %[]%<span class="st"> </span>PIt)</code></pre></div>
+<pre><code>## [1] 45</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## # species with &gt;150% or &lt;66% of original estimates
+<span class="kw">sum</span>((prt[,<span class="st">&quot;pred&quot;</span>]/prt[,<span class="st">&quot;obs&quot;</span>]) %)(%<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>/<span class="dv">2</span>, <span class="dv">2</span>/<span class="dv">3</span>))</code></pre></div>
+<pre><code>## [1] 7</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## # species with &gt;200% or &lt;50% of original estimates
+<span class="kw">sum</span>((prt[,<span class="st">&quot;pred&quot;</span>]/prt[,<span class="st">&quot;obs&quot;</span>]) %)(%<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>/<span class="dv">2</span>))</code></pre></div>
+<pre><code>## [1] 3</code></pre>
 </div>
 <div id="mapping-continuous-traits-on-the-tree" class="section level3">
 <h3>Mapping continuous traits on the tree</h3>

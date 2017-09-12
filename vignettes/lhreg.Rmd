@@ -59,7 +59,7 @@ Probability of detection is the produc to the two components: $pq$.
 
 ## Data and data processing
 
-### Trait variables
+### Variables
 
 The `lhreg_data` is a data frame with all response variables
 (`logphi` is log singing rate, `logtau` is log detection distance)
@@ -74,6 +74,30 @@ with(lhreg_data, plot(exp(logphi), exp(logtau),
 legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2),
     legend=c("Migratory/Closed", "Resident/Closed",
     "Migratory/Open", "Resident/Open"))
+```
+
+Here is a list of species used in the manuscript:
+
+```{r species-table,results='markup',echo=FALSE}
+knitr::kable(lhreg_data[,c("common_name", "scientific_name", "spp")],     digits=3, row.names=FALSE)
+```
+
+Here are the response variables and their standard errors:
+
+```{r responses-table,results='markup',echo=FALSE}
+lhreg_data$SR <- exp(lhreg_data$logphi)
+lhreg_data$DD <- 100*exp(lhreg_data$logtau)
+knitr::kable(lhreg_data[,c("common_name", "SR", "logphi", 
+    "logphiSE", "DD", "logtau", "logtauSE")], 
+    digits=3, row.names=FALSE)
+```
+
+Other trait variables used are predictors:
+
+```{r predictor-table,results='markup',echo=FALSE}
+knitr::kable(lhreg_data[,c("common_name", "mass", "MaxFreqkHz", 
+    "Mig2", "Hab2", "Nesthm")], 
+    digits=2, row.names=FALSE)
 ```
 
 ### Phylogenetic correlations

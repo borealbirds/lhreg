@@ -18,6 +18,21 @@ legend("topright", bty="n", pch=c(21, 21, 22, 22), col=c(1,2,1,2),
     legend=c("Migratory/Closed", "Resident/Closed",
     "Migratory/Open", "Resident/Open"))
 
+## ----species-table,results='markup',echo=FALSE---------------------------
+knitr::kable(lhreg_data[,c("common_name", "scientific_name", "spp")],     digits=3, row.names=FALSE)
+
+## ----responses-table,results='markup',echo=FALSE-------------------------
+lhreg_data$SR <- exp(lhreg_data$logphi)
+lhreg_data$DD <- 100*exp(lhreg_data$logtau)
+knitr::kable(lhreg_data[,c("common_name", "SR", "logphi", 
+    "logphiSE", "DD", "logtau", "logtauSE")], 
+    digits=3, row.names=FALSE)
+
+## ----predictor-table,results='markup',echo=FALSE-------------------------
+knitr::kable(lhreg_data[,c("common_name", "mass", "MaxFreqkHz", 
+    "Mig2", "Hab2", "Nesthm")], 
+    digits=2, row.names=FALSE)
+
 ## ----phylo-corr,eval=FALSE-----------------------------------------------
 #  library(ape)
 #  mph <- read.nexus("11960.tre") # 1000 trees with Ericson backbone
@@ -574,9 +589,20 @@ dev.off()
 ## ----percent-overlap-----------------------------------------------------
 library(intrval)
 ## SR
-100 * sum(prp[,"obs"] %[]% PIp) / nrow(prp)
+## # species with overlapping PI
+sum(prp[,"obs"] %[]% PIp)
+## # species with >150% or <66% of original estimates
+sum((prp[,"pred"]/prp[,"obs"]) %)(% c(3/2, 2/3))
+## # species with >200% or <50% of original estimates
+sum((prp[,"pred"]/prp[,"obs"]) %)(% c(2, 1/2))
+
 ## DD
-100 * sum(prt[,"obs"] %[]% PIt) / nrow(prt)
+## % species with overlapping PI
+sum(prt[,"obs"] %[]% PIt)
+## # species with >150% or <66% of original estimates
+sum((prt[,"pred"]/prt[,"obs"]) %)(% c(3/2, 2/3))
+## # species with >200% or <50% of original estimates
+sum((prt[,"pred"]/prt[,"obs"]) %)(% c(2, 1/2))
 
 ## ----tree-trait-2,fig.height=12,fig.width=12-----------------------------
 library(phytools)
