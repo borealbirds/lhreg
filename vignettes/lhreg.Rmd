@@ -731,9 +731,20 @@ estimated values:
 ```{r percent-overlap}
 library(intrval)
 ## SR
-100 * sum(prp[,"obs"] %[]% PIp) / nrow(prp)
+## # species with overlapping PI
+sum(prp[,"obs"] %[]% PIp)
+## # species with >150% or <66% of original estimates
+sum((prp[,"pred"]/prp[,"obs"]) %)(% c(3/2, 2/3))
+## # species with >200% or <50% of original estimates
+sum((prp[,"pred"]/prp[,"obs"]) %)(% c(2, 1/2))
+
 ## DD
-100 * sum(prt[,"obs"] %[]% PIt) / nrow(prt)
+## % species with overlapping PI
+sum(prt[,"obs"] %[]% PIt)
+## # species with >150% or <66% of original estimates
+sum((prt[,"pred"]/prt[,"obs"]) %)(% c(3/2, 2/3))
+## # species with >200% or <50% of original estimates
+sum((prt[,"pred"]/prt[,"obs"]) %)(% c(2, 1/2))
 ```
 
 ### Mapping continuous traits on the tree
