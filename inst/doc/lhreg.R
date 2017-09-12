@@ -170,14 +170,18 @@ summary(mtx2)
 #  cl <- makeCluster(4) # parallel if you wish
 #  tmp <- clusterEvalQ(cl, library(lhreg)) # load package
 #  
-#  loo_tM00 <- t(pbsapply(1:n, loo2, object=tM00, cl=cl, method=met))
+#  loo_tM00 <- t(pbsapply(1:n, loo1, object=tM00, cl=cl))
+#  #loo_tM00 <- t(pbsapply(1:n, loo2, object=tM00, cl=cl, method=met))
 #  loo_tMl0 <- t(pbsapply(1:n, loo2, object=tMl0, cl=cl, method=met))
-#  loo_tM0b <- t(pbsapply(1:n, loo2, object=tM0b, cl=cl, method=met))
+#  loo_tM0b <- t(pbsapply(1:n, loo1, object=tM0b, cl=cl))
+#  #loo_tM0b <- t(pbsapply(1:n, loo2, object=tM0b, cl=cl, method=met))
 #  loo_tMlb <- t(pbsapply(1:n, loo2, object=tMlb, cl=cl, method=met))
 #  
-#  loo_pM00 <- t(pbsapply(1:n, loo2, object=pM00, cl=cl, method=met))
+#  loo_pM00 <- t(pbsapply(1:n, loo1, object=pM00, cl=cl))
+#  #loo_pM00 <- t(pbsapply(1:n, loo2, object=pM00, cl=cl, method=met))
 #  loo_pMl0 <- t(pbsapply(1:n, loo2, object=pMl0, cl=cl, method=met))
-#  loo_pM0b <- t(pbsapply(1:n, loo2, object=pM0b, cl=cl, method=met))
+#  loo_pM0b <- t(pbsapply(1:n, loo1, object=pM0b, cl=cl))
+#  #loo_pM0b <- t(pbsapply(1:n, loo2, object=pM0b, cl=cl, method=met))
 #  loo_pMlb <- t(pbsapply(1:n, loo2, object=pMlb, cl=cl, method=met))
 #  
 #  stopCluster(cl)
@@ -362,6 +366,18 @@ m2 <- rbind(m2, df=aict$df, dAIC=round(aict$dAIC, 3),
 print.default(m1, quote=FALSE) # SR results
 print.default(m2, quote=FALSE) # DD results
 
+## ----shared-var----------------------------------------------------------
+Var_fun <- function(MSE) {
+    Var <- 100*(MSE[1]-MSE[-1])/MSE[1]
+    Var <- c(Var, Var[1]+Var[2]-Var[3])
+    names(Var) <- c("phylo", "traits", "both", "shared")
+    Var
+}
+## SR
+round(Var_fun(MSEp), 1)
+## DD
+round(Var_fun(MSEt), 1)
+
 ## ----tree-trait,fig.height=10,fig.width=15-------------------------------
 library(ape)
 load(system.file("extdata", "mph.rda", package = "lhreg"))
@@ -483,7 +499,7 @@ par(op)
 #dev.off()
 
 ## ----fig-2,width=13,height=7---------------------------------------------
-#pdf("Fig2.pdf", width=12.75, height=7)
+pdf("Fig2.pdf", width=12.75, height=7)
 op <- par(mfrow=c(1,2))
 
 Max <- 0.7
@@ -514,7 +530,9 @@ text(c(0.09, 0.06, 0.06), c(0.61, 0.52, 0.58),
     c("Song Pitch (kHz)",round(range(x$MaxFreqkHz),1)), 
     cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[lambda*beta]-SR))
-Ti <- D > 0.03 #| (prp[,1]/prp[,2] > 2 | prp[,1]/prp[,2] < 1/2) 
+#Ti <- D > 0.03
+#Ti <- D > 0.03 | (prp[,1]/prp[,2] > 2 | prp[,1]/prp[,2] < 1/2) 
+Ti <- D > 0.03 | (prp[,1]/prp[,2] > 3.2 | prp[,1]/prp[,2] < 1/3.2) 
 text(prp[,1], prp[,2], ifelse(Ti, as.character(x$spp), NA), 
     cex=0.6, pos=3, col=1)
 
@@ -551,7 +569,14 @@ text(100*prt[,1], 100*prt[,2], ifelse(Ti, as.character(x$spp), NA),
     cex=0.6, pos=3, col=1)
 
 par(op)
-#dev.off()
+dev.off()
+
+## ----percent-overlap-----------------------------------------------------
+library(intrval)
+## SR
+100 * sum(prp[,"obs"] %[]% PIp) / nrow(prp)
+## DD
+100 * sum(prt[,"obs"] %[]% PIt) / nrow(prt)
 
 ## ----tree-trait-2,fig.height=12,fig.width=12-----------------------------
 library(phytools)
