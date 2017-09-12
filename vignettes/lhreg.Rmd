@@ -278,14 +278,18 @@ n <- nrow(x) # we will do n runs
 cl <- makeCluster(4) # parallel if you wish
 tmp <- clusterEvalQ(cl, library(lhreg)) # load package
 
-loo_tM00 <- t(pbsapply(1:n, loo2, object=tM00, cl=cl, method=met))
+loo_tM00 <- t(pbsapply(1:n, loo1, object=tM00, cl=cl))
+#loo_tM00 <- t(pbsapply(1:n, loo2, object=tM00, cl=cl, method=met))
 loo_tMl0 <- t(pbsapply(1:n, loo2, object=tMl0, cl=cl, method=met))
-loo_tM0b <- t(pbsapply(1:n, loo2, object=tM0b, cl=cl, method=met))
+loo_tM0b <- t(pbsapply(1:n, loo1, object=tM0b, cl=cl))
+#loo_tM0b <- t(pbsapply(1:n, loo2, object=tM0b, cl=cl, method=met))
 loo_tMlb <- t(pbsapply(1:n, loo2, object=tMlb, cl=cl, method=met))
 
-loo_pM00 <- t(pbsapply(1:n, loo2, object=pM00, cl=cl, method=met))
+loo_pM00 <- t(pbsapply(1:n, loo1, object=pM00, cl=cl))
+#loo_pM00 <- t(pbsapply(1:n, loo2, object=pM00, cl=cl, method=met))
 loo_pMl0 <- t(pbsapply(1:n, loo2, object=pMl0, cl=cl, method=met))
-loo_pM0b <- t(pbsapply(1:n, loo2, object=pM0b, cl=cl, method=met))
+loo_pM0b <- t(pbsapply(1:n, loo1, object=pM0b, cl=cl))
+#loo_pM0b <- t(pbsapply(1:n, loo2, object=pM0b, cl=cl, method=met))
 loo_pMlb <- t(pbsapply(1:n, loo2, object=pMlb, cl=cl, method=met))
 
 stopCluster(cl)

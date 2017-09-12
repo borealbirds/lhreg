@@ -129,7 +129,7 @@ function(i, object, return_coefs=TRUE)
     pr <- drop(object$X[i,,drop=FALSE] %*% coef(mod))
     out <- c(obs=unname(object$Y[i]), pred=unname(pr))
     if (return_coefs)
-        out <- c(out, est=c(coef(mod), sigma=summary(mt0)$sigma))
+        out <- c(out, est=c(coef(mod), sigma=summary(mod)$sigma))
     out
 }
 
