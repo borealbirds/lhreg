@@ -87,16 +87,16 @@ Here are the response variables and their standard errors:
 ```{r responses-table,results='markup',echo=FALSE}
 lhreg_data$SR <- exp(lhreg_data$logphi)
 lhreg_data$DD <- 100*exp(lhreg_data$logtau)
-knitr::kable(lhreg_data[,c("common_name", "SR", "logphi", 
-    "logphiSE", "DD", "logtau", "logtauSE")], 
+knitr::kable(lhreg_data[,c("common_name", "SR", "logphi",
+    "logphiSE", "DD", "logtau", "logtauSE")],
     digits=3, row.names=FALSE)
 ```
 
 Other trait variables used are predictors:
 
 ```{r predictor-table,results='markup',echo=FALSE}
-knitr::kable(lhreg_data[,c("common_name", "mass", "MaxFreqkHz", 
-    "Mig2", "Hab2", "Nesthm")], 
+knitr::kable(lhreg_data[,c("common_name", "mass", "MaxFreqkHz",
+    "Mig2", "Hab2", "Nesthm")],
     digits=2, row.names=FALSE)
 ```
 
@@ -442,7 +442,7 @@ sf <- function(z, loo, pb, type=c("wald", "jack", "boot"), level=0.95) {
             pcut(zz[i,4]), ")")), names=rownames(zz))
     }
     if (type == "jack") {
-        CI <- t(apply(rbind(zz[,1], loo[,3:ncol(loo),drop=FALSE]), 2, 
+        CI <- t(apply(rbind(zz[,1], loo[,3:ncol(loo),drop=FALSE]), 2,
             quantile, a))
         out <- structure(sapply(1:nrow(zz), function(i)
             paste0(round(zz[i,1], dig), " (", round(CI[i,1], dig), ", ",
@@ -555,21 +555,21 @@ d2 <- lhreg_data[ii,]
 NAMES <- paste0(d2$common_name, " (", d2$spp, ")")
 tre$tip.label <- NAMES
 xy <- data.frame(
-    x=node.depth.edgelength(tre)[1:length(tre$tip.label)], 
+    x=node.depth.edgelength(tre)[1:length(tre$tip.label)],
     y=node.height(tre)[1:length(tre$tip.label)])
 phy_pts_size <- function(z, vari, ...)
     points(xy[,1] + z, xy[,2], pch=19, cex=size_fun(vari, Min=0.3, Max=1.2), ...)
 phy_pts_col <- function(z, vari, col=1, ...)
-    points(xy[,1] + z, xy[,2], pch=19, 
-        cex=size_fun(vari, Min=0.3, Max=1.2), 
+    points(xy[,1] + z, xy[,2], pch=19,
+        cex=size_fun(vari, Min=0.3, Max=1.2),
         col=size_col_fun(vari, colorRampPalette(c("#000000", col)), Min=0.3), ...)
 phy_pts_2 <- function(z, vari, cex=0.6, col="#000000", ...) {
-    points(xy[,1] + z, xy[,2], pch=19, 
+    points(xy[,1] + z, xy[,2], pch=19,
         col=c(col, "#FFFFFF")[as.integer(vari)], cex=cex, ...)
     points(xy[,1] + z, xy[,2], pch=21, col=col, cex=cex)
 }
 
-pdf("Fig1.pdf", width=10, height=15)
+#pdf("Fig1.pdf", width=10, height=15)
 op <- par(mar=c(1,1,1,1))
 
 plot(tre, cex=0.6, label.offset=22, font=1)
@@ -580,11 +580,11 @@ phy_pts_2(10, d2$Mig2, col=1)
 phy_pts_size(13, d2$MaxFreqkHz, col="#4daf4a")
 phy_pts_size(16, sqrt(exp(d2$logmass)), col="#984ea3")
 phy_pts_2(19, d2$Hab2, col="#ff7f00")
-text(xy[1,1]+c(2,5,10,13,16,19), rep(142, 6), 
-    c("SR", "DD", "Migr", "Pitch", "Mass", "Habitat"), 
+text(xy[1,1]+c(2,5,10,13,16,19), rep(142, 6),
+    c("SR", "DD", "Migr", "Pitch", "Mass", "Habitat"),
     pos=4, srt=90, cex=0.65, offset=0)
 par(op)
-dev.off()
+#dev.off()
 ```
 
 ### Profile likelihood profiles for lambda
@@ -660,13 +660,13 @@ par(op)
 ```{r fig-boot,width=7,height=7}
 #pdf("FigPB.pdf", width=10, height=10)
 op <- par(mfrow=c(2,2))
-plot(density(pb_pMl0$estimates[,"lambda"]), 
+plot(density(pb_pMl0$estimates[,"lambda"]),
     xlim=c(0,1), main="SR Ml0", col=Col1)
-plot(density(pb_pMlb$estimates[,"lambda"]), 
+plot(density(pb_pMlb$estimates[,"lambda"]),
     xlim=c(0,1), main="SR Mlb", col=Col1)
-plot(density(pb_tMl0$estimates[,"lambda"]), 
+plot(density(pb_tMl0$estimates[,"lambda"]),
     xlim=c(0,1), main="DD Ml0", col=Col3)
-plot(density(pb_tMlb$estimates[,"lambda"]), 
+plot(density(pb_tMlb$estimates[,"lambda"]),
     xlim=c(0,1), main="DD Mlb", col=Col3)
 par(op)
 #dev.off()
@@ -685,7 +685,7 @@ diag(D) <- Inf
 D <- apply(D, 1, min)
 plot(prp, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
-    xlab="Time-removal SR Estimate (/min)", 
+    xlab="Time-removal SR Estimate (/min)",
     ylab="LOO SR Estimate (/min)")
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
@@ -703,14 +703,14 @@ legend("topleft", pch=21, col=c(Col1,Col3),
     legend=c("Migrant", "Resident"))
 r <- seq(0.2*Max/50, Max/50, len=5)
 draw.ellipse(rep(0.06, 5), 0.55+r-max(r), r, r, border=1)
-text(c(0.09, 0.06, 0.06), c(0.61, 0.52, 0.58), 
-    c("Song Pitch (kHz)",round(range(x$MaxFreqkHz),1)), 
+text(c(0.09, 0.06, 0.06), c(0.61, 0.52, 0.58),
+    c("Song Pitch (kHz)",round(range(x$MaxFreqkHz),1)),
     cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[lambda*beta]-SR))
 #Ti <- D > 0.03
-#Ti <- D > 0.03 | (prp[,1]/prp[,2] > 2 | prp[,1]/prp[,2] < 1/2) 
-Ti <- D > 0.03 | (prp[,1]/prp[,2] > 3.2 | prp[,1]/prp[,2] < 1/3.2) 
-text(prp[,1], prp[,2], ifelse(Ti, as.character(x$spp), NA), 
+#Ti <- D > 0.03 | (prp[,1]/prp[,2] > 2 | prp[,1]/prp[,2] < 1/2)
+Ti <- D > 0.03 | (prp[,1]/prp[,2] > 3.2 | prp[,1]/prp[,2] < 1/3.2)
+text(prp[,1], prp[,2], ifelse(Ti, as.character(x$spp), NA),
     cex=0.6, pos=3, col=1)
 
 Max <- 100*2.1
@@ -719,7 +719,7 @@ diag(D) <- Inf
 D <- apply(D, 1, min)
 plot(100*prt, xaxs = "i", yaxs = "i", type="n", asp=1,
     ylim=c(0, Max), xlim=c(0, Max),
-    xlab="Distance-sampling DD Estimate (m)", 
+    xlab="Distance-sampling DD Estimate (m)",
     ylab="LOO DD Estimate (m)")
 abline(0,2,lty=2, col="grey")
 abline(0,1/2,lty=2, col="grey")
@@ -737,19 +737,19 @@ legend("topleft", pch=21, col=c(Col1,Col3), pt.cex=c(2,2), bty="n",
 r <- seq(0.2*Max/50, Max/50, len=5)
 S <- Max/0.7
 draw.ellipse(S*rep(0.06, 5), S*0.55+r-max(r), r, r, border=1)
-text(S*c(0.09, 0.06, 0.06), S*c(0.61, 0.52, 0.58), 
-    c("Body Mass (g)",round(range(x$logmass),1)), 
+text(S*c(0.09, 0.06, 0.06), S*c(0.61, 0.52, 0.58),
+    c("Body Mass (g)",round(range(x$logmass),1)),
     cex=c(1,0.75,0.75))
 text(0.9*Max, 0.05*Max, expression(M[0*beta]-DD))
-Ti <- D > 0.09 | (prt[,1]/prt[,2] > 2 | prt[,1]/prt[,2] < 1/2) 
-text(100*prt[,1], 100*prt[,2], ifelse(Ti, as.character(x$spp), NA), 
+Ti <- D > 0.09 | (prt[,1]/prt[,2] > 2 | prt[,1]/prt[,2] < 1/2)
+text(100*prt[,1], 100*prt[,2], ifelse(Ti, as.character(x$spp), NA),
     cex=0.6, pos=3, col=1)
 
 par(op)
 #dev.off()
 ```
 
-The percent of species where prediction intervals overlapped the 
+The percent of species where prediction intervals overlapped the
 estimated values:
 
 ```{r percent-overlap}
@@ -880,22 +880,22 @@ function (tree, x, res = 100, fsize = NULL, ftype = NULL, lwd = 4,
 }
 
 ## log singing rates
-contMap2(tre, structure(d2$logphi, .Names=NAMES), 
+contMap2(tre, structure(d2$logphi, .Names=NAMES),
     fsize=0.5, outline=FALSE, col_fun=col_fun)
 ## log detection distances
-contMap2(tre, structure(d2$logtau, .Names=NAMES), 
+contMap2(tre, structure(d2$logtau, .Names=NAMES),
     fsize=0.5, outline=FALSE, col_fun=col_fun)
 ## log body mass
-contMap2(tre, structure(d2$logmass, .Names=NAMES), 
+contMap2(tre, structure(d2$logmass, .Names=NAMES),
     fsize=0.5, outline=FALSE, col_fun=col_fun)
 ## pitch
-contMap2(tre, structure(d2$MaxFreqkHz, .Names=NAMES), 
+contMap2(tre, structure(d2$MaxFreqkHz, .Names=NAMES),
     fsize=0.5, outline=FALSE, col_fun=col_fun)
 ## migratory status
-contMap2(tre, structure(d2$Mig2, .Names=NAMES), 
+contMap2(tre, structure(d2$Mig2, .Names=NAMES),
     fsize=0.5, outline=FALSE, col_fun=col_fun)
 ## habitat associations
-contMap2(tre, structure(d2$Hab2, .Names=NAMES), 
+contMap2(tre, structure(d2$Hab2, .Names=NAMES),
     fsize=0.5, outline=FALSE, col_fun=col_fun)
 ```
 
