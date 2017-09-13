@@ -514,7 +514,7 @@ par(op)
 #dev.off()
 
 ## ----fig-2,width=13,height=7---------------------------------------------
-pdf("Fig2.pdf", width=12.75, height=7)
+#pdf("Fig2.pdf", width=12.75, height=7)
 op <- par(mfrow=c(1,2))
 
 Max <- 0.7
@@ -584,7 +584,7 @@ text(100*prt[,1], 100*prt[,2], ifelse(Ti, as.character(x$spp), NA),
     cex=0.6, pos=3, col=1)
 
 par(op)
-dev.off()
+#dev.off()
 
 ## ----percent-overlap-----------------------------------------------------
 library(intrval)
