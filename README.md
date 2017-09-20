@@ -14,7 +14,7 @@ and (3) code required to summarize the results and produce tables and figures.
 The R package is hosted on [GitHub](https://github.com/borealbirds/lhreg),
 Please submit issues [here](https://github.com/borealbirds/lhreg/issues).
 
-The package is archived on Zenodo under the DOI [10.5281/zenodo.574886](https://zenodo.org/badge/latestdoi/90998177).
+The package is archived on [Zenodo with a DOI](https://zenodo.org/badge/latestdoi/90998177).
 
 The package can be installed as:
 
