@@ -1,8 +1,8 @@
 Package: lhreg
 Type: Package
 Title: Phylogeny and Species Trait Effects on Detectability
-Version: 0.1-1
-Date: 2017-09-11
+Version: 0.2-0
+Date: 2017-09-20
 Author: Peter Solymos [cre, aut]
 Maintainer: Peter Solymos <solymos@ualberta.ca>
 Description: Phylogeny and species trait effects on detectability,
