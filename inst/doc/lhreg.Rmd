@@ -53,9 +53,9 @@ and the probability that an individual of that species is being detected given
 it produces a cue (often referred to as perceptibility, $q$).
 
 $p=1-exp(-t~SR)$, where $t$ is the duration of the counting period.
-$q=DD^2~(1-exp(-r^2 / DD^2))~/~r^2$, where $r$ is the rounting radius (i.e. not
+$q=DD^2~(1-exp(-r^2 / DD^2))~/~r^2$, where $r$ is the counting radius (i.e. not
 counting individuals beyond this distance from the observer).
-Probability of detection is the produc to the two components: $pq$.
+Probability of detection is the product to the two components: $pq$.
 
 ## Data and data processing
 
@@ -294,7 +294,8 @@ Leave one out cross-validation was used to see how well we could predict
 the values based on data from the other species, traits and phylogeny.
 Mean squared error (MSE) and variance components were calculated based on LOO
 cross validation. We also used LOO to calculate jackknife type
-nonparametric confidence intervals for the estimated parameters.
+non-parametric confidence intervals for the estimated parameters 
+(not presented in the manuscript).
 
 ```{r loo,eval=FALSE}
 n <- nrow(x) # we will do n runs
