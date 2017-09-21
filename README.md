@@ -1,7 +1,7 @@
 # lhreg: Phylogeny and species trait effects on detectability
 
 [![build status](https://travis-ci.org/borealbirds/lhreg.svg?branch=master)](https://travis-ci.org/borealbirds/lhreg)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.898205.svg)](https://doi.org/10.5281/zenodo.898205)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.918321.svg)](https://doi.org/10.5281/zenodo.918321)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 The **lhreg** R extension package is a supporting material for the manuscript entitled
