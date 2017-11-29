@@ -324,7 +324,7 @@ stopCluster(cl)
 
 We use the `simulate` method to simulate
 observations from a Multivariate Normal distribution according to the
-input object (without the observation error) to refit the model and returns
+input object (without the observation error) to refit the model and return
 simulated values and estimates.
 
 ```{r par-boot,eval=FALSE}
@@ -383,7 +383,7 @@ save(list=c("cor_matrix", "lam", "lhreg_data", "met", "n",
 
 Load results and set some values:
 
-```{r load-results}
+```{r load-results,warning=FALSE,message=FALSE}
 library(lhreg)
 #load(system.file("extdata", "lhreg-results-DE.rda", package = "lhreg"))
 load(system.file("extdata", "lhreg-results-DE2.rda", package = "lhreg"))
