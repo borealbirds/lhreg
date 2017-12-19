@@ -6,7 +6,8 @@
 
 The **lhreg** R extension package is a supporting material for the manuscript entitled
 *Phylogeny and species traits predict songbird detectability* by
-Peter Solymos, Steven M. Matsuoka, Diana Stralberg, Erin M. Bayne, and Nicole K. S. Barker.
+Peter Solymos, Steven M. Matsuoka, Diana Stralberg, Nicole K. S. Barker, and Erin M. Bayne
+([*Ecography*](http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)1600-0587), DOI [10.1111/ecog.03415](http://dx.doi.org/10.1111/ecog.03415).
 
 The package contains the (1) data, (2) analysis code used in the manuscript,
 and (3) code required to summarize the results and produce tables and figures.
