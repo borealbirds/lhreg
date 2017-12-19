@@ -22,14 +22,14 @@ The package can be installed as:
 devtools::install_github("borealbirds/lhreg")
 ```
 
-The present document can be viewed as:
+The supporting information with reproducible code can be viewed as:
 
 ```{r vignette,eval=FALSE}
 vignette(topic = "lhreg", package = "lhreg")
 ```
 
 The following figure shows singing rates (SR)
-and detection distances (DD) alon a phylogenetic tree for 141 bird species.
+and detection distances (DD) along a phylogenetic tree for the 141 bird species used in the study.
 
 ![](tree.png)
 
