@@ -10,7 +10,7 @@ and (3) code required to summarize the results and produce tables and figures.
 
 ### Versions
 
-The R package is hosted on [GitHub](https://github.com/borealbirds/lhreg),
+The R package is hosted on [GitHub](https://github.com/borealbirds/lhreg).
 Please submit issues [here](https://github.com/borealbirds/lhreg/issues).
 
 The package is archived on Zenodo with DOI [10.5281/zenodo.596410](http://doi.org/10.5281/zenodo.596410).
