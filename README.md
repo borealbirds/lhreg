@@ -31,9 +31,9 @@ vignette(topic = "lhreg", package = "lhreg")
 
 ### Citation
 
-Peter Solymos, Steven M. Matsuoka, Diana Stralberg, Nicole K. S. Barker, and Erin M. Bayne, *in press*.
-Phylogeny and species traits predict songbird detectability.
-[*Ecography*](http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)1600-0587), DOI [10.1111/ecog.03415](http://dx.doi.org/10.1111/ecog.03415).
+Peter Solymos, Steven M. Matsuoka, Diana Stralberg, Nicole K. S. Barker, and Erin M. Bayne, 2018.
+Phylogeny and species traits predict bird detectability.
+*Ecography*, DOI [10.1111/ecog.03415](http://dx.doi.org/10.1111/ecog.03415).
 
 ![](tree.png)
 
